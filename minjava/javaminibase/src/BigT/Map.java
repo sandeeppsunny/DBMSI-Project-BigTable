@@ -1,7 +1,8 @@
 package BigT;
 
+import global.GlobalConst;
 
-public class Map {
+public class Map implements GlobalConst{
 	
 	private String RowLabel;
 	
@@ -11,16 +12,33 @@ public class Map {
 	
 	private String Value;
 	
+	
+	/* Maximum size of any tuple */
+	public static final int max_size = MINIBASE_PAGESIZE;
+	
+	/* Byte array to store data */
+	
+	private byte [] data;
+	
+	/* Map will have 4 fixed fields */
+	private static final int fldCnt = 4; 
+	
+	/* Start position of this map in data[] */
+	private int map_offset;
+	
 	public Map() {
-		
+		this.data = new byte[max_size];
+	    this.map_offset = 0;
 	}
 	
 	public Map(Map  fromMap) {
-		
+		this.data = fromMap.getMapByteArray();
+		this.map_offset = 0;
 	}
 	
 	public Map(byte[] amap, int offset) {
-		
+		this.data = amap;
+		this.map_offset = offset;
 	}
 	
 	public String getRowLabel() {
@@ -71,11 +89,13 @@ public class Map {
 		return null;
 	}
 	
-	public Map mapInit(byte[] amap, int offset) {
-		return null;
+	public void mapInit(byte[] amap, int offset) {
+		this.data = amap;
+		this.map_offset = offset;
 	}
 	
 	public void mapSet(byte[] frommap, int offset) {
+		this.data = 
 		
 	}
 	
