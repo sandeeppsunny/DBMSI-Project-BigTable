@@ -95,7 +95,8 @@ public class Map implements GlobalConst{
 	}
 	
 	public void mapSet(byte[] frommap, int offset) {
-		this.data = 
+		System.arraycopy(frommap, offset, this.data, 0, frommap.length);
+	    this.map_offset = 0;
 		
 	}
 	
