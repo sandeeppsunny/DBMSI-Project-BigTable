@@ -1,103 +1,196 @@
 package BigT;
 
+import java.io.IOException;
+
+import global.AttrType;
+import global.Convert;
 import global.GlobalConst;
 
-public class Map implements GlobalConst{
-	
-	private String RowLabel;
-	
-	private String ColumnLabel;
-	
-	private int TimeStamp;
-	
-	private String Value;
-	
-	
+/**
+ * Map object analogous to tuple
+ * Fields: rowLabel, columnLabel, timeStamp, Value.
+ * 
+ */
+public class Map implements GlobalConst {
+
 	/* Maximum size of any tuple */
 	public static final int max_size = MINIBASE_PAGESIZE;
-	
+
 	/* Byte array to store data */
-	
-	private byte [] data;
-	
+
+	private byte[] data;
+
 	/* Map will have 4 fixed fields */
-	private static final int fldCnt = 4; 
-	
+	private static final int fldCnt = 4;
+
 	/* Start position of this map in data[] */
 	private int map_offset;
+
+	/* Array of offsets of the fields */
+
+	private short[] fldOffset;
 	
+	private int map_length;
+	
+	/**
+	 * Default Map constructor
+	 */
 	public Map() {
 		this.data = new byte[max_size];
-	    this.map_offset = 0;
+		this.map_offset = 0;
 	}
-	
-	public Map(Map  fromMap) {
+	/**
+	 * Map constructor to create a map from another map
+	 * @param fromMap
+	 */
+	public Map(Map fromMap) {
 		this.data = fromMap.getMapByteArray();
 		this.map_offset = 0;
 	}
-	
+	/**
+	 * Map constructor to create a map object from a byte array and a given offset.
+	 * @param amap
+	 * @param offset
+	 */
 	public Map(byte[] amap, int offset) {
 		this.data = amap;
 		this.map_offset = offset;
 	}
-	
-	public String getRowLabel() {
-		return RowLabel;
-	}
 
-	public void setRowLabel(String rowLabel) {
-		RowLabel = rowLabel;
-	}
-
-	public String getColumnLabel() {
-		return ColumnLabel;
-	}
-
-	public void setColumnLabel(String columnLabel) {
-		ColumnLabel = columnLabel;
-	}
-
-	public int getTimeStamp() {
-		return TimeStamp;
-	}
-
-	public void setTimeStamp(int timeStamp) {
-		TimeStamp = timeStamp;
-	}
-
-	public String getValue() {
-		return Value;
-	}
-
-	public void setValue(String value) {
-		Value = value;
-	}
-	
-	public byte[] getMapByteArray() {
-		return null;
-	}
-	
-	public void print() {
+	public void setHdr(short numFlds, AttrType types[], short strSizes[]) throws IOException  {
 		
 	}
-	
-	public int size() {
-		return 0;
+	/**
+	 * Get the rowlabel field (String).
+	 * Length of string calculated by taking difference between the offset of current filed and next field.
+	 * @return rowLabel
+	 * @throws IOException
+	 */
+	public String getRowLabel()throws IOException {
+		String rowLabel;
+		rowLabel = Convert.getStrValue(fldOffset[0], this.data, fldOffset[1]-fldOffset[0]);
+		return rowLabel;
 	}
-	
+	/**
+	 * Set the rowlabel field of the map
+	 * @param rowLabel
+	 * @return Map object
+	 * @throws IOException
+	 */
+	public Map setRowLabel(String rowLabel)throws IOException {
+		Convert.setStrValue(rowLabel, fldOffset[0], this.data);
+		return this;
+	}
+	/**
+	 * Get the columnLabel field
+	 * @return columnLabel after successful Conversion.
+	 * Length of string calculated by taking difference between the offset of current filed and next field.
+	 * @throws IOException
+	 */
+	public String getColumnLabel()throws IOException {
+		String columnLabel;
+		columnLabel = Convert.getStrValue(fldOffset[1], this.data, fldOffset[2]-fldOffset[1]);
+		return columnLabel;
+	}
+	/**
+	 * Set the field ColumnLabel
+	 * @param columnLabel
+	 * @return Map object
+	 * @throws IOException
+	 */
+	public Map setColumnLabel(String columnLabel)throws IOException {
+		Convert.setStrValue(columnLabel, fldOffset[1], this.data);
+		return this;
+	}
+	/**
+	 * Get the timestamp value given the data bytearray
+	 * and position of timestamp field is 3rd in the fieldOffset.
+	 * @return timestamp value: Integer value if conversion is done 
+	 * @throws IOException I/O errors
+	 */
+	public int getTimeStamp()throws IOException {
+		int val;
+		val = Convert.getIntValue(fldOffset[2], this.data);
+		
+		return val;
+	}
+	/**
+	 * Method used to set the timeStamp field.
+	 * @param timeStamp
+	 * @return Map object after setting the TimeStamp field
+	 * @throws IOException I/O Errors in Convert.
+	 */
+	public Map setTimeStamp(int timeStamp) throws IOException {
+		Convert.setIntValue(timeStamp, fldOffset[2], this.data);
+		return this;
+	}
+	/**
+	 * Get the value field (String field).
+	 * Length of string calculated by taking difference between the offset of current filed and next field.
+	 * @return value
+	 * @throws IOException
+	 */
+	public String getValue()throws IOException{
+		String value;
+		value = Convert.getStrValue(fldOffset[3], this.data, fldOffset[4]-fldOffset[3]);
+		return value;
+	}
+	/**
+	 * Set the Value field of the Map
+	 * @param value
+	 * @return Map object
+	 * @throws IOException I/O Errors
+	 */
+	public Map setValue(String value)throws IOException {
+		Convert.setStrValue(value, fldOffset[3], this.data);
+		return this;
+	}
+	/**
+	 * 
+	 * @return map byte array
+	 */
+	public byte[] getMapByteArray() {
+		byte[] mapCopy = new byte[map_length];
+		System.arraycopy(data, map_offset, mapCopy, 0, map_length);
+	    return mapCopy;
+	}
+
+	public void print() {
+
+	}
+	/**
+	 * Calculates size of map.
+	 * @return size of the map
+	 */
+	public short size() {
+		return ((short) (fldOffset[fldCnt] - map_offset));
+	}
+	/**
+	 * Copy a map from another
+	 * @param fromMap
+	 * @return Map
+	 */
 	public Map mapCopy(Map fromMap) {
 		return null;
 	}
-	
+	/**
+	 * Method used when not using the constructor
+	 * @param amap
+	 * @param offset
+	 */
 	public void mapInit(byte[] amap, int offset) {
 		this.data = amap;
 		this.map_offset = offset;
 	}
-	
+	/**
+	 * set a map with given byte array and offset.
+	 * @param frommap
+	 * @param offset
+	 */
 	public void mapSet(byte[] frommap, int offset) {
 		System.arraycopy(frommap, offset, this.data, 0, frommap.length);
-	    this.map_offset = 0;
-		
+		this.map_offset = 0;
+
 	}
-	
+
 }
