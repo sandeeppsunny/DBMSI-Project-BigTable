@@ -9,6 +9,8 @@ import global.GlobalConst;
 /**
  * Map object analogous to tuple
  * Fields: rowLabel, columnLabel, timeStamp, Value.
+ * Structure of Map:
+ * (RowLabel String (20 bytes + 2 bytes); ColumnLabel String (20 bytes + 2bytes); TimeStamp Integer (4 bytes); Value String (20 bytes + 2 bytes) )
  * 
  */
 public class Map implements GlobalConst {
@@ -30,14 +32,30 @@ public class Map implements GlobalConst {
 
 	private short[] fldOffset;
 	
-	private int map_length;
+	private static final int stringAttributeSize = 20;
+	
+	private static final int integerAttributeSize = 4;
+	
+	private int map_length = 78;
 	
 	/**
 	 * Default Map constructor
 	 */
-	public Map() {
-		this.data = new byte[max_size];
+	public Map()throws IOException {
+		this.data = new byte[map_length];
 		this.map_offset = 0;
+		fldOffset = new short[fldCnt + 1];
+		
+		fldOffset[0] = 8;
+		fldOffset[1] = (short)(fldOffset[0] + stringAttributeSize + 2);
+		fldOffset[2] = (short)(fldOffset[1] + stringAttributeSize + 2);
+		fldOffset[3] = (short)(fldOffset[2] + integerAttributeSize);
+		fldOffset[4] = (short)(fldOffset[0] + stringAttributeSize + 2);
+		fldOffset[5] = (short)map_length;
+		
+		for(int i = 0; i <= fldCnt; i++) {
+			Convert.setShortValue(fldOffset[i], 2*i, data);
+		}
 	}
 	/**
 	 * Map constructor to create a map from another map
@@ -46,6 +64,14 @@ public class Map implements GlobalConst {
 	public Map(Map fromMap) {
 		this.data = fromMap.getMapByteArray();
 		this.map_offset = 0;
+		fldOffset = new short[fldCnt + 1];
+		
+		fldOffset[0] = 8;
+		fldOffset[1] = (short)(fldOffset[0] + stringAttributeSize + 2);
+		fldOffset[2] = (short)(fldOffset[1] + stringAttributeSize + 2);
+		fldOffset[3] = (short)(fldOffset[2] + integerAttributeSize);
+		fldOffset[4] = (short)(fldOffset[0] + stringAttributeSize + 2);
+		fldOffset[5] = (short)map_length;
 	}
 	/**
 	 * Map constructor to create a map object from a byte array and a given offset.
@@ -55,11 +81,18 @@ public class Map implements GlobalConst {
 	public Map(byte[] amap, int offset) {
 		this.data = amap;
 		this.map_offset = offset;
+		fldOffset = new short[fldCnt + 1];
+		fldOffset[0] = 8;
+		fldOffset[1] = (short)(fldOffset[0] + stringAttributeSize + 2);
+		fldOffset[2] = (short)(fldOffset[1] + stringAttributeSize + 2);
+		fldOffset[3] = (short)(fldOffset[2] + integerAttributeSize);
+		fldOffset[4] = (short)(fldOffset[0] + stringAttributeSize + 2);
+		fldOffset[5] = (short)map_length;
 	}
 
-	public void setHdr(short numFlds, AttrType types[], short strSizes[]) throws IOException  {
-		
-	}
+//	public void setHdr(short numFlds, AttrType types[], short strSizes[]) throws IOException  {
+//		
+//	}
 	/**
 	 * Get the rowlabel field (String).
 	 * Length of string calculated by taking difference between the offset of current filed and next field.
@@ -155,8 +188,12 @@ public class Map implements GlobalConst {
 	    return mapCopy;
 	}
 
-	public void print() {
-
+	public void print()throws IOException {
+		String rowLabel = getRowLabel();
+		String columnLabel = getColumnLabel();
+		int timeStamp = getTimeStamp();
+		String value = getValue();
+		System.out.println("[" + rowLabel + " " + columnLabel + " " + timeStamp + " ] -> " + value);
 	}
 	/**
 	 * Calculates size of map.
