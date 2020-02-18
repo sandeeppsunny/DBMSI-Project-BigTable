@@ -44,16 +44,16 @@ public class Map implements GlobalConst {
 	public Map()throws IOException {
 		this.data = new byte[map_length];
 		this.map_offset = 0;
-		fldOffset = new short[fldCnt + 1];
+		fldOffset = new short[fldCnt + 2];
 		
 		fldOffset[0] = 8;
 		fldOffset[1] = (short)(fldOffset[0] + stringAttributeSize + 2);
 		fldOffset[2] = (short)(fldOffset[1] + stringAttributeSize + 2);
 		fldOffset[3] = (short)(fldOffset[2] + integerAttributeSize);
-		fldOffset[4] = (short)(fldOffset[0] + stringAttributeSize + 2);
+		fldOffset[4] = (short)(fldOffset[3] + stringAttributeSize + 2);
 		fldOffset[5] = (short)map_length;
 		
-		for(int i = 0; i <= fldCnt; i++) {
+		for(int i = 0; i <= fldCnt + 1; i++) {
 			Convert.setShortValue(fldOffset[i], 2*i, data);
 		}
 	}
@@ -70,7 +70,7 @@ public class Map implements GlobalConst {
 		fldOffset[1] = (short)(fldOffset[0] + stringAttributeSize + 2);
 		fldOffset[2] = (short)(fldOffset[1] + stringAttributeSize + 2);
 		fldOffset[3] = (short)(fldOffset[2] + integerAttributeSize);
-		fldOffset[4] = (short)(fldOffset[0] + stringAttributeSize + 2);
+		fldOffset[4] = (short)(fldOffset[3] + stringAttributeSize + 2);
 		fldOffset[5] = (short)map_length;
 	}
 	/**
@@ -86,7 +86,7 @@ public class Map implements GlobalConst {
 		fldOffset[1] = (short)(fldOffset[0] + stringAttributeSize + 2);
 		fldOffset[2] = (short)(fldOffset[1] + stringAttributeSize + 2);
 		fldOffset[3] = (short)(fldOffset[2] + integerAttributeSize);
-		fldOffset[4] = (short)(fldOffset[0] + stringAttributeSize + 2);
+		fldOffset[4] = (short)(fldOffset[3] + stringAttributeSize + 2);
 		fldOffset[5] = (short)map_length;
 	}
 
