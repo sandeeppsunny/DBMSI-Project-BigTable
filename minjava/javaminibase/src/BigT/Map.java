@@ -64,7 +64,7 @@ public class Map implements GlobalConst {
 	public Map(Map fromMap) {
 		this.data = fromMap.getMapByteArray();
 		this.map_offset = 0;
-		fldOffset = new short[fldCnt + 1];
+		fldOffset = new short[fldCnt + 2];
 		
 		fldOffset[0] = 8;
 		fldOffset[1] = (short)(fldOffset[0] + stringAttributeSize + 2);
@@ -81,7 +81,7 @@ public class Map implements GlobalConst {
 	public Map(byte[] amap, int offset) {
 		this.data = amap;
 		this.map_offset = offset;
-		fldOffset = new short[fldCnt + 1];
+		fldOffset = new short[fldCnt + 2];
 		fldOffset[0] = 8;
 		fldOffset[1] = (short)(fldOffset[0] + stringAttributeSize + 2);
 		fldOffset[2] = (short)(fldOffset[1] + stringAttributeSize + 2);
