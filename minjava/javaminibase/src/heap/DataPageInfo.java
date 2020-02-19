@@ -10,24 +10,33 @@ import global.*;
 
 import java.io.*;
 
-/** DataPageInfo class : the type of records stored on a directory page.
- *
+/**
+ * DataPageInfo class : the type of records stored on a directory page.
+ * <p>
  * April 9, 1998
  */
 
 class DataPageInfo implements GlobalConst {
 
 
-    /** HFPage returns int for avail space, so we use int here */
+    /**
+     * HFPage returns int for avail space, so we use int here
+     */
     int availspace;
 
-    /** for efficient implementation of getRecCnt() */
+    /**
+     * for efficient implementation of getRecCnt()
+     */
     int recct;
 
-    /** obvious: id of this particular data page (a HFPage) */
+    /**
+     * obvious: id of this particular data page (a HFPage)
+     */
     PageId pageId = new PageId();
 
-    /** auxiliary fields of DataPageInfo */
+    /**
+     * auxiliary fields of DataPageInfo
+     */
 
     public static final int size = 12;// size of DataPageInfo object in bytes
 
@@ -44,7 +53,8 @@ class DataPageInfo implements GlobalConst {
  */
 
 
-    /** Default constructor
+    /**
+     * Default constructor
      */
     public DataPageInfo() {
         data = new byte[12]; // size of datapageinfo
@@ -54,8 +64,10 @@ class DataPageInfo implements GlobalConst {
         offset = 0;
     }
 
-    /** Constructor
-     * @param array  a byte array
+    /**
+     * Constructor
+     *
+     * @param array a byte array
      */
     public DataPageInfo(byte[] array) {
         data = array;
@@ -68,8 +80,10 @@ class DataPageInfo implements GlobalConst {
     }
 
 
-    /** constructor: translate a tuple to a DataPageInfo object
-     *  it will make a copy of the data in the tuple
+    /**
+     * constructor: translate a tuple to a DataPageInfo object
+     * it will make a copy of the data in the tuple
+     *
      * @param atuple: the input tuple
      */
     public DataPageInfo(Tuple _atuple)
@@ -90,9 +104,8 @@ class DataPageInfo implements GlobalConst {
     }
 
 
-    /** convert this class objcet to a tuple(like cast a DataPageInfo to Tuple)
-     *
-     *
+    /**
+     * convert this class objcet to a tuple(like cast a DataPageInfo to Tuple)
      */
     public Tuple convertToTuple()
             throws IOException {
@@ -112,9 +125,9 @@ class DataPageInfo implements GlobalConst {
     }
 
 
-    /** write this object's useful fields(availspace, recct, pageId)
-     *  to the data[](may be in buffer pool)
-     *
+    /**
+     * write this object's useful fields(availspace, recct, pageId)
+     * to the data[](may be in buffer pool)
      */
     public void flushToTuple() throws IOException {
         // write availspace, recct, pageId into "data[]"

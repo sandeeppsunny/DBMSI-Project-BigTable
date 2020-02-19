@@ -59,7 +59,7 @@ public class MapUnitTest {
             m2.setTimeStamp(TIME_STAMP);
             m2.setValue(VALUE);
 
-            if(!MapUtils.Equal(m1, m2)) {
+            if (!MapUtils.Equal(m1, m2)) {
                 throw new Exception("Maps returned not equal! Unexpected failure!");
             }
 
