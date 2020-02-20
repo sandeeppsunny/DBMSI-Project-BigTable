@@ -282,7 +282,7 @@ public class RelCatalog extends Heapfile
         }
 
         try {
-            insertRecord(tuple.getTupleByteArray());
+            insertRecordTuple(tuple.getTupleByteArray());
         } catch (Exception e2) {
             System.err.println("insertRecord" + e2);
             throw new RelCatalogException(e2, "insertRecord failed");
@@ -326,7 +326,7 @@ public class RelCatalog extends Heapfile
 
             if (record.relName.equalsIgnoreCase(relation) == true) {
                 try {
-                    deleteRecord(rid);
+                    deleteRecordTuple(rid);
                 } catch (Exception e3) {
                     System.err.println("deleteRecord" + e3);
                     throw new RelCatalogException(e3, "deleteRecord failed");

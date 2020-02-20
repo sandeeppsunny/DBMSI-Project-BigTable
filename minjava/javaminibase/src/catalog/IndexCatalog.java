@@ -323,7 +323,7 @@ public class IndexCatalog extends Heapfile
         }
 
         try {
-            insertRecord(tuple.getTupleByteArray());
+            insertRecordTuple(tuple.getTupleByteArray());
         } catch (Exception e) {
             throw new IndexCatalogException(e, "insertRecord() failed");
         }
@@ -370,7 +370,7 @@ public class IndexCatalog extends Heapfile
                     && record.attrName.equalsIgnoreCase(attrName) == true
                     && (record.accessType == accessType)) {
                 try {
-                    deleteRecord(rid);  //  FOUND -  DELETE
+                    deleteRecordTuple(rid);  //  FOUND -  DELETE
                 } catch (Exception e) {
                     throw new IndexCatalogException(e, "deleteRecord() failed");
                 }
