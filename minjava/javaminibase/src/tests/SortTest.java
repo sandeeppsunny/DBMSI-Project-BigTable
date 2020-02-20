@@ -170,7 +170,7 @@ class SORTDriver extends TestDriver
             }
 
             try {
-                rid = f.insertRecord(t.returnTupleByteArray());
+                rid = f.insertRecordTuple(t.returnTupleByteArray());
             } catch (Exception e) {
                 status = FAIL;
                 e.printStackTrace();
@@ -316,7 +316,7 @@ class SORTDriver extends TestDriver
             }
 
             try {
-                rid = f.insertRecord(t.returnTupleByteArray());
+                rid = f.insertRecordTuple(t.returnTupleByteArray());
             } catch (Exception e) {
                 status = FAIL;
                 e.printStackTrace();
@@ -477,7 +477,7 @@ class SORTDriver extends TestDriver
             }
 
             try {
-                rid = f.insertRecord(t.returnTupleByteArray());
+                rid = f.insertRecordTuple(t.returnTupleByteArray());
             } catch (Exception e) {
                 status = FAIL;
                 e.printStackTrace();
@@ -733,8 +733,8 @@ class SORTDriver extends TestDriver
             }
 
             try {
-                rid1 = f1.insertRecord(t.returnTupleByteArray());
-                rid2 = f2.insertRecord(t.returnTupleByteArray());
+                rid1 = f1.insertRecordTuple(t.returnTupleByteArray());
+                rid2 = f2.insertRecordTuple(t.returnTupleByteArray());
             } catch (Exception e) {
                 status = FAIL;
                 e.printStackTrace();

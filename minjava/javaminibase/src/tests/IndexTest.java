@@ -167,7 +167,7 @@ class IndexDriver extends TestDriver
             }
 
             try {
-                rid = f.insertRecord(t.returnTupleByteArray());
+                rid = f.insertRecordTuple(t.returnTupleByteArray());
             } catch (Exception e) {
                 status = FAIL;
                 e.printStackTrace();
@@ -604,7 +604,7 @@ class IndexDriver extends TestDriver
             }
 
             try {
-                rid = f.insertRecord(t.returnTupleByteArray());
+                rid = f.insertRecordTuple(t.returnTupleByteArray());
             } catch (Exception e) {
                 status = FAIL;
                 e.printStackTrace();

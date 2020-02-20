@@ -5,6 +5,7 @@ package heap;
 import java.io.*;
 import java.lang.*;
 
+import BigT.Map;
 import global.*;
 import diskmgr.*;
 
@@ -523,7 +524,7 @@ public class HFPage extends Page
      * @throws IOException                I/O errors
      * @see Tuple
      */
-    public Tuple getRecord(RID rid)
+    public Tuple getTupleRecord(RID rid)
             throws IOException,
             InvalidSlotNumberException {
         short recLen;
@@ -552,6 +553,43 @@ public class HFPage extends Page
     }
 
     /**
+     * copies out record with RID rid into record pointer.
+     * <br>
+     * Status getRecord(RID rid, char *recPtr, int& recLen)
+     *
+     * @param rid the record ID
+     * @return a map contains the record
+     * @throws InvalidSlotNumberException Invalid slot number
+     * @throws IOException                I/O errors
+     * @see Tuple
+     */
+    public Map getMapRecord(RID rid)
+            throws IOException,
+            InvalidSlotNumberException {
+        short recLen;
+        short offset;
+        byte[] record;
+        PageId pageNo = new PageId();
+        pageNo.pid = rid.pageNo.pid;
+        curPage.pid = Convert.getIntValue(CUR_PAGE, data);
+        int slotNo = rid.slotNo;
+
+        // length of record being returned
+        recLen = getSlotLength(slotNo);
+        slotCnt = Convert.getShortValue(SLOT_CNT, data);
+        if ((slotNo >= 0) && (slotNo < slotCnt) && (recLen > 0)
+                && (pageNo.pid == curPage.pid)) {
+            offset = getSlotOffset(slotNo);
+            record = new byte[recLen];
+            System.arraycopy(data, offset, record, 0, recLen);
+            Map map = new Map(record, 0);
+            return map;
+        } else {
+            throw new InvalidSlotNumberException(null, "HEAPFILE: INVALID_SLOTNO");
+        }
+    }
+
+    /**
      * returns a tuple in a byte array[pageSize] with given RID rid.
      * <br>
      * in C++	Status returnRecord(RID rid, char*& recPtr, int& recLen)
@@ -562,7 +600,7 @@ public class HFPage extends Page
      * @throws IOException                I/O errors
      * @see Tuple
      */
-    public Tuple returnRecord(RID rid)
+    public Tuple returnTupleRecord(RID rid)
             throws IOException,
             InvalidSlotNumberException {
         short recLen;
@@ -589,6 +627,43 @@ public class HFPage extends Page
 
     }
 
+    /**
+     * returns a tuple in a byte array[pageSize] with given RID rid.
+     * <br>
+     * in C++	Status returnRecord(RID rid, char*& recPtr, int& recLen)
+     *
+     * @param rid the record ID
+     * @return a tuple  with its length and offset in the byte array
+     * @throws InvalidSlotNumberException Invalid slot number
+     * @throws IOException                I/O errors
+     * @see Tuple
+     */
+    public Map returnMapRecord(RID rid)
+            throws IOException,
+            InvalidSlotNumberException {
+        short recLen;
+        short offset;
+        PageId pageNo = new PageId();
+        pageNo.pid = rid.pageNo.pid;
+
+        curPage.pid = Convert.getIntValue(CUR_PAGE, data);
+        int slotNo = rid.slotNo;
+
+        // length of record being returned
+        recLen = getSlotLength(slotNo);
+        slotCnt = Convert.getShortValue(SLOT_CNT, data);
+
+        if ((slotNo >= 0) && (slotNo < slotCnt) && (recLen > 0)
+                && (pageNo.pid == curPage.pid)) {
+
+            offset = getSlotOffset(slotNo);
+            Map map = new Map(data, offset);
+            return map;
+        } else {
+            throw new InvalidSlotNumberException(null, "HEAPFILE: INVALID_SLOTNO");
+        }
+
+    }
     /**
      * returns the amount of available space on the page.
      *

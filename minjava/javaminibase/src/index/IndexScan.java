@@ -196,7 +196,7 @@ public class IndexScan extends Iterator {
             // not index_only, need to return the whole tuple
             rid = ((LeafData) nextentry.data).getData();
             try {
-                tuple1 = f.getRecord(rid);
+                tuple1 = f.getRecordTuple(rid);
             } catch (Exception e) {
                 throw new IndexException(e, "IndexScan.java: getRecord failed");
             }

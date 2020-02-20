@@ -148,7 +148,7 @@ public class IoBuf implements GlobalConst {
                 for (int i = 0; i < t_wr_to_pg; i++) {
                     System.arraycopy(_bufs[count], t_size * i, tempbuf, 0, t_size);
                     try {
-                        rid = _temp_fd.insertRecord(tempbuf);
+                        rid = _temp_fd.insertRecordTuple(tempbuf);
                     } catch (Exception e) {
                         throw e;
                     }

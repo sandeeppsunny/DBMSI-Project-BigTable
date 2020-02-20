@@ -101,7 +101,7 @@ public class Scan implements GlobalConst {
         rid.slotNo = userrid.slotNo;
 
         try {
-            recptrtuple = datapage.getRecord(rid);
+            recptrtuple = datapage.getTupleRecord(rid);
         } catch (Exception e) {
             //    System.err.println("SCAN: Error in Scan" + e);
             e.printStackTrace();
@@ -265,7 +265,7 @@ public class Scan implements GlobalConst {
             /** there is a datapage record on the first directory page: */
 
             try {
-                rectuple = dirpage.getRecord(datapageRid);
+                rectuple = dirpage.getTupleRecord(datapageRid);
             } catch (Exception e) {
                 //	System.err.println("SCAN: Chain Error in Scan: " + e);
                 e.printStackTrace();
@@ -319,7 +319,7 @@ public class Scan implements GlobalConst {
 
                     try {
 
-                        rectuple = dirpage.getRecord(datapageRid);
+                        rectuple = dirpage.getTupleRecord(datapageRid);
                     } catch (Exception e) {
                         //    System.err.println("SCAN: Error getRecord 4: " + e);
                         e.printStackTrace();
@@ -506,7 +506,7 @@ public class Scan implements GlobalConst {
 
         // data page is not yet loaded: read its record from the directory page
         try {
-            rectuple = dirpage.getRecord(datapageRid);
+            rectuple = dirpage.getTupleRecord(datapageRid);
         } catch (Exception e) {
             System.err.println("HeapFile: Error in Scan" + e);
         }

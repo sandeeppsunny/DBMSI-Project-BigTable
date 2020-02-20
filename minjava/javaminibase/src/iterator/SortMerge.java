@@ -389,7 +389,7 @@ public class SortMerge extends Iterator implements GlobalConst {
             }
             if (temp_file_fd1 != null) {
                 try {
-                    temp_file_fd1.deleteFile();
+                    temp_file_fd1.deleteFileTuple();
                 } catch (Exception e) {
                     throw new JoinsException(e, "SortMerge.java: delete file failed");
                 }
@@ -397,7 +397,7 @@ public class SortMerge extends Iterator implements GlobalConst {
             }
             if (temp_file_fd2 != null) {
                 try {
-                    temp_file_fd2.deleteFile();
+                    temp_file_fd2.deleteFileTuple();
                 } catch (Exception e) {
                     throw new JoinsException(e, "SortMerge.java: delete file failed");
                 }

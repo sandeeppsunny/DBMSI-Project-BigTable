@@ -230,8 +230,9 @@ public class Map implements GlobalConst {
      * @param fromMap
      * @return Map
      */
-    public Map mapCopy(Map fromMap) {
-        return null;
+    public void mapCopy(Map fromMap) {
+        byte[] temparray = fromMap.getMapByteArray();
+        System.arraycopy(temparray, 0, data, map_offset, fromMap.getLength());
     }
 
     /**
@@ -263,5 +264,14 @@ public class Map implements GlobalConst {
      */
     public int getOffset() {
         return map_offset;
+    }
+
+    /**
+     * get the offset of a tuple
+     *
+     * @return offset of the tuple in byte array
+     */
+    public int getLength() {
+        return MAP_LENGTH;
     }
 }

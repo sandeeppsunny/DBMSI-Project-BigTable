@@ -4,11 +4,14 @@ import java.io.*;
 import java.util.*;
 import java.lang.*;
 
+import BigT.Map;
 import heap.*;
 import bufmgr.*;
 import diskmgr.*;
 import global.*;
 import chainexception.*;
+
+import static tests.MapUnitTest.*;
 
 /**
  * Note that in JAVA, methods can't be overridden to be more private.
@@ -121,7 +124,7 @@ class HFDriver extends TestDriver implements GlobalConst {
                 rec.name = "record" + i;
 
                 try {
-                    rid = f.insertRecord(rec.toByteArray());
+                    rid = f.insertRecordTuple(rec.toByteArray());
                 } catch (Exception e) {
                     status = FAIL;
                     System.err.println("*** Error inserting record " + i + "\n");
@@ -137,9 +140,9 @@ class HFDriver extends TestDriver implements GlobalConst {
             }
 
             try {
-                if (f.getRecCnt() != choice) {
+                if (f.getRecCntTuple() != choice) {
                     status = FAIL;
-                    System.err.println("*** File reports " + f.getRecCnt() +
+                    System.err.println("*** File reports " + f.getRecCntTuple() +
                             " records, not " + choice + "\n");
                 }
             } catch (Exception e) {
@@ -305,7 +308,7 @@ class HFDriver extends TestDriver implements GlobalConst {
                     if (i % 2 == 0) odd = false;
                     if (odd) {       // Delete the odd-numbered ones.
                         try {
-                            status = f.deleteRecord(rid);
+                            status = f.deleteRecordTuple(rid);
                         } catch (Exception e) {
                             status = FAIL;
                             System.err.println("*** Error deleting record " + i + "\n");
@@ -455,7 +458,7 @@ class HFDriver extends TestDriver implements GlobalConst {
                         e.printStackTrace();
                     }
                     try {
-                        status = f.updateRecord(rid, newTuple);
+                        status = f.updateRecordTuple(rid, newTuple);
                     } catch (Exception e) {
                         status = FAIL;
                         e.printStackTrace();
@@ -526,7 +529,7 @@ class HFDriver extends TestDriver implements GlobalConst {
 
                     // While we're at it, test the getRecord method too.
                     try {
-                        tuple2 = f.getRecord(rid);
+                        tuple2 = f.getRecordTuple(rid);
                     } catch (Exception e) {
                         status = FAIL;
                         System.err.println("*** Error getting record " + i + "\n");
@@ -636,7 +639,7 @@ class HFDriver extends TestDriver implements GlobalConst {
                     e.printStackTrace();
                 }
                 try {
-                    status = f.updateRecord(rid, newTuple);
+                    status = f.updateRecordTuple(rid, newTuple);
                 } catch (ChainException e) {
                     status = checkException(e, "heap.InvalidUpdateException");
                     if (status == FAIL) {
@@ -672,7 +675,7 @@ class HFDriver extends TestDriver implements GlobalConst {
                     e.printStackTrace();
                 }
                 try {
-                    status = f.updateRecord(rid, newTuple);
+                    status = f.updateRecordTuple(rid, newTuple);
                 } catch (ChainException e) {
                     status = checkException(e, "heap.InvalidUpdateException");
                     if (status == FAIL) {
@@ -698,7 +701,7 @@ class HFDriver extends TestDriver implements GlobalConst {
             System.out.println("  - Try to insert a record that's too long\n");
             byte[] record = new byte[MINIBASE_PAGESIZE + 4];
             try {
-                rid = f.insertRecord(record);
+                rid = f.insertRecordTuple(record);
             } catch (ChainException e) {
                 status = checkException(e, "heap.SpaceNotAvailableException");
                 if (status == FAIL) {
@@ -723,7 +726,69 @@ class HFDriver extends TestDriver implements GlobalConst {
     }
 
     protected boolean test6() {
+        try {
+            BigT.Map m1 = new Map();
+            m1.setRowLabel(ROW_LABEL);
+            m1.setColumnLabel(COL_LABEL);
+            m1.setTimeStamp(TIME_STAMP);
+            m1.setValue(VALUE);
 
+            System.out.println("\n  Test 1: Insert and scan fixed-size records\n");
+            boolean status = OK;
+            RID rid = new RID();
+            Heapfile f = null;
+
+            System.out.println("  - Create a heap file\n");
+            try {
+                f = new Heapfile("file_1");
+            } catch (Exception e) {
+                status = FAIL;
+                System.err.println("*** Could not create heap file\n");
+                e.printStackTrace();
+            }
+
+            if (status == OK && SystemDefs.JavabaseBM.getNumUnpinnedBuffers()
+                    != SystemDefs.JavabaseBM.getNumBuffers()) {
+                System.err.println("*** The heap file has left pages pinned\n");
+                status = FAIL;
+            }
+
+            if (status == OK) {
+                System.out.println("  - Add " + choice + " records to the file\n");
+                for (int i = 0; (i < choice) && (status == OK); i++) {
+                    try {
+                        rid = f.insertRecordMap(m1.getMapByteArray());
+                    } catch (Exception e) {
+                        status = FAIL;
+                        System.err.println("*** Error inserting record " + i + "\n");
+                        e.printStackTrace();
+                    }
+
+                    if (status == OK && SystemDefs.JavabaseBM.getNumUnpinnedBuffers()
+                            != SystemDefs.JavabaseBM.getNumBuffers()) {
+
+                        System.err.println("*** Insertion left a page pinned\n");
+                        status = FAIL;
+                    }
+                }
+
+                try {
+                    if (f.getRecCntMap() != choice) {
+                        status = FAIL;
+                        System.err.println("*** File reports " + f.getRecCntTuple() +
+                                " records, not " + choice + "\n");
+                    }
+                } catch (Exception e) {
+                    status = FAIL;
+                    System.out.println("" + e);
+                    e.printStackTrace();
+                }
+            }
+
+            System.out.println("HEREEEEEEEEEEEEEE");
+        } catch (Exception e) {
+            System.out.println(e);
+        }
         return true;
     }
 

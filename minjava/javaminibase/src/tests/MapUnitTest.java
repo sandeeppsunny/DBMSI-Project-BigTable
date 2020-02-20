@@ -1,6 +1,8 @@
 package tests;
 
 import BigT.Map;
+import global.RID;
+import heap.Heapfile;
 import iterator.MapUtils;
 
 public class MapUnitTest {
