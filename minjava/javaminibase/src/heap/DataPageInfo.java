@@ -6,6 +6,7 @@ package heap;
  */
 
 
+import BigT.Map;
 import global.*;
 
 import java.io.*;
@@ -103,6 +104,21 @@ class DataPageInfo implements GlobalConst {
         }
     }
 
+    /**
+     * constructor: translate a map to a DataPageInfo object
+     * it will make a copy of the data in the map
+     *
+     * @param _map: the input map
+     */
+    public DataPageInfo(Map _map) throws IOException {
+        data = _map.getMapByteArray();
+        offset = _map.getOffset();
+
+        availspace = Convert.getIntValue(offset, data);
+        recct = Convert.getIntValue(offset + 4, data);
+        pageId = new PageId();
+        pageId.pid = Convert.getIntValue(offset + 8, data);
+    }
 
     /**
      * convert this class objcet to a tuple(like cast a DataPageInfo to Tuple)
@@ -124,12 +140,45 @@ class DataPageInfo implements GlobalConst {
 
     }
 
+    /**
+     * convert this class objcet to a tuple(like cast a DataPageInfo to Map)
+     */
+    public Map convertToMap()
+            throws IOException {
+
+        // 1) write availspace, recct, pageId into data []
+        Convert.setIntValue(availspace, offset, data);
+        Convert.setIntValue(recct, offset + 4, data);
+        Convert.setIntValue(pageId.pid, offset + 8, data);
+
+
+        // 2) create a Map object using this array
+        Map atuple = new Map(data, offset);
+
+        // 3) return tuple object
+        return atuple;
+
+    }
 
     /**
      * write this object's useful fields(availspace, recct, pageId)
      * to the data[](may be in buffer pool)
      */
     public void flushToTuple() throws IOException {
+        // write availspace, recct, pageId into "data[]"
+        Convert.setIntValue(availspace, offset, data);
+        Convert.setIntValue(recct, offset + 4, data);
+        Convert.setIntValue(pageId.pid, offset + 8, data);
+
+        // here we assume data[] already points to buffer pool
+
+    }
+
+    /**
+     * write this object's useful fields(availspace, recct, pageId)
+     * to the data[](may be in buffer pool)
+     */
+    public void flushToMap() throws IOException {
         // write availspace, recct, pageId into "data[]"
         Convert.setIntValue(availspace, offset, data);
         Convert.setIntValue(recct, offset + 4, data);
