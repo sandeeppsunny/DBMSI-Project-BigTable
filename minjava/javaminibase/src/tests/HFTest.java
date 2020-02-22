@@ -745,7 +745,7 @@ class HFDriver extends TestDriver implements GlobalConst {
             map_insert.setTimeStamp(TIME_STAMP);
             map_insert.setValue(VALUE);
 
-            System.out.println("\n  Test HERERERERER: Insert and scan fixed-size records\n");
+            System.out.println("\n  Test 6 Map: Insert and scan fixed-size records\n");
             boolean status = OK;
             RID rid = new RID();
             Heapfile f = null;
@@ -769,7 +769,6 @@ class HFDriver extends TestDriver implements GlobalConst {
                 System.out.println("  - Add " + choice + " records to the file\n");
                 for (int i = 0; (i < choice) && (status == OK); i++) {
                     try {
-                        System.out.println("Map Byte Array Size "+ map_insert.getMapByteArray().length);
                         rid = f.insertRecordMap(map_insert.getMapByteArray());
                     } catch (Exception e) {
                         status = FAIL;
@@ -788,7 +787,7 @@ class HFDriver extends TestDriver implements GlobalConst {
                 try {
                     if (f.getRecCntMap() != choice) {
                         status = FAIL;
-                        System.err.println("*** File reports " + f.getRecCntTuple() +
+                        System.err.println("*** File reports " + f.getRecCntMap() +
                                 " records, not " + choice + "\n");
                     }
                 } catch (Exception e) {
@@ -868,7 +867,7 @@ class HFDriver extends TestDriver implements GlobalConst {
             }
 
             if (status == OK)
-            System.out.println("HEREEEEEEEEEEEEEE");
+            System.out.println(" Test 6 Map ");
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -879,12 +878,10 @@ class HFDriver extends TestDriver implements GlobalConst {
 
         boolean _passAll = OK;
 
-        if (!test6()) {
-            _passAll = FAIL;
-        }
-        if (!test1()) {
-            _passAll = FAIL;
-        }
+//        if (!test1()) {
+//            _passAll = FAIL;
+//        }
+//
 //        if (!test2()) {
 //            _passAll = FAIL;
 //        }
@@ -897,9 +894,12 @@ class HFDriver extends TestDriver implements GlobalConst {
 //        if (!test5()) {
 //            _passAll = FAIL;
 //        }
+        if (!test6()) {
+            _passAll = FAIL;
+        }
 
-//        return _passAll;
-        return true;
+        return _passAll;
+
     }
 
     protected String testName() {
