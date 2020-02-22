@@ -582,7 +582,7 @@ public class HFPage extends Page
             offset = getSlotOffset(slotNo);
             record = new byte[recLen];
             System.arraycopy(data, offset, record, 0, recLen);
-            Map map = new Map(record, 0);
+            Map map = new Map(record, 0, recLen);
             return map;
         } else {
             throw new InvalidSlotNumberException(null, "HEAPFILE: INVALID_SLOTNO");
@@ -657,7 +657,7 @@ public class HFPage extends Page
                 && (pageNo.pid == curPage.pid)) {
 
             offset = getSlotOffset(slotNo);
-            Map map = new Map(data, offset);
+            Map map = new Map(data, offset, recLen);
             return map;
         } else {
             throw new InvalidSlotNumberException(null, "HEAPFILE: INVALID_SLOTNO");

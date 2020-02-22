@@ -167,7 +167,7 @@ public class NestedLoopsJoins extends Iterator {
                 }
 
                 try {
-                    inner = hf.openScan();
+                    inner = hf.openScanTuple();
                 } catch (Exception e) {
                     throw new NestedLoopException(e, "openScan failed");
                 }
@@ -190,7 +190,7 @@ public class NestedLoopsJoins extends Iterator {
 
 
             RID rid = new RID();
-            while ((inner_tuple = inner.getNext(rid)) != null) {
+            while ((inner_tuple = inner.getNextTuple(rid)) != null) {
                 inner_tuple.setHdr((short) in2_len, _in2, t2_str_sizescopy);
                 if (PredEval.Eval(RightFilter, inner_tuple, null, _in2, null) == true) {
                     if (PredEval.Eval(OutputFilter, outer_tuple, inner_tuple, _in1, _in2) == true) {

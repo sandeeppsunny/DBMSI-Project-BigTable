@@ -106,7 +106,7 @@ public class IndexCatalog extends Heapfile
         // OPEN SCAN
 
         try {
-            pscan = new Scan(this);
+            pscan = new Scan(this, true);
         } catch (Exception e) {
             throw new IndexCatalogException(e, "scan() failed");
         }
@@ -121,7 +121,7 @@ public class IndexCatalog extends Heapfile
 
         while (true) {
             try {
-                tuple = pscan.getNext(rid);
+                tuple = pscan.getNextTuple(rid);
                 if (tuple == null)
                     throw new Catalogindexnotfound(null,
                             "Catalog: Index not Found!");
@@ -162,7 +162,7 @@ public class IndexCatalog extends Heapfile
         // OPEN SCAN
 
         try {
-            pscan = new Scan(this);
+            pscan = new Scan(this, true);
         } catch (IOException e) {
             System.err.println("Scan" + e);
             throw new IOException("");
@@ -175,7 +175,7 @@ public class IndexCatalog extends Heapfile
 
         while (true) {
             try {
-                tuple = pscan.getNext(rid);
+                tuple = pscan.getNextTuple(rid);
                 if (tuple == null)
                     throw new Catalogattrnotfound(null, "Catalog: Attribute not Found!");
                 read_tuple(tuple, record);
@@ -237,7 +237,7 @@ public class IndexCatalog extends Heapfile
         // OPEN SCAN
 
         try {
-            pscan = new Scan(this);
+            pscan = new Scan(this, true);
         } catch (Exception e) {
             throw new IndexCatalogException(e, "scan failed");
         }
@@ -252,7 +252,7 @@ public class IndexCatalog extends Heapfile
 
         while (true) {
             try {
-                tuple = pscan.getNext(rid);
+                tuple = pscan.getNextTuple(rid);
                 if (tuple == null)
                     throw new Catalogindexnotfound(null,
                             "Catalog: Index not Found!");
@@ -348,7 +348,7 @@ public class IndexCatalog extends Heapfile
 
         // OPEN SCAN
         try {
-            pscan = new Scan(this);
+            pscan = new Scan(this, true);
         } catch (Exception e) {
             throw new IndexCatalogException(e, "scan failed");
         }
@@ -357,7 +357,7 @@ public class IndexCatalog extends Heapfile
 
         while (true) {
             try {
-                tuple = pscan.getNext(rid);
+                tuple = pscan.getNextTuple(rid);
                 if (tuple == null)
                     throw new Catalogattrnotfound(null,
                             "Catalog: Attribute not Found!");
@@ -513,7 +513,7 @@ public class IndexCatalog extends Heapfile
         }
 
         try {
-            pscan = datafile.openScan();
+            pscan = datafile.openScanTuple();
         } catch (Exception e) {
             throw new IndexCatalogException(e, "openScan() failed");
         }
@@ -544,7 +544,7 @@ public class IndexCatalog extends Heapfile
 
         while (true) {
             try {
-                tuple = pscan.getNext(rid);
+                tuple = pscan.getNextTuple(rid);
                 if (tuple == null)
                     return;
             } catch (Exception e) {

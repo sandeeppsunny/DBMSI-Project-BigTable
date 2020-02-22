@@ -178,7 +178,7 @@ class IndexDriver extends TestDriver
         Scan scan = null;
 
         try {
-            scan = new Scan(f);
+            scan = new Scan(f, true);
         } catch (Exception e) {
             status = FAIL;
             e.printStackTrace();
@@ -202,7 +202,7 @@ class IndexDriver extends TestDriver
         Tuple temp = null;
 
         try {
-            temp = scan.getNext(rid);
+            temp = scan.getNextTuple(rid);
         } catch (Exception e) {
             status = FAIL;
             e.printStackTrace();
@@ -225,7 +225,7 @@ class IndexDriver extends TestDriver
             }
 
             try {
-                temp = scan.getNext(rid);
+                temp = scan.getNextTuple(rid);
             } catch (Exception e) {
                 status = FAIL;
                 e.printStackTrace();
@@ -615,7 +615,7 @@ class IndexDriver extends TestDriver
         Scan scan = null;
 
         try {
-            scan = new Scan(f);
+            scan = new Scan(f, true);
         } catch (Exception e) {
             status = FAIL;
             e.printStackTrace();
@@ -639,7 +639,7 @@ class IndexDriver extends TestDriver
         Tuple temp = null;
 
         try {
-            temp = scan.getNext(rid);
+            temp = scan.getNextTuple(rid);
         } catch (Exception e) {
             status = FAIL;
             e.printStackTrace();
@@ -662,7 +662,7 @@ class IndexDriver extends TestDriver
             }
 
             try {
-                temp = scan.getNext(rid);
+                temp = scan.getNextTuple(rid);
             } catch (Exception e) {
                 status = FAIL;
                 e.printStackTrace();

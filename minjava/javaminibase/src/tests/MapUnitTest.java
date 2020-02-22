@@ -10,7 +10,7 @@ public class MapUnitTest {
     final static String COL_LABEL = "ColumnLabel-test";
     final static int TIME_STAMP = 2;
     final static String VALUE = "Value-test";
-    final static int MAP_SIZE = 78;
+    final static int MAP_SIZE = 82;
 
     /*
         Tests basic functionality of map class

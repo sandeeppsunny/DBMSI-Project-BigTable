@@ -84,7 +84,7 @@ public class FileScan extends Iterator {
         }
 
         try {
-            scan = f.openScan();
+            scan = f.openScanTuple();
         } catch (Exception e) {
             throw new FileScanException(e, "openScan() failed");
         }
@@ -123,7 +123,7 @@ public class FileScan extends Iterator {
         ;
 
         while (true) {
-            if ((tuple1 = scan.getNext(rid)) == null) {
+            if ((tuple1 = scan.getNextTuple(rid)) == null) {
                 return null;
             }
 

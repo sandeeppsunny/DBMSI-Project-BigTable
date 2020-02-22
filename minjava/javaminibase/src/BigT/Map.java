@@ -14,9 +14,6 @@ import global.GlobalConst;
  */
 public class Map implements GlobalConst {
 
-    /* Maximum size of any tuple */
-    public static final int max_size = MINIBASE_PAGESIZE;
-
     /* Byte array to store data */
 
     private byte[] data;
@@ -27,6 +24,11 @@ public class Map implements GlobalConst {
     /* Start position of this map in data[] */
     private int map_offset;
 
+    /**
+     * length of this tuple
+     */
+    private int map_length;
+
     /* Array of offsets of the fields */
 
     private short[] fldOffset;
@@ -35,22 +37,23 @@ public class Map implements GlobalConst {
 
     private static final int integerAttributeSize = 4;
 
-    public static final int MAP_LENGTH = 78;
+    public static final int MAX_MAP_LENGTH = 82;
 
     /**
      * Default Map constructor
      */
     public Map() throws IOException {
-        this.data = new byte[MAP_LENGTH];
+        this.data = new byte[MAX_MAP_LENGTH];
         this.map_offset = 0;
+        this.map_length = MAX_MAP_LENGTH;
         fldOffset = new short[fldCnt + 2];
 
-        fldOffset[0] = 8;
+        fldOffset[0] = 12;
         fldOffset[1] = (short) (fldOffset[0] + stringAttributeSize + 2);
         fldOffset[2] = (short) (fldOffset[1] + stringAttributeSize + 2);
         fldOffset[3] = (short) (fldOffset[2] + integerAttributeSize);
         fldOffset[4] = (short) (fldOffset[3] + stringAttributeSize + 2);
-        fldOffset[5] = (short) MAP_LENGTH;
+        fldOffset[5] = (short) MAX_MAP_LENGTH;
 
         for (int i = 0; i <= fldCnt + 1; i++) {
             Convert.setShortValue(fldOffset[i], 2 * i, data);
@@ -65,14 +68,15 @@ public class Map implements GlobalConst {
     public Map(Map fromMap) {
         this.data = fromMap.getMapByteArray();
         this.map_offset = 0;
+        this.map_length = fromMap.map_length;
         fldOffset = new short[fldCnt + 2];
 
-        fldOffset[0] = 8;
+        fldOffset[0] = 12;
         fldOffset[1] = (short) (fldOffset[0] + stringAttributeSize + 2);
         fldOffset[2] = (short) (fldOffset[1] + stringAttributeSize + 2);
         fldOffset[3] = (short) (fldOffset[2] + integerAttributeSize);
         fldOffset[4] = (short) (fldOffset[3] + stringAttributeSize + 2);
-        fldOffset[5] = (short) MAP_LENGTH;
+        fldOffset[5] = (short) MAX_MAP_LENGTH;
     }
 
     /**
@@ -81,16 +85,17 @@ public class Map implements GlobalConst {
      * @param amap
      * @param offset
      */
-    public Map(byte[] amap, int offset) {
+    public Map(byte[] amap, int offset, int len) {
         this.data = amap;
         this.map_offset = offset;
+        this.map_length = len;
         fldOffset = new short[fldCnt + 2];
-        fldOffset[0] = 8;
+        fldOffset[0] = 12;
         fldOffset[1] = (short) (fldOffset[0] + stringAttributeSize + 2);
         fldOffset[2] = (short) (fldOffset[1] + stringAttributeSize + 2);
         fldOffset[3] = (short) (fldOffset[2] + integerAttributeSize);
         fldOffset[4] = (short) (fldOffset[3] + stringAttributeSize + 2);
-        fldOffset[5] = (short) MAP_LENGTH;
+        fldOffset[5] = (short) MAX_MAP_LENGTH;
     }
 
 //	public void setHdr(short numFlds, AttrType types[], short strSizes[]) throws IOException  {
@@ -202,8 +207,8 @@ public class Map implements GlobalConst {
      * @return map byte array
      */
     public byte[] getMapByteArray() {
-        byte[] mapCopy = new byte[MAP_LENGTH];
-        System.arraycopy(data, map_offset, mapCopy, 0, MAP_LENGTH);
+        byte[] mapCopy = new byte[MAX_MAP_LENGTH];
+        System.arraycopy(data, map_offset, mapCopy, 0, map_length);
         return mapCopy;
     }
 
@@ -232,7 +237,17 @@ public class Map implements GlobalConst {
      */
     public void mapCopy(Map fromMap) {
         byte[] temparray = fromMap.getMapByteArray();
-        System.arraycopy(temparray, 0, data, map_offset, fromMap.getLength());
+        System.arraycopy(temparray, 0, data, map_offset, map_length);
+    }
+
+    /**
+     * return the data byte array
+     *
+     * @return data byte array
+     */
+
+    public byte[] returnMapByteArray() {
+        return data;
     }
 
     /**
@@ -241,9 +256,10 @@ public class Map implements GlobalConst {
      * @param amap
      * @param offset
      */
-    public void mapInit(byte[] amap, int offset) {
+    public void mapInit(byte[] amap, int offset, int len) {
         this.data = amap;
         this.map_offset = offset;
+        this.map_length = len;
     }
 
     /**
@@ -252,9 +268,10 @@ public class Map implements GlobalConst {
      * @param frommap
      * @param offset
      */
-    public void mapSet(byte[] frommap, int offset) {
-        System.arraycopy(frommap, offset, this.data, 0, frommap.length);
+    public void mapSet(byte[] frommap, int offset, int len) {
+        System.arraycopy(frommap, offset, this.data, 0, len);
         this.map_offset = 0;
+        this.map_length = len;
     }
 
     /**
@@ -272,6 +289,6 @@ public class Map implements GlobalConst {
      * @return offset of the tuple in byte array
      */
     public int getLength() {
-        return MAP_LENGTH;
+        return map_length;
     }
 }

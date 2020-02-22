@@ -54,7 +54,7 @@ public class SpoofIbuf implements GlobalConst {
         if (hf_scan != null) hf_scan = null;
 
         try {
-            hf_scan = _fd.openScan();
+            hf_scan = _fd.openScanTuple();
         } catch (Exception e) {
             throw e;
         }
@@ -133,7 +133,7 @@ public class SpoofIbuf implements GlobalConst {
             while (t_read < t_per_pg) {
                 RID rid = new RID();
                 try {
-                    if ((t = hf_scan.getNext(rid)) == null) return tot_read;
+                    if ((t = hf_scan.getNextTuple(rid)) == null) return tot_read;
                     t_copy = t.getTupleByteArray();
                     System.arraycopy(t_copy, 0, _bufs[curr_page], t_read * t_size, t_size);
                 } catch (Exception e) {

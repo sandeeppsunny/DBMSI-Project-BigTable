@@ -784,7 +784,6 @@ public class Heapfile implements Filetype, GlobalConst {
                  currentDataPageRid =
                          currentDirPage.nextRecord(currentDataPageRid)) {
                 amap = currentDirPage.getMapRecord(currentDataPageRid);
-
                 dpinfo = new DataPageInfo(amap);
 
                 // need check the record length == DataPageInfo'slength
@@ -960,6 +959,7 @@ public class Heapfile implements Filetype, GlobalConst {
 
         // DataPage is now released
         amap = currentDirPage.returnMapRecord(currentDataPageRid);
+
         DataPageInfo dpinfo_ondirpage = new DataPageInfo(amap);
 
 
@@ -1477,10 +1477,23 @@ public class Heapfile implements Filetype, GlobalConst {
      * @throws InvalidTupleSizeException Invalid tuple size
      * @throws IOException               I/O errors
      */
-    public Scan openScan()
+    public Scan openScanTuple()
             throws InvalidTupleSizeException,
             IOException {
-        Scan newscan = new Scan(this);
+        Scan newscan = new Scan(this, true);
+        return newscan;
+    }
+
+    /**
+     * Initiate a sequential scan.
+     *
+     * @throws InvalidTupleSizeException Invalid tuple size
+     * @throws IOException               I/O errors
+     */
+    public Scan openScanMap()
+            throws InvalidTupleSizeException,
+            IOException {
+        Scan newscan = new Scan(this, false);
         return newscan;
     }
 

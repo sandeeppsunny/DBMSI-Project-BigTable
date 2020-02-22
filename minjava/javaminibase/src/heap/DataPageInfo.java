@@ -110,14 +110,19 @@ class DataPageInfo implements GlobalConst {
      *
      * @param _map: the input map
      */
-    public DataPageInfo(Map _map) throws IOException {
-        data = _map.getMapByteArray();
-        offset = _map.getOffset();
+    public DataPageInfo(Map _map) throws InvalidTupleSizeException, IOException {
+        // need check _atuple size == this.size ?otherwise, throw new exception
+        /*if (_map.getLength() != 12) {
+            throw new InvalidTupleSizeException(null, "HEAPFILE: TUPLE SIZE ERROR"+_map.getLength());
+        } else {*/
+            data = _map.getMapByteArray();
+            offset = _map.getOffset();
 
-        availspace = Convert.getIntValue(offset, data);
-        recct = Convert.getIntValue(offset + 4, data);
-        pageId = new PageId();
-        pageId.pid = Convert.getIntValue(offset + 8, data);
+            availspace = Convert.getIntValue(offset, data);
+            recct = Convert.getIntValue(offset + 4, data);
+            pageId = new PageId();
+            pageId.pid = Convert.getIntValue(offset + 8, data);
+        //}
     }
 
     /**
@@ -153,10 +158,10 @@ class DataPageInfo implements GlobalConst {
 
 
         // 2) create a Map object using this array
-        Map atuple = new Map(data, offset);
+        Map amap = new Map(data, offset, size);
 
-        // 3) return tuple object
-        return atuple;
+        // 3) return map object
+        return amap;
 
     }
 

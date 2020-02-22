@@ -86,7 +86,7 @@ public class AttrCatalog extends Heapfile
         // OPEN SCAN
 
         try {
-            pscan = new Scan(this);
+            pscan = new Scan(this, true);
         } catch (Exception e1) {
             throw new AttrCatalogException(e1, "scan failed");
         }
@@ -96,7 +96,7 @@ public class AttrCatalog extends Heapfile
 
         while (true) {
             try {
-                tuple = pscan.getNext(rid);
+                tuple = pscan.getNextTuple(rid);
                 if (tuple == null)
                     throw new Catalogattrnotfound(null, "Catalog: Attribute not Found!");
                 read_tuple(tuple, record);
@@ -163,7 +163,7 @@ public class AttrCatalog extends Heapfile
         // OPEN SCAN
 
         try {
-            pscan = new Scan(this);
+            pscan = new Scan(this, true);
         } catch (Exception e1) {
             throw new AttrCatalogException(e1, "scan failed");
         }
@@ -178,7 +178,7 @@ public class AttrCatalog extends Heapfile
 
         while (true) {
             try {
-                tuple = pscan.getNext(rid);
+                tuple = pscan.getNextTuple(rid);
                 if (tuple == null)
                     throw new Catalogindexnotfound(null,
                             "Catalog: Index not Found!");
@@ -319,7 +319,7 @@ public class AttrCatalog extends Heapfile
 
         // OPEN SCAN
         try {
-            pscan = new Scan(this);
+            pscan = new Scan(this, true);
         } catch (Exception e1) {
             throw new AttrCatalogException(e1, "scan failed");
         }
@@ -328,7 +328,7 @@ public class AttrCatalog extends Heapfile
         // SCAN FILE
         while (true) {
             try {
-                tuple = pscan.getNext(rid);
+                tuple = pscan.getNextTuple(rid);
                 if (tuple == null)
                     throw new Catalogattrnotfound(null,
                             "Catalog: Attribute not Found!");

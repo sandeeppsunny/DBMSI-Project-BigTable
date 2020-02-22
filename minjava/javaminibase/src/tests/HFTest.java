@@ -162,7 +162,7 @@ class HFDriver extends TestDriver implements GlobalConst {
             System.out.println("  - Scan the records just inserted\n");
 
             try {
-                scan = f.openScan();
+                scan = f.openScanTuple();
             } catch (Exception e) {
                 status = FAIL;
                 System.err.println("*** Error opening scan\n");
@@ -184,7 +184,7 @@ class HFDriver extends TestDriver implements GlobalConst {
             boolean done = false;
             while (!done) {
                 try {
-                    tuple = scan.getNext(rid);
+                    tuple = scan.getNextTuple(rid);
                     if (tuple == null) {
                         done = true;
                         break;
@@ -278,7 +278,7 @@ class HFDriver extends TestDriver implements GlobalConst {
         if (status == OK) {
             System.out.println("  - Delete half the records\n");
             try {
-                scan = f.openScan();
+                scan = f.openScanTuple();
             } catch (Exception e) {
                 status = FAIL;
                 System.err.println("*** Error opening scan\n");
@@ -293,7 +293,7 @@ class HFDriver extends TestDriver implements GlobalConst {
 
             while (!done) {
                 try {
-                    tuple = scan.getNext(rid);
+                    tuple = scan.getNextTuple(rid);
                     if (tuple == null) {
                         done = true;
                     }
@@ -338,7 +338,7 @@ class HFDriver extends TestDriver implements GlobalConst {
         if (status == OK) {
             System.out.println("  - Scan the remaining records\n");
             try {
-                scan = f.openScan();
+                scan = f.openScanTuple();
             } catch (Exception e) {
                 status = FAIL;
                 System.err.println("*** Error opening scan\n");
@@ -354,7 +354,7 @@ class HFDriver extends TestDriver implements GlobalConst {
 
             while (!done) {
                 try {
-                    tuple = scan.getNext(rid);
+                    tuple = scan.getNextTuple(rid);
                     if (tuple == null) {
                         done = true;
                     }
@@ -413,7 +413,7 @@ class HFDriver extends TestDriver implements GlobalConst {
         if (status == OK) {
             System.out.println("  - Change the records\n");
             try {
-                scan = f.openScan();
+                scan = f.openScanTuple();
             } catch (Exception e) {
                 status = FAIL;
                 System.err.println("*** Error opening scan\n");
@@ -430,7 +430,7 @@ class HFDriver extends TestDriver implements GlobalConst {
 
             while (!done) {
                 try {
-                    tuple = scan.getNext(rid);
+                    tuple = scan.getNextTuple(rid);
                     if (tuple == null) {
                         done = true;
                     }
@@ -490,7 +490,7 @@ class HFDriver extends TestDriver implements GlobalConst {
         if (status == OK) {
             System.out.println("  - Check that the updates are really there\n");
             try {
-                scan = f.openScan();
+                scan = f.openScanTuple();
             } catch (Exception e) {
                 status = FAIL;
                 e.printStackTrace();
@@ -510,7 +510,7 @@ class HFDriver extends TestDriver implements GlobalConst {
 
             while (!done) {
                 try {
-                    tuple = scan.getNext(rid);
+                    tuple = scan.getNextTuple(rid);
                     if (tuple == null) {
                         done = true;
                         break;
@@ -594,7 +594,7 @@ class HFDriver extends TestDriver implements GlobalConst {
         if (status == OK) {
             System.out.println("  - Try to change the size of a record\n");
             try {
-                scan = f.openScan();
+                scan = f.openScanTuple();
             } catch (Exception e) {
                 status = FAIL;
                 System.err.println("*** Error opening scan\n");
@@ -611,7 +611,7 @@ class HFDriver extends TestDriver implements GlobalConst {
             Tuple tuple = new Tuple();
 
             try {
-                tuple = scan.getNext(rid);
+                tuple = scan.getNextTuple(rid);
                 if (tuple == null) {
                     status = FAIL;
                 }
@@ -733,7 +733,7 @@ class HFDriver extends TestDriver implements GlobalConst {
             m1.setTimeStamp(TIME_STAMP);
             m1.setValue(VALUE);
 
-            System.out.println("\n  Test 1: Insert and scan fixed-size records\n");
+            System.out.println("\n  Test HERERERERER: Insert and scan fixed-size records\n");
             boolean status = OK;
             RID rid = new RID();
             Heapfile f = null;
@@ -784,7 +784,77 @@ class HFDriver extends TestDriver implements GlobalConst {
                     e.printStackTrace();
                 }
             }
+            // In general, a sequential scan won't be in the same order as the
+            // insertions.  However, we're inserting fixed-length records here, and
+            // in this case the scan must return the insertion order.
 
+            Scan scan = null;
+
+            if (status == OK) {
+                System.out.println("  - Scan the records just inserted\n");
+
+                try {
+                    scan = f.openScanMap();
+                } catch (Exception e) {
+                    status = FAIL;
+                    System.err.println("*** Error opening scan\n");
+                    e.printStackTrace();
+                }
+
+                if (status == OK && SystemDefs.JavabaseBM.getNumUnpinnedBuffers()
+                        == SystemDefs.JavabaseBM.getNumBuffers()) {
+                    System.err.println("*** The heap-file scan has not pinned the first page\n");
+                    status = FAIL;
+                }
+            }
+
+            if (status == OK) {
+                int len, i = 0;
+                DummyRecord rec = null;
+                Map map = new Map();
+
+                boolean done = false;
+                while (!done) {
+                    try {
+                        map = scan.getNextMap(rid);
+                        if (map == null) {
+                            done = true;
+                            break;
+                        }
+                    } catch (Exception e) {
+                        status = FAIL;
+                        e.printStackTrace();
+                    }
+
+                    if (status == OK && !done) {
+                        try {
+                            map.print();
+                            System.out.println("here========>");
+                        } catch (Exception e) {
+                            System.err.println("" + e);
+                            e.printStackTrace();
+                        }
+                    }
+                    ++i;
+                }
+
+                //If it gets here, then the scan should be completed
+                if (status == OK) {
+                    if (SystemDefs.JavabaseBM.getNumUnpinnedBuffers()
+                            != SystemDefs.JavabaseBM.getNumBuffers()) {
+                        System.err.println("*** The heap-file scan has not unpinned " +
+                                "its page after finishing\n");
+                        status = FAIL;
+                    } else if (i != (choice)) {
+                        status = FAIL;
+
+                        System.err.println("*** Scanned " + i + " records instead of "
+                                + choice + "\n");
+                    }
+                }
+            }
+
+            if (status == OK)
             System.out.println("HEREEEEEEEEEEEEEE");
         } catch (Exception e) {
             System.out.println(e);
@@ -796,6 +866,9 @@ class HFDriver extends TestDriver implements GlobalConst {
 
         boolean _passAll = OK;
 
+        if (!test6()) {
+            _passAll = FAIL;
+        }
         if (!test1()) {
             _passAll = FAIL;
         }
@@ -809,9 +882,6 @@ class HFDriver extends TestDriver implements GlobalConst {
             _passAll = FAIL;
         }
         if (!test5()) {
-            _passAll = FAIL;
-        }
-        if (!test6()) {
             _passAll = FAIL;
         }
 

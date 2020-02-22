@@ -66,7 +66,7 @@ public class RelCatalog extends Heapfile
             throw new Catalogmissparam(null, "MISSING_PARAM");
 
         try {
-            pscan = new Scan(this);
+            pscan = new Scan(this, true);
         } catch (Exception e1) {
             System.err.println("Scan" + e1);
             throw new RelCatalogException(e1, "scan failed");
@@ -74,7 +74,7 @@ public class RelCatalog extends Heapfile
 
         while (true) {
             try {
-                tuple = pscan.getNext(rid);
+                tuple = pscan.getNextTuple(rid);
                 if (tuple == null)
                     throw new Catalogrelnotfound(null, "Catalog: Relation not Found!");
                 read_tuple(tuple, record);
@@ -306,7 +306,7 @@ public class RelCatalog extends Heapfile
             throw new Catalogmissparam(null, "MISSING_PARAM");
 
         try {
-            pscan = new Scan(this);
+            pscan = new Scan(this, true);
         } catch (Exception e1) {
             System.err.println("Scan" + e1);
             throw new RelCatalogException(e1, "scan failed");
@@ -314,7 +314,7 @@ public class RelCatalog extends Heapfile
 
         while (true) {
             try {
-                tuple = pscan.getNext(rid);
+                tuple = pscan.getNextTuple(rid);
                 if (tuple == null)
                     throw new Catalogattrnotfound(null,
                             "Catalog Attribute not Found!");
