@@ -6,10 +6,10 @@ import heap.Heapfile;
 import iterator.MapUtils;
 
 public class MapUnitTest {
-    final static String ROW_LABEL = "Row";
-    final static String COL_LABEL = "Column";
-    final static int TIME_STAMP = 2;
-    final static String VALUE = "Value";
+    final static String ROW_LABEL = "RowLabel test";
+    final static String COL_LABEL = "ColumnLabel test";
+    final static int TIME_STAMP = 25;
+    final static String VALUE = "0123456";
     final static short[] strSizes = new short[]{(short)ROW_LABEL.length(), (short)COL_LABEL.length(), (short)VALUE.length()};
 //    final static int MAP_SIZE = 82;
 

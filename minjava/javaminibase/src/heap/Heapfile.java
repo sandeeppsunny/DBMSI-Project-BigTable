@@ -841,7 +841,7 @@ public class Heapfile implements Filetype, GlobalConst {
                     currentDataPageRid = currentDirPage.insertRecord(tmpData);
 
                     RID tmprid = currentDirPage.firstRecord();
-                    System.out.println("RID " + tmprid.slotNo + " " + tmprid.pageNo);
+//                    System.out.println("RID " + tmprid.slotNo + " " + tmprid.pageNo);
 
                     // need catch error here!
                     if (currentDataPageRid == null)

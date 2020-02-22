@@ -10,6 +10,7 @@ import bufmgr.*;
 import diskmgr.*;
 import global.*;
 import chainexception.*;
+import iterator.MapUtils;
 
 import static tests.MapUnitTest.*;
 
@@ -29,7 +30,7 @@ class HFDriver extends TestDriver implements GlobalConst {
 
     public HFDriver() {
         super("hptest");
-        choice = 10;      // big enough for file to occupy > 1 data page
+        choice = 100;      // big enough for file to occupy > 1 data page
         //choice = 2000;   // big enough for file to occupy > 1 directory page
         //choice = 5;
     }
@@ -840,8 +841,15 @@ class HFDriver extends TestDriver implements GlobalConst {
 
                     if (status == OK && !done) {
                         try {
-                            map.print();
-                            System.out.println("here========>");
+                            map.setHdr(fieldCnt, null, new short[]{rowLabelLength, columnLabelLength, valueLength});
+                            if(!MapUtils.Equal(map, map_insert)){
+                                System.err.println("*** Record " + i
+                                        + " differs from what we inserted\n");
+                                System.err.println("Row label should be " + map_insert.getRowLabel() + " but is " + map.getRowLabel());
+                                System.err.println("Column label should be " + map_insert.getRowLabel() + " but is " + map.getRowLabel());
+                                System.err.println("TimeStamp should be " + map_insert.getRowLabel() + " but is " + map.getRowLabel());
+                                System.err.println("Value should be " + map_insert.getRowLabel() + " but is " + map.getRowLabel());
+                            }
                         } catch (Exception e) {
                             System.err.println("" + e);
                             e.printStackTrace();
@@ -867,7 +875,7 @@ class HFDriver extends TestDriver implements GlobalConst {
             }
 
             if (status == OK)
-            System.out.println(" Test 6 Map ");
+            System.out.println(" Test 6: Map  record insertion completed successfully");
         } catch (Exception e) {
             System.out.println(e);
         }
