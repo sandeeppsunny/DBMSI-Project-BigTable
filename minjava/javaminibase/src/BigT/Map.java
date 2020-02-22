@@ -5,6 +5,7 @@ import java.io.IOException;
 import global.AttrType;
 import global.Convert;
 import global.GlobalConst;
+import heap.InvalidTupleSizeException;
 
 /**
  * Map object analogous to tuple
@@ -19,7 +20,7 @@ public class Map implements GlobalConst {
     private byte[] data;
 
     /* Map will have 4 fixed fields */
-    private static final int fldCnt = 4;
+    private static short fldCnt = 4;
 
     /* Start position of this map in data[] */
     private int map_offset;
@@ -37,7 +38,7 @@ public class Map implements GlobalConst {
 
     private static final int integerAttributeSize = 4;
 
-    public static final int MAX_MAP_LENGTH = 82;
+    public static final int MAX_MAP_LENGTH = MINIBASE_PAGESIZE;
 
     /**
      * Default Map constructor
@@ -46,18 +47,6 @@ public class Map implements GlobalConst {
         this.data = new byte[MAX_MAP_LENGTH];
         this.map_offset = 0;
         this.map_length = MAX_MAP_LENGTH;
-        fldOffset = new short[fldCnt + 2];
-
-        fldOffset[0] = 12;
-        fldOffset[1] = (short) (fldOffset[0] + stringAttributeSize + 2);
-        fldOffset[2] = (short) (fldOffset[1] + stringAttributeSize + 2);
-        fldOffset[3] = (short) (fldOffset[2] + integerAttributeSize);
-        fldOffset[4] = (short) (fldOffset[3] + stringAttributeSize + 2);
-        fldOffset[5] = (short) MAX_MAP_LENGTH;
-
-        for (int i = 0; i <= fldCnt + 1; i++) {
-            Convert.setShortValue(fldOffset[i], 2 * i, data);
-        }
     }
 
     /**
@@ -68,15 +57,15 @@ public class Map implements GlobalConst {
     public Map(Map fromMap) {
         this.data = fromMap.getMapByteArray();
         this.map_offset = 0;
-        this.map_length = fromMap.map_length;
-        fldOffset = new short[fldCnt + 2];
+        this.map_length = fromMap.getLength();
+        fldCnt = fromMap.noOfFlds();
+        fldOffset = fromMap.copyFldOffset();
+    }
 
-        fldOffset[0] = 12;
-        fldOffset[1] = (short) (fldOffset[0] + stringAttributeSize + 2);
-        fldOffset[2] = (short) (fldOffset[1] + stringAttributeSize + 2);
-        fldOffset[3] = (short) (fldOffset[2] + integerAttributeSize);
-        fldOffset[4] = (short) (fldOffset[3] + stringAttributeSize + 2);
-        fldOffset[5] = (short) MAX_MAP_LENGTH;
+    public Map(int size){
+        data = new byte[size];
+        map_offset = 0;
+        map_length = size;
     }
 
     /**
@@ -89,18 +78,40 @@ public class Map implements GlobalConst {
         this.data = amap;
         this.map_offset = offset;
         this.map_length = len;
-        fldOffset = new short[fldCnt + 2];
-        fldOffset[0] = 12;
-        fldOffset[1] = (short) (fldOffset[0] + stringAttributeSize + 2);
-        fldOffset[2] = (short) (fldOffset[1] + stringAttributeSize + 2);
-        fldOffset[3] = (short) (fldOffset[2] + integerAttributeSize);
-        fldOffset[4] = (short) (fldOffset[3] + stringAttributeSize + 2);
-        fldOffset[5] = (short) MAX_MAP_LENGTH;
     }
 
-//	public void setHdr(short numFlds, AttrType types[], short strSizes[]) throws IOException  {
-//		
-//	}
+	public void setHdr(short numFlds, AttrType types[], short strSizes[]) throws IOException, InvalidTupleSizeException {
+        if ((numFlds + 2) * 2 > MAX_MAP_LENGTH)
+            throw new InvalidTupleSizeException(null, "MAP: MAP_TOOBIG_ERROR");
+        fldCnt = numFlds;
+        Convert.setShortValue(numFlds, map_offset, data);
+        fldOffset = new short[numFlds + 1];
+        int pos = map_offset + 2; // Used first 2 bytes from map_offset tp set numFlds short value in data
+
+        fldOffset[0] = (short) ((numFlds + 2) * 2 + map_offset);
+        Convert.setShortValue(fldOffset[0], pos, data);
+        pos += 2; //Another 2 bytes used to store the fldOffset[0] which is basically denoting the start of actual data
+
+        // We know that the attribute type orders are String, String, Integer and String.
+        short strCount = 0;
+        short incr = 0;
+        for(int i = 1; i<=numFlds; i++){
+            if(i == 3){
+                incr = 4;
+            }else{
+                incr = (short) (strSizes[strCount] + 2);  //strlen in bytes = strlen +2
+                strCount++;
+            }
+            fldOffset[i] = (short) (fldOffset[i - 1] + incr);
+            Convert.setShortValue(fldOffset[i], pos, data);
+            pos += 2;
+        }
+        map_length = fldOffset[numFlds] - map_offset;
+
+        if(map_length > MAX_MAP_LENGTH){
+            throw new InvalidTupleSizeException(null, "Map: MAP_TOOBIG_ERROR_AFTER_ALLOC");
+        }
+	}
 
     /**
      * Get the rowlabel field (String).
@@ -207,7 +218,7 @@ public class Map implements GlobalConst {
      * @return map byte array
      */
     public byte[] getMapByteArray() {
-        byte[] mapCopy = new byte[MAX_MAP_LENGTH];
+        byte[] mapCopy = new byte[map_length];
         System.arraycopy(data, map_offset, mapCopy, 0, map_length);
         return mapCopy;
     }
@@ -290,5 +301,26 @@ public class Map implements GlobalConst {
      */
     public int getLength() {
         return map_length;
+    }
+
+    /**
+     * Get the number of fields
+     * @return fldCnt
+     */
+    public short noOfFlds() {
+        return fldCnt;
+    }
+
+    /**
+     * Copy the fldOffset array and return
+     * @return fldOffset array copy
+     */
+    public short[] copyFldOffset() {
+        short[] newFldOffset = new short[fldCnt + 1];
+        for (int i = 0; i <= fldCnt; i++) {
+            newFldOffset[i] = fldOffset[i];
+        }
+
+        return newFldOffset;
     }
 }
