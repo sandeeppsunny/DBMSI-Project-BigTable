@@ -4,6 +4,7 @@ package heap;
 
 import java.io.*;
 import java.lang.*;
+import java.util.Arrays;
 
 import BigT.Map;
 import global.*;
@@ -124,7 +125,6 @@ public class HFPage extends Page
     public void init(PageId pageNo, Page apage)
             throws IOException {
         data = apage.getpage();
-
         slotCnt = 0;                // no slots in use
         Convert.setShortValue(slotCnt, SLOT_CNT, data);
 
@@ -305,6 +305,7 @@ public class HFPage extends Page
             throws IOException {
         int position = DPFIXED + slotno * SIZE_OF_SLOT;
         short val = Convert.getShortValue(position, data);
+//        System.out.println("slot length " + val);
         return val;
     }
 
@@ -583,6 +584,7 @@ public class HFPage extends Page
             record = new byte[recLen];
             System.arraycopy(data, offset, record, 0, recLen);
             Map map = new Map(record, 0, recLen);
+            System.out.println("getmaprecord success");
             return map;
         } else {
             throw new InvalidSlotNumberException(null, "HEAPFILE: INVALID_SLOTNO");
@@ -648,16 +650,18 @@ public class HFPage extends Page
 
         curPage.pid = Convert.getIntValue(CUR_PAGE, data);
         int slotNo = rid.slotNo;
-
+        System.out.println("return Map Record " + curPage.pid + " slotNo " + rid.slotNo);
         // length of record being returned
         recLen = getSlotLength(slotNo);
         slotCnt = Convert.getShortValue(SLOT_CNT, data);
-
+        System.out.println("slot count " + slotCnt);
         if ((slotNo >= 0) && (slotNo < slotCnt) && (recLen > 0)
                 && (pageNo.pid == curPage.pid)) {
 
             offset = getSlotOffset(slotNo);
+            System.out.println("offset "+ offset);
             Map map = new Map(data, offset, recLen);
+            System.out.println("Returning map with byte array " + Arrays.toString(map.getMapByteArray()));
             return map;
         } else {
             throw new InvalidSlotNumberException(null, "HEAPFILE: INVALID_SLOTNO");

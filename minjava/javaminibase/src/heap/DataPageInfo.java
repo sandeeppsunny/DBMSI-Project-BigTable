@@ -10,6 +10,7 @@ import BigT.Map;
 import global.*;
 
 import java.io.*;
+import java.util.Arrays;
 
 /**
  * DataPageInfo class : the type of records stored on a directory page.
@@ -112,17 +113,19 @@ class DataPageInfo implements GlobalConst {
      */
     public DataPageInfo(Map _map) throws InvalidTupleSizeException, IOException {
         // need check _atuple size == this.size ?otherwise, throw new exception
-        /*if (_map.getLength() != 12) {
+        if (_map.getLength() != 12) {
             throw new InvalidTupleSizeException(null, "HEAPFILE: TUPLE SIZE ERROR"+_map.getLength());
-        } else {*/
+        } else {
             data = _map.getMapByteArray();
             offset = _map.getOffset();
-
+            System.out.println("DAtaPageInfo Map");
+            System.out.println("data " + Arrays.toString(data) + " offset = " + offset);
             availspace = Convert.getIntValue(offset, data);
+            System.out.println("availspace " + availspace);
             recct = Convert.getIntValue(offset + 4, data);
             pageId = new PageId();
             pageId.pid = Convert.getIntValue(offset + 8, data);
-        //}
+        }
     }
 
     /**
@@ -152,8 +155,12 @@ class DataPageInfo implements GlobalConst {
             throws IOException {
 
         // 1) write availspace, recct, pageId into data []
+        System.out.println("Availspace " + availspace + " data -> " + Arrays.toString(data));
+        System.out.println("Availspace " + availspace + " reccnt " + recct + " pageId " + pageId.pid);
         Convert.setIntValue(availspace, offset, data);
+        System.out.println("After setting availspace " + Arrays.toString(data));
         Convert.setIntValue(recct, offset + 4, data);
+        System.out.println("After setting reccnt " + Arrays.toString(data));
         Convert.setIntValue(pageId.pid, offset + 8, data);
 
 

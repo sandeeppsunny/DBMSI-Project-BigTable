@@ -1,6 +1,7 @@
 package heap;
 
 import java.io.*;
+import java.util.Arrays;
 
 import BigT.Map;
 import diskmgr.*;
@@ -789,6 +790,7 @@ public class Heapfile implements Filetype, GlobalConst {
                 // need check the record length == DataPageInfo'slength
 
                 if (recLen <= dpinfo.availspace) {
+                    System.out.println("found");
                     found = true;
                     break;
                 }
@@ -820,7 +822,7 @@ public class Heapfile implements Filetype, GlobalConst {
                 //         page
                 // - (2.2) (currentDirPage->available_space() <= sizeof(DataPageInfo):
                 //         look at the next directory page, if necessary, create it.
-
+                System.out.println("DataPageInfo size " + dpinfo.size + " and curDirPage space= " + currentDirPage.available_space());
                 if (currentDirPage.available_space() >= dpinfo.size) {
                     //Start IF02
                     // case (2.1) : add a new data page record into the
@@ -837,12 +839,13 @@ public class Heapfile implements Filetype, GlobalConst {
 
 
                     amap = dpinfo.convertToMap();
+                    System.out.println("convertToMap done. Size= " + amap.getLength() + " array= "+ Arrays.toString(amap.getMapByteArray()));
 
                     byte[] tmpData = amap.getMapByteArray();
                     currentDataPageRid = currentDirPage.insertRecord(tmpData);
 
                     RID tmprid = currentDirPage.firstRecord();
-
+                    System.out.println("RID " + tmprid.slotNo + " " + tmprid.pageNo);
 
                     // need catch error here!
                     if (currentDataPageRid == null)
@@ -949,6 +952,7 @@ public class Heapfile implements Filetype, GlobalConst {
 
 
         RID rid;
+        System.out.println("Trying to insert " + Arrays.toString(recPtr));
         rid = currentDataPage.insertRecord(recPtr);
 
         dpinfo.recct++;
@@ -959,7 +963,7 @@ public class Heapfile implements Filetype, GlobalConst {
 
         // DataPage is now released
         amap = currentDirPage.returnMapRecord(currentDataPageRid);
-
+        System.out.println("amap " + Arrays.toString(amap.getMapByteArray()));
         DataPageInfo dpinfo_ondirpage = new DataPageInfo(amap);
 
 
