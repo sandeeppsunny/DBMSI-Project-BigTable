@@ -647,7 +647,6 @@ public class HFPage extends Page
         short offset;
         PageId pageNo = new PageId();
         pageNo.pid = rid.pageNo.pid;
-
         curPage.pid = Convert.getIntValue(CUR_PAGE, data);
         int slotNo = rid.slotNo;
         System.out.println("return Map Record " + curPage.pid + " slotNo " + rid.slotNo);
@@ -659,7 +658,6 @@ public class HFPage extends Page
                 && (pageNo.pid == curPage.pid)) {
 
             offset = getSlotOffset(slotNo);
-            System.out.println("offset "+ offset);
             Map map = new Map(data, offset, recLen);
             System.out.println("Returning map with byte array " + Arrays.toString(map.getMapByteArray()));
             return map;
