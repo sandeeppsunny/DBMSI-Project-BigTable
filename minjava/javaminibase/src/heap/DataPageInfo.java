@@ -116,7 +116,7 @@ class DataPageInfo implements GlobalConst {
         if (_map.getLength() != 12) {
             throw new InvalidTupleSizeException(null, "HEAPFILE: TUPLE SIZE ERROR"+_map.getLength());
         } else {
-            data = _map.getMapByteArray();
+            data = _map.returnMapByteArray();
             offset = _map.getOffset();
             System.out.println("DAtaPageInfo Map");
             System.out.println("data " + Arrays.toString(data) + " offset = " + offset);
