@@ -584,7 +584,6 @@ public class HFPage extends Page
             record = new byte[recLen];
             System.arraycopy(data, offset, record, 0, recLen);
             Map map = new Map(record, 0, recLen);
-            System.out.println("getmaprecord success");
             return map;
         } else {
             throw new InvalidSlotNumberException(null, "HEAPFILE: INVALID_SLOTNO");
