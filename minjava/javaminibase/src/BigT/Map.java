@@ -1,6 +1,8 @@
 package BigT;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import global.AttrType;
 import global.Convert;
@@ -107,7 +109,6 @@ public class Map implements GlobalConst {
             pos += 2;
         }
         map_length = fldOffset[numFlds] - map_offset;
-
         if(map_length > MAX_MAP_LENGTH){
             throw new InvalidTupleSizeException(null, "Map: MAP_TOOBIG_ERROR_AFTER_ALLOC");
         }
@@ -322,5 +323,16 @@ public class Map implements GlobalConst {
         }
 
         return newFldOffset;
+    }
+
+    public void setFldOffset(byte[] mapByteArray)throws IOException{
+        byte[] fld = Arrays.copyOfRange(mapByteArray, 2, (fldCnt+2)*2);
+        int size = fld.length;
+        fldOffset = new short[fldCnt+1];
+        int pos = 0;
+        for(int i = 0; i < size; i+=2){
+            fldOffset[pos] = Convert.getShortValue(i, fld);
+            pos+=1;
+        }
     }
 }

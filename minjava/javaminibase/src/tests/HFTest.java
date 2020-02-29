@@ -727,6 +727,7 @@ class HFDriver extends TestDriver implements GlobalConst {
     }
 
     protected boolean test6() {
+        boolean status = OK;
         try {
             BigT.Map m1 = new Map();
             short rowLabelLength = (short)ROW_LABEL.length();
@@ -737,17 +738,16 @@ class HFDriver extends TestDriver implements GlobalConst {
 
             BigT.Map map_insert = new Map((int)m1.getLength());
             byte[] map_insert_data = new byte[(int)m1.getLength()];
-            map_insert.setHdr(fieldCnt, null, new short[]{rowLabelLength, columnLabelLength, valueLength});
 
             map_insert.mapInit(map_insert_data, 0, m1.getLength());
-
+            map_insert.setHdr(fieldCnt, null, new short[]{rowLabelLength, columnLabelLength, valueLength});
             map_insert.setRowLabel(ROW_LABEL);
             map_insert.setColumnLabel(COL_LABEL);
             map_insert.setTimeStamp(TIME_STAMP);
             map_insert.setValue(VALUE);
 
             System.out.println("\n  Test 6 Map: Insert and scan fixed-size records\n");
-            boolean status = OK;
+
             RID rid = new RID();
             Heapfile f = null;
 
@@ -841,7 +841,8 @@ class HFDriver extends TestDriver implements GlobalConst {
 
                     if (status == OK && !done) {
                         try {
-                            map.setHdr(fieldCnt, null, new short[]{rowLabelLength, columnLabelLength, valueLength});
+                            // map.setHdr(fieldCnt, null, new short[]{rowLabelLength, columnLabelLength, valueLength})
+                            map.setFldOffset(map.getMapByteArray());
                             if(!MapUtils.Equal(map, map_insert)){
                                 System.err.println("*** Record " + i
                                         + " differs from what we inserted\n");
@@ -878,8 +879,9 @@ class HFDriver extends TestDriver implements GlobalConst {
             System.out.println(" Test 6: Map  record insertion completed successfully");
         } catch (Exception e) {
             System.out.println(e);
+            status = FAIL;
         }
-        return true;
+        return status;
     }
 
     protected boolean runAllTests() {
