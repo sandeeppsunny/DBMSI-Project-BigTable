@@ -724,6 +724,7 @@ class HFDriver extends TestDriver implements GlobalConst {
         if (status == OK)
             System.out.println("  Test 4 completed successfully.\n");
         return (status == OK);
+
     }
 
     protected Map[] generateMaps() throws IOException, InvalidTupleSizeException{
@@ -754,7 +755,7 @@ class HFDriver extends TestDriver implements GlobalConst {
     protected boolean test6() {
         boolean status = OK;
         try {
-            System.out.println("\n  Test 6 Map: Insert and scan fixed-size map girecords\n");
+            System.out.println("\n  Test 6 Map: Insert and scan fixed-size map records\n");
             Map[] mapArr = generateMaps();
 
             RID rid = new RID();
@@ -1208,16 +1209,246 @@ class HFDriver extends TestDriver implements GlobalConst {
                     }
                     i += 2;     // Because we deleted the odd ones...
                 }
+                scan.closescan();
             }catch(Exception e){
                 status = FAIL;
                 System.out.println(e);
             }
         }
+        try {
+            scan = f.openScanMap();
+            if (status == OK) {
+                int i = 0;
+                Map map = new Map();
+                rid = new RID();
+                boolean done = false;
+                while (!done) {
+                    try {
+                        map = scan.getNextMap(rid);
+                        if (map == null) {
+                            done = true;
+                            break;
+                        }
+                        f.deleteRecordMap(rid);
+                    } catch (Exception e) {
+                        status = FAIL;
+                        e.printStackTrace();
+                        break;
+                    }
+                    ++i;
+                }
+            }
 
+            if(f.getRecCntMap() != 0) {
+                status = FAIL;
+                System.out.println(f.getRecCntMap()+" maps are still left in the heap file!");
+            }
+        } catch (Exception e) {
+            status = FAIL;
+            System.out.println(e);
+        }
         if (status == OK)
             System.out.println("  Test 8 completed successfully.\n");
         return status;
+    }
 
+    protected Map[] generateSimilarMaps() throws IOException, InvalidTupleSizeException{
+        Map[] mapArr = new Map[4];
+        Map templateMap = new Map();
+        /* Variable length map header
+            short rowLabelLength = (short)ROW_LABEL.length();
+            short columnLabelLength = (short)COL_LABEL.length();
+            short valueLength = (short)VALUE.length();
+            short fieldCnt = 4;
+            m1.setHdr(fieldCnt, null, new short[]{30, 30, 30});
+        */
+        templateMap.setDefaultHdr();
+        for(int i=0; i<4; i++) {
+            Map m = new Map((int)templateMap.getLength());
+            byte[] m_data = new byte[(int)templateMap.getLength()];
+            m.mapInit(m_data, 0, templateMap.getLength());
+            m.setDefaultHdr();
+            m.setRowLabel(ROW_LABEL);
+            m.setColumnLabel(COL_LABEL);
+            m.setTimeStamp(TIME_STAMP + i);
+            m.setValue(VALUE + "-" + Integer.toString(i));
+            mapArr[i] = m;
+        }
+        return mapArr;
+    }
+
+    protected Map[] generateExpectedMap() throws IOException, InvalidTupleSizeException {
+        Map[] mapArr = new Map[3];
+        Map templateMap = new Map();
+        /* Variable length map header
+            short rowLabelLength = (short)ROW_LABEL.length();
+            short columnLabelLength = (short)COL_LABEL.length();
+            short valueLength = (short)VALUE.length();
+            short fieldCnt = 4;
+            m1.setHdr(fieldCnt, null, new short[]{30, 30, 30});
+        */
+        templateMap.setDefaultHdr();
+        for(int i=0; i<3; i++) {
+            Map m = new Map((int)templateMap.getLength());
+            byte[] m_data = new byte[(int)templateMap.getLength()];
+            m.mapInit(m_data, 0, templateMap.getLength());
+            m.setDefaultHdr();
+            m.setRowLabel(ROW_LABEL);
+            m.setColumnLabel(COL_LABEL);
+            if(i == 0) {
+                m.setTimeStamp(TIME_STAMP + i+3);
+                m.setValue(VALUE + "-" + Integer.toString(i+3));
+            } else {
+                m.setTimeStamp(TIME_STAMP + i);
+                m.setValue(VALUE + "-" + Integer.toString(i));
+            }
+
+            mapArr[i] = m;
+        }
+        return mapArr;
+    }
+
+    protected boolean test9() {
+        boolean status = OK;
+        try {
+            System.out.println("\n  Test 9 Map: Insert similar map records and validate that only 3 map records are stored. \n");
+            Map[] mapArr = generateSimilarMaps();
+            Map[] expectedMapArr = generateExpectedMap();
+
+            RID rid = new RID();
+            Heapfile f = null;
+
+            System.out.println("  - Create a heap file\n");
+            try {
+                f = new Heapfile("file_1");
+            } catch (Exception e) {
+                status = FAIL;
+                System.err.println("*** Could not create heap file\n");
+                e.printStackTrace();
+            }
+
+            if (status == OK && SystemDefs.JavabaseBM.getNumUnpinnedBuffers()
+                    != SystemDefs.JavabaseBM.getNumBuffers()) {
+                System.err.println("*** The heap file has left pages pinned\n");
+                status = FAIL;
+            }
+
+            if (status == OK) {
+                System.out.println("   - Add " + 4 + " records to the file\n");
+                for (int i = 0; (i < 4) && (status == OK); i++) {
+                    try {
+                        rid = f.insertRecordMapWithoutIndex(mapArr[i].getMapByteArray());
+                    } catch (Exception e) {
+                        status = FAIL;
+                        System.err.println("*** Error inserting record " + i + "\n");
+                        e.printStackTrace();
+                    }
+
+                    if (status == OK && SystemDefs.JavabaseBM.getNumUnpinnedBuffers()
+                            != SystemDefs.JavabaseBM.getNumBuffers()) {
+
+                        System.err.println("*** Insertion left a page pinned\n");
+                        status = FAIL;
+                    }
+                }
+
+                try {
+                    if (f.getRecCntMap() != 3) {
+                        status = FAIL;
+                        System.err.println("*** File reports " + f.getRecCntMap() +
+                                " records, not " + 3 + "\n");
+                    }
+                } catch (Exception e) {
+                    status = FAIL;
+                    System.out.println("" + e);
+                    e.printStackTrace();
+                }
+            }
+            // In general, a sequential scan won't be in the same order as the
+            // insertions.  However, we're inserting fixed-length records here, and
+            // in this case the scan must return the insertion order.
+
+            Scan scan = null;
+
+            if (status == OK) {
+                System.out.println("   - Scan the records just inserted\n");
+
+                try {
+                    scan = f.openScanMap();
+                } catch (Exception e) {
+                    status = FAIL;
+                    System.err.println("*** Error opening scan\n");
+                    e.printStackTrace();
+                }
+
+                if (status == OK && SystemDefs.JavabaseBM.getNumUnpinnedBuffers()
+                        == SystemDefs.JavabaseBM.getNumBuffers()) {
+                    System.err.println("*** The heap-file scan has not pinned the first page\n");
+                    status = FAIL;
+                }
+            }
+
+            if (status == OK) {
+                int i = 0;
+                Map map = new Map();
+
+                boolean done = false;
+                while (!done) {
+                    try {
+                        map = scan.getNextMap(rid);
+                        if (map == null) {
+                            done = true;
+                            break;
+                        }
+                    } catch (Exception e) {
+                        status = FAIL;
+                        e.printStackTrace();
+                    }
+
+                    if (status == OK && !done) {
+                        try {
+                            // map.setHdr(fieldCnt, null, new short[]{rowLabelLength, columnLabelLength, valueLength})
+                            map.setFldOffset(map.getMapByteArray());
+                            map.print();
+                            if(!MapUtils.Equal(map, expectedMapArr[i])){
+                                System.err.println("*** Record " + i
+                                        + " differs from what we inserted\n");
+                                System.err.println("Row label should be " + expectedMapArr[i].getRowLabel() + " but is " + map.getRowLabel());
+                                System.err.println("Column label should be " + expectedMapArr[i].getColumnLabel() + " but is " + map.getColumnLabel());
+                                System.err.println("TimeStamp should be " + expectedMapArr[i].getTimeStamp() + " but is " + map.getTimeStamp());
+                                System.err.println("Value should be " + expectedMapArr[i].getValue() + " but is " + map.getValue());
+                            }
+                        } catch (Exception e) {
+                            System.err.println("" + e);
+                            e.printStackTrace();
+                        }
+                    }
+                    ++i;
+                }
+
+                //If it gets here, then the scan should be completed
+                if (status == OK) {
+                    if (SystemDefs.JavabaseBM.getNumUnpinnedBuffers()
+                            != SystemDefs.JavabaseBM.getNumBuffers()) {
+                        System.err.println("*** The heap-file scan has not unpinned " +
+                                "its page after finishing\n");
+                        status = FAIL;
+                    } else if (i != (3)) {
+                        status = FAIL;
+
+                        System.err.println("*** Scanned " + i + " records instead of "
+                                + 3 + "\n");
+                    }
+                }
+            }
+
+            if (status == OK)
+                System.out.println("  Test 9: Similar map records were inserted successfully.");
+        } catch (Exception e) {
+            System.out.println(e);
+            status = FAIL;
+        }
+        return status;
     }
 
     protected boolean runAllTests() {
@@ -1247,6 +1478,9 @@ class HFDriver extends TestDriver implements GlobalConst {
             _passAll = FAIL;
         }
         if (!test8()) {
+            _passAll = FAIL;
+        }
+        if (!test9()) {
             _passAll = FAIL;
         }
         return _passAll;
