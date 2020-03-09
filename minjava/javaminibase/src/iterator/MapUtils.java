@@ -101,7 +101,7 @@ public class MapUtils {
 //            if (in2[i].attrType == AttrType.attrString)
 //                sizesT2[i] = t2_str_sizes[count++];
 
-        int n_strs = 3;
+        int n_strs = Map.noOfStrFields;
 //        for (i = 0; i < nOutFlds; i++) {
 //            if (proj_list[i].relation.key == RelSpec.outer)
 //                res_attrs[i] = new AttrType(in1[proj_list[i].offset - 1].attrType);
@@ -117,7 +117,7 @@ public class MapUtils {
 //                n_strs++;
 //        }
 
-        short[] res_str_sizes = new short[]{30, 30, 30};
+        short[] res_str_sizes = new short[]{Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE};
         count = 0;
 //        for (i = 0; i < nOutFlds; i++) {
 //            if (proj_list[i].relation.key == RelSpec.outer && in1[proj_list[i].offset - 1].attrType == AttrType.attrString)
@@ -149,7 +149,7 @@ public class MapUtils {
      * @throws InvalidRelation     invalid relation
      */
 
-    public static short[] setup_op_map(Tuple Jmap, AttrType res_attrs[],
+    public static short[] setup_op_map(Map Jmap, AttrType res_attrs[],
                                          AttrType in1[], int len_in1,
                                          short t1_str_sizes[],
                                          FldSpec proj_list[], int nOutFlds)
@@ -163,7 +163,7 @@ public class MapUtils {
 //            if (in1[i].attrType == AttrType.attrString)
 //                sizesT1[i] = t1_str_sizes[count++];
 
-        int n_strs = 3;
+        int n_strs = Map.DEFAULT_STRING_ATTRIBUTE_SIZE;
 //        for (i = 0; i < nOutFlds; i++) {
 //            if (proj_list[i].relation.key == RelSpec.outer)
 //                res_attrs[i] = new AttrType(in1[proj_list[i].offset - 1].attrType);
@@ -178,7 +178,7 @@ public class MapUtils {
 //                n_strs++;
 //        }
 
-        short[] res_str_sizes = new short[]{30, 30, 30};
+        short[] res_str_sizes = new short[]{Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE};
         count = 0;
 //        for (i = 0; i < nOutFlds; i++) {
 //            if (proj_list[i].relation.key == RelSpec.outer
