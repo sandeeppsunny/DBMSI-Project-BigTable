@@ -7,6 +7,7 @@ import bufmgr.*;
 import index.*;
 
 import java.io.*;
+import BigT.*;
 
 /**
  * All the relational operators and access methods are iterators.
@@ -40,7 +41,7 @@ public abstract class Iterator implements Flags {
      * @throws UnknownKeyTypeException   key type unknown
      * @throws Exception                 other exceptions
      */
-    public abstract Tuple get_next()
+    public abstract Map get_next()
             throws IOException,
             JoinsException,
             IndexException,

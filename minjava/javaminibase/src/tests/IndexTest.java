@@ -797,4 +797,3 @@ public class IndexTest {
         }
     }
 }
-
