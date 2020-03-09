@@ -1,12 +1,12 @@
 package heap;
 
 import java.io.*;
-import java.util.Arrays;
+import java.util.*;
 
 import BigT.Map;
 import diskmgr.*;
-import bufmgr.*;
 import global.*;
+import iterator.MapUtils;
 
 /**
  * This heapfile implementation is directory-based. We maintain a
@@ -971,7 +971,71 @@ public class Heapfile implements Filetype, GlobalConst {
 
 
         return rid;
+    }
 
+    /**
+     * Insert map record into file, return its Rid.
+     *
+     * @param recPtr pointer of the record
+     * @return the rid of the record
+     */
+    public RID insertRecordMapWithoutIndex(byte[] recPtr) throws Exception {
+        List<Map> mapList = new ArrayList<Map>();
+        HashMap<Map, RID> ridHashMap = new HashMap<Map, RID>();
+        Map newMap = new Map(recPtr, 0, recPtr.length);
+        newMap.setDefaultHdr();
+
+        RID rid = new RID();
+        Scan scan = openScanMap();
+
+        boolean isScanComplete = false;
+
+        while(!isScanComplete) {
+            Map map = scan.getNextMap(rid);
+            if(map == null) {
+                isScanComplete = true;
+                break;
+            }
+            map.setFldOffset(map.getMapByteArray());
+            if(MapUtils.CompareMapWithMap(map, newMap, 1) == 0 && MapUtils.CompareMapWithMap(map, newMap, 2) == 0) {
+                if(MapUtils.CompareMapWithMap(map, newMap, 3) == 0) {
+                    updateRecordMap(rid, map);
+
+                    scan.closescan();
+                    return rid;
+                } else {
+                    RID tempRid = new RID();
+                    tempRid.copyRid(rid);
+
+                    ridHashMap.put(map, tempRid);
+                    mapList.add(map);
+                }
+            }
+        }
+        scan.closescan();
+        Collections.sort(mapList, new Comparator<Map>() {
+            @Override
+            public int compare(Map a, Map b) {
+                try {
+                    return a.getTimeStamp()-b.getTimeStamp();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return 0;
+            }
+        });
+        if(mapList.size() < 3) {
+            return insertRecordMap(recPtr);
+        } else {
+            RID ridToUpdate = ridHashMap.get(mapList.get(0));
+            updateRecordMap(ridToUpdate, newMap);
+
+            for(int i=3; i<mapList.size(); i++) {
+                RID ridToDelete = ridHashMap.get(mapList.get(i));
+                deleteRecordTuple(ridToDelete);
+            }
+            return ridToUpdate;
+        }
     }
 
     /**

@@ -37,7 +37,7 @@ public class Map implements GlobalConst {
 
     private short[] fldOffset;
 
-    private static final int stringAttributeSize = 20;
+    private static final int DEFAULT_STRING_ATTRIBUTE_SIZE = 30;
 
     private static final int integerAttributeSize = 4;
 
@@ -114,6 +114,37 @@ public class Map implements GlobalConst {
             throw new InvalidTupleSizeException(null, "Map: MAP_TOOBIG_ERROR_AFTER_ALLOC");
         }
 	}
+
+    public void setDefaultHdr() throws IOException, InvalidTupleSizeException {
+        short numFlds = 4;
+        if ((numFlds + 2) * 2 > MAX_MAP_LENGTH)
+            throw new InvalidTupleSizeException(null, "MAP: MAP_TOOBIG_ERROR");
+        fldCnt = numFlds;
+        Convert.setShortValue(numFlds, map_offset, data);
+        fldOffset = new short[numFlds + 1];
+        int pos = map_offset + 2; // Used first 2 bytes from map_offset tp set numFlds short value in data
+
+        fldOffset[0] = (short) ((numFlds + 2) * 2 + map_offset);
+        Convert.setShortValue(fldOffset[0], pos, data);
+        pos += 2; //Another 2 bytes used to store the fldOffset[0] which is basically denoting the start of actual data
+
+        // We know that the attribute type orders are String, String, Integer and String.
+        short incr = 0;
+        for(int i = 1; i<=numFlds; i++){
+            if(i == 3){
+                incr = 4;
+            }else{
+                incr = (short) (DEFAULT_STRING_ATTRIBUTE_SIZE + 2);  //strlen in bytes = strlen +2
+            }
+            fldOffset[i] = (short) (fldOffset[i - 1] + incr);
+            Convert.setShortValue(fldOffset[i], pos, data);
+            pos += 2;
+        }
+        map_length = fldOffset[numFlds] - map_offset;
+        if(map_length > MAX_MAP_LENGTH){
+            throw new InvalidTupleSizeException(null, "Map: MAP_TOOBIG_ERROR_AFTER_ALLOC");
+        }
+    }
 
     /**
      * Get the rowlabel field (String).
