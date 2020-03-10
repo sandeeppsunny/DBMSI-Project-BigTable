@@ -12,7 +12,7 @@ import BigT.*;
 /**
  * All the relational operators and access methods are iterators.
  */
-public abstract class Iterator implements Flags {
+public abstract class MapIterator implements Flags {
 
     /**
      * a flag to indicate whether this iterator has been closed.
@@ -41,7 +41,7 @@ public abstract class Iterator implements Flags {
      * @throws UnknownKeyTypeException   key type unknown
      * @throws Exception                 other exceptions
      */
-    public abstract Tuple get_next()
+    public abstract Map get_next()
             throws IOException,
             JoinsException,
             IndexException,

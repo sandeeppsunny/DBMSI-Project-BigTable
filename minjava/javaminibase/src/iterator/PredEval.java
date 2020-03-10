@@ -268,11 +268,8 @@ public class PredEval {
 
 
                 // Got the arguments, now perform a comparison.
-                try {
-                    comp_res = MapUtils.CompareMapWithMap(tuple1, fld1, tuple2, fld2);
-                } catch (TupleUtilsException e) {
-                    throw new PredEvalException(e, "TupleUtilsException is caught by PredEval.java");
-                }
+                comp_res = MapUtils.CompareMapWithMap(tuple1, tuple2, fld1);
+                
                 op_res = false;
 
                 switch (temp_ptr.op.attrOperator) {

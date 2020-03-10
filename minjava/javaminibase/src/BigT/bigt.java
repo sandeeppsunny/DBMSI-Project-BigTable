@@ -10,7 +10,7 @@ import global.*;
 import btree.*;
 import heap.*;
 
-public class bigt extends Heapfile {
+public class bigt{
 
     private String name;
     // PageId _firstDirPageId;   // page number of header page
@@ -19,12 +19,12 @@ public class bigt extends Heapfile {
     // private String _fileName;
     // private static int tempfilecount = 0;
 
+    private Heapfile _hf;
     private BTreeFile index1 = null;
     private BTreeFile index2 = null;
-    private int mapCount = 0;
     private int type;
 
-    bigt(java.lang.String name, int type)
+    public bigt(java.lang.String name, int type)
             throws HFException,
             HFBufMgrException,
             HFDiskMgrException,
@@ -32,13 +32,16 @@ public class bigt extends Heapfile {
             GetFileEntryException,
             ConstructPageException,
             AddFileEntryException {
-        super(name);
+        _hf = new Heapfile(name);
         this.name = name;
         this.type = type;
-        createIndex(type);
     }
 
-    public void createIndex(int type) throws GetFileEntryException,
+    public Heapfile getheapfile(){
+        return _hf;
+    }
+
+    public void createIndex() throws GetFileEntryException,
             ConstructPageException,
             IOException,
             AddFileEntryException {
@@ -62,7 +65,7 @@ public class bigt extends Heapfile {
         }
     }
 
-    public void insertIndex(RID rid, byte[] mapPtr) throws KeyTooLongException,
+    public void insertIndex(RID rid, Map map) throws KeyTooLongException,
                 KeyNotMatchException,
                 LeafInsertRecException,
                 IndexInsertRecException,
@@ -77,8 +80,6 @@ public class bigt extends Heapfile {
                 LeafDeleteException,
                 InsertException,
                 IOException {
-        Map map = new Map(mapPtr, 0, mapPtr.length);
-        map.setFldOffset(mapPtr);
         switch(type){
             case 1:
                 break;
@@ -97,14 +98,14 @@ public class bigt extends Heapfile {
                 index2.insert(new IntegerKey(map.getTimeStamp()), rid);
                 break;
             }
-        }
+    }
 
-    public void deleteBigt() {
-
-	}
-
-	public int getMapCnt() {
-		return this.mapCount;
+	public int getMapCnt() throws InvalidSlotNumberException,
+            InvalidTupleSizeException,
+            HFDiskMgrException,
+            HFBufMgrException,
+            IOException {
+		return _hf.getRecCntMap();
 	}
 
 	public int getRowCnt() {
@@ -136,9 +137,7 @@ public class bigt extends Heapfile {
             IteratorException,
             LeafDeleteException,
             InsertException{
-        this.mapCount++;
-        RID rid = insertRecordMap(mapPtr);
-        insertIndex(rid, mapPtr);
+        RID rid = _hf.insertRecordMap(mapPtr);
 		return rid;
 	}
 
