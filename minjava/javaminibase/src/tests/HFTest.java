@@ -755,6 +755,7 @@ class HFDriver extends TestDriver implements GlobalConst {
     protected boolean test6() {
         boolean status = OK;
         try {
+            SystemDefs.JavabaseDB.pcounter.initialize();
             System.out.println("\n  Test 6 Map: Insert and scan fixed-size map records\n");
             Map[] mapArr = generateMaps();
 
@@ -886,6 +887,10 @@ class HFDriver extends TestDriver implements GlobalConst {
 
             if (status == OK)
             System.out.println("  Test 6: Map record insertion completed successfully");
+            int read_counter = SystemDefs.JavabaseDB.pcounter.getRCounter();
+            int write_counter = SystemDefs.JavabaseDB.pcounter.getWCounter();
+            System.out.println("Read Counter: " + read_counter);
+            System.out.println("Write Counter: " + write_counter);
         } catch (Exception e) {
             System.out.println(e);
             status = FAIL;
@@ -896,6 +901,7 @@ class HFDriver extends TestDriver implements GlobalConst {
     protected boolean test7() {
 
         System.out.println("\n  Test 7: Delete map record\n");
+        SystemDefs.JavabaseDB.pcounter.initialize();
         boolean status = OK;
         Scan scan = null;
         RID rid = new RID();
@@ -1033,6 +1039,10 @@ class HFDriver extends TestDriver implements GlobalConst {
 
         if (status == OK)
             System.out.println("  Test 7 completed successfully.\n");
+        int read_counter = SystemDefs.JavabaseDB.pcounter.getRCounter();
+        int write_counter = SystemDefs.JavabaseDB.pcounter.getWCounter();
+        System.out.println("Read Counter: " + read_counter);
+        System.out.println("Write Counter: " + write_counter);
         return status;
 
     }
