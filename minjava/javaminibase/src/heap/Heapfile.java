@@ -48,17 +48,17 @@ interface Filetype {
 public class Heapfile implements Filetype, GlobalConst {
 
 
-    PageId _firstDirPageId;   // page number of header page
-    int _ftype;
-    private boolean _file_deleted;
-    private String _fileName;
-    private static int tempfilecount = 0;
+    public PageId _firstDirPageId;   // page number of header page
+    public int _ftype;
+    public boolean _file_deleted;
+    public String _fileName;
+    public static int tempfilecount = 0;
 
 
     /* get a new datapage from the buffer manager and initialize dpinfo
        @param dpinfop the information in the new HFPage
     */
-    private HFPage _newDatapage(DataPageInfo dpinfop)
+    public HFPage _newDatapage(DataPageInfo dpinfop)
             throws HFException,
             HFBufMgrException,
             HFDiskMgrException,
@@ -88,7 +88,7 @@ public class Heapfile implements Filetype, GlobalConst {
        user record(rid) and true if record is found.
        If the user record cannot be found, return false.
     */
-    private boolean _findDataPageTuple(RID rid,
+    public boolean _findDataPageTuple(RID rid,
                                   PageId dirPageId, HFPage dirpage,
                                   PageId dataPageId, HFPage datapage,
                                   RID rpDataPageRid)
@@ -201,7 +201,7 @@ public class Heapfile implements Filetype, GlobalConst {
    user record(rid) and true if record is found.
    If the user record cannot be found, return false.
 */
-    private boolean _findDataPageMap(RID rid,
+    public boolean _findDataPageMap(RID rid,
                                        PageId dirPageId, HFPage dirpage,
                                        PageId dataPageId, HFPage datapage,
                                        RID rpDataPageRid)
@@ -383,13 +383,13 @@ public class Heapfile implements Filetype, GlobalConst {
         }
         _file_deleted = false;
         // ASSERTIONS:
-        // - ALL private data members of class Heapfile are valid:
+        // - ALL public data members of class Heapfile are valid:
         //
         //  - _firstDirPageId valid
         //  - _fileName valid
         //  - no datapage pinned yet
 
-    } // end of constructor 
+    } // end of constructor
 
     /**
      * Return number of records in file.
@@ -1695,7 +1695,7 @@ public class Heapfile implements Filetype, GlobalConst {
      *
      * @see bufmgr.pinPage
      */
-    private void pinPage(PageId pageno, Page page, boolean emptyPage)
+    public void pinPage(PageId pageno, Page page, boolean emptyPage)
             throws HFBufMgrException {
 
         try {
@@ -1711,7 +1711,7 @@ public class Heapfile implements Filetype, GlobalConst {
      *
      * @see bufmgr.unpinPage
      */
-    private void unpinPage(PageId pageno, boolean dirty)
+    public void unpinPage(PageId pageno, boolean dirty)
             throws HFBufMgrException {
 
         try {
@@ -1722,7 +1722,7 @@ public class Heapfile implements Filetype, GlobalConst {
 
     } // end of unpinPage
 
-    private void freePage(PageId pageno)
+    public void freePage(PageId pageno)
             throws HFBufMgrException {
 
         try {
@@ -1733,7 +1733,7 @@ public class Heapfile implements Filetype, GlobalConst {
 
     } // end of freePage
 
-    private PageId newPage(Page page, int num)
+    public PageId newPage(Page page, int num)
             throws HFBufMgrException {
 
         PageId tmpId = new PageId();
@@ -1748,7 +1748,7 @@ public class Heapfile implements Filetype, GlobalConst {
 
     } // end of newPage
 
-    private PageId get_file_entry(String filename)
+    public PageId get_file_entry(String filename)
             throws HFDiskMgrException {
 
         PageId tmpId = new PageId();
@@ -1763,7 +1763,7 @@ public class Heapfile implements Filetype, GlobalConst {
 
     } // end of get_file_entry
 
-    private void add_file_entry(String filename, PageId pageno)
+    public void add_file_entry(String filename, PageId pageno)
             throws HFDiskMgrException {
 
         try {
@@ -1774,7 +1774,7 @@ public class Heapfile implements Filetype, GlobalConst {
 
     } // end of add_file_entry
 
-    private void delete_file_entry(String filename)
+    public void delete_file_entry(String filename)
             throws HFDiskMgrException {
 
         try {

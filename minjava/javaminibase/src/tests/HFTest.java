@@ -727,7 +727,8 @@ class HFDriver extends TestDriver implements GlobalConst {
 
     }
 
-    protected Map[] generateMaps() throws IOException, InvalidTupleSizeException{
+    public static Map[] generateMaps() throws IOException, InvalidTupleSizeException{
+        int choice = 100;
         Map[] mapArr = new Map[choice];
         Map templateMap = new Map();
         /* Variable length map header
@@ -1632,4 +1633,3 @@ public class HFTest {
         Runtime.getRuntime().exit(0);
     }
 }
-

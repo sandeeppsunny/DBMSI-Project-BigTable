@@ -8,6 +8,7 @@ import global.AttrType;
 import global.Convert;
 import global.GlobalConst;
 import heap.InvalidTupleSizeException;
+import heap.*;
 
 /**
  * Map object analogous to tuple
@@ -368,4 +369,60 @@ public class Map implements GlobalConst {
             pos+=1;
         }
     }
+
+    /**
+     * Set this field to integer value
+     *
+     * @param fldNo the field number
+     * @param val   the integer value
+     * @throws IOException                    I/O errors
+     * @throws FieldNumberOutOfBoundException Tuple field number out of bound
+     */
+
+    public Map setIntFld(int fldNo, int val)
+            throws IOException, FieldNumberOutOfBoundException {
+        if ((fldNo > 0) && (fldNo <= fldCnt)) {
+            Convert.setIntValue(val, fldOffset[fldNo - 1], data);
+            return this;
+        } else
+            throw new FieldNumberOutOfBoundException(null, "TUPLE:TUPLE_FLDNO_OUT_OF_BOUND");
+    }
+
+    /**
+     * Set this field to String value
+     *
+     * @param fldNo the field number
+     * @param val   the string value
+     * @throws IOException                    I/O errors
+     * @throws FieldNumberOutOfBoundException Tuple field number out of bound
+     */
+
+    public Map setStrFld(int fldNo, String val)
+            throws IOException, FieldNumberOutOfBoundException {
+        if ((fldNo > 0) && (fldNo <= fldCnt)) {
+            Convert.setStrValue(val, fldOffset[fldNo - 1], data);
+            return this;
+        } else
+            throw new FieldNumberOutOfBoundException(null, "TUPLE:TUPLE_FLDNO_OUT_OF_BOUND");
+    }
+
+    /**
+     * Set this field to float value
+     *
+     * @param fldNo the field number
+     * @param val   the float value
+     * @throws IOException                    I/O errors
+     * @throws FieldNumberOutOfBoundException Tuple field number out of bound
+     */
+
+    public Map setFloFld(int fldNo, float val)
+            throws IOException, FieldNumberOutOfBoundException {
+        if ((fldNo > 0) && (fldNo <= fldCnt)) {
+            Convert.setFloValue(val, fldOffset[fldNo - 1], data);
+            return this;
+        } else
+            throw new FieldNumberOutOfBoundException(null, "TUPLE:TUPLE_FLDNO_OUT_OF_BOUND");
+
+    }
+
 }
