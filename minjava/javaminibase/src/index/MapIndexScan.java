@@ -67,6 +67,7 @@ public class MapIndexScan extends MapIterator{
         short[] ts_sizes;
         Jtuple = new Map();
 
+
         try {
             ts_sizes = MapUtils.setup_op_map(Jtuple, Jtypes, types, noInFlds, str_sizes, outFlds, noOutFlds);
         } catch (TupleUtilsException e) {
@@ -78,14 +79,14 @@ public class MapIndexScan extends MapIterator{
         _selects = selects;
         perm_mat = outFlds;
         _noOutFlds = noOutFlds;
-        tuple1 = new Map();
+        map1 = new Map();
         try {
-            tuple1.setHdr((short) noInFlds, types, str_sizes);
+            map1.setDefaultHdr();
         } catch (Exception e) {
             throw new IndexException(e, "IndexScan.java: Heapfile error");
         }
 
-        t1_size = tuple1.size();
+        t1_size = map1.size();
         index_only = indexOnly;  // added by bingjie miao
 
         try {
@@ -148,6 +149,7 @@ public class MapIndexScan extends MapIterator{
 
         while (nextentry != null) {
             if (index_only) {
+
                 // only need to return the key
 
                 AttrType[] attrType = new AttrType[1];
@@ -198,33 +200,25 @@ public class MapIndexScan extends MapIterator{
             // not index_only, need to return the whole tuple
             rid = ((LeafData) nextentry.data).getData();
             try {
-                tuple1 = f.getRecordMap(rid);
+                map1 = f.getRecordMap(rid);
             } catch (Exception e) {
                 throw new IndexException(e, "IndexScan.java: getRecord failed");
             }
 
             try {
-                tuple1.setHdr((short) _noInFlds, _types, _s_sizes);
+                map1.setFldOffset(map1.getMapByteArray());
             } catch (Exception e) {
                 throw new IndexException(e, "IndexScan.java: Heapfile error");
             }
 
             boolean eval;
             try {
-                eval = PredEval.Eval(_selects, tuple1, null, _types, null);
+                eval = PredEval.Eval(_selects, map1, null, _types, null);
             } catch (Exception e) {
                 throw new IndexException(e, "IndexScan.java: Heapfile error");
             }
-
             if (eval) {
-                // need projection.java
-                try {
-                    MapProjection.Project(tuple1, _types, Jtuple, perm_mat, _noOutFlds);
-                } catch (Exception e) {
-                    throw new IndexException(e, "IndexScan.java: Heapfile error");
-                }
-
-                return Jtuple;
+                return map1;
             }
 
             try {
@@ -267,7 +261,7 @@ public class MapIndexScan extends MapIterator{
     private int _noInFlds;
     private int _noOutFlds;
     private Heapfile f;
-    private Map tuple1;
+    private Map map1;
     private Map Jtuple;
     private int t1_size;
     private int _fldNum;
