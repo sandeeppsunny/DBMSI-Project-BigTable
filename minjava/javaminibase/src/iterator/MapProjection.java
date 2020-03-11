@@ -53,6 +53,7 @@ public class MapProjection {
                             break;
                         case 3:
                             Jmap.setValue(m1.getValue());
+                            break;
                         default:
 
                             throw new UnknowAttrType("Don't know how to handle attrSymbol, attrNull");
@@ -73,6 +74,7 @@ public class MapProjection {
                             break;
                         case 3:
                             Jmap.setValue(m2.getValue());
+                            break;
                         default:
 
                             throw new UnknowAttrType("Don't know how to handle attrSymbol, attrNull");
@@ -125,6 +127,7 @@ public class MapProjection {
                             break;
                         case 3:
                             Jmap.setValue(m1.getValue());
+                            break;
                         default:
 
                             throw new UnknowAttrType("Don't know how to handle attrSymbol, attrNull");
@@ -142,5 +145,3 @@ public class MapProjection {
     }
 
 }
-
-
