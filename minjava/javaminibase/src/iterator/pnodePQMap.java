@@ -69,8 +69,8 @@ public abstract class pnodePQMap {
      *                             <code>attrNull</code> encountered
      * @throws TupleUtilsException error in tuple compare routines
      */
-    abstract public void enq(pnode item)
-            throws IOException, UnknowAttrType, TupleUtilsException;
+    abstract public void enq(pnodeMap item)
+            throws IOException, UnknowAttrType, TupleUtilsException, FieldNumberOutOfBoundException;
 
     /**
      * removes the minimum (Ascending) or maximum (Descending) element
@@ -78,7 +78,7 @@ public abstract class pnodePQMap {
      *
      * @return the element removed, null if the tree is empty
      */
-    abstract public pnode deq();
+    abstract public pnodeMap deq();
 
 
     /**
