@@ -122,659 +122,657 @@ class IndexDriver extends TestDriver
     }
 
     protected boolean test1() {
-        // System.out.println("------------------------ TEST 1 --------------------------");
-        //
-        // boolean status = OK;
-        //
-        // AttrType[] attrType = new AttrType[2];
-        // attrType[0] = new AttrType(AttrType.attrString);
-        // attrType[1] = new AttrType(AttrType.attrString);
-        // short[] attrSize = new short[2];
-        // attrSize[0] = REC_LEN2;
-        // attrSize[1] = REC_LEN1;
-        //
-        // // create a tuple of appropriate size
-        // Tuple t = new Tuple();
-        // try {
-        //     t.setHdr((short) 2, attrType, attrSize);
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        // }
-        //
-        // int size = t.size();
-        //
-        // // Create unsorted data file "test1.in"
-        // RID rid;
-        // Heapfile f = null;
-        // try {
-        //     f = new Heapfile("test1.in");
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        // }
-        //
-        // t = new Tuple(size);
-        // try {
-        //     t.setHdr((short) 2, attrType, attrSize);
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        // }
-        //
-        // for (int i = 0; i < NUM_RECORDS; i++) {
-        //     try {
-        //         t.setStrFld(2, data1[i]);
-        //     } catch (Exception e) {
-        //         status = FAIL;
-        //         e.printStackTrace();
-        //     }
-        //
-        //     try {
-        //         rid = f.insertRecordTuple(t.returnTupleByteArray());
-        //     } catch (Exception e) {
-        //         status = FAIL;
-        //         e.printStackTrace();
-        //     }
-        // }
-        //
-        // // create an scan on the heapfile
-        // Scan scan = null;
-        //
-        // try {
-        //     scan = new Scan(f, true);
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        //     Runtime.getRuntime().exit(1);
-        // }
-        //
-        // // create the index file
-        // BTreeFile btf = null;
-        // try {
-        //     btf = new BTreeFile("BTreeIndex", AttrType.attrString, REC_LEN1, 1/*delete*/);
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        //     Runtime.getRuntime().exit(1);
-        // }
-        //
-        // System.out.println("BTreeIndex created successfully.\n");
-        //
-        // rid = new RID();
-        // String key = null;
-        // Tuple temp = null;
-        //
-        // try {
-        //     temp = scan.getNextTuple(rid);
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        // }
-        // while (temp != null) {
-        //     t.tupleCopy(temp);
-        //
-        //     try {
-        //         key = t.getStrFld(2);
-        //     } catch (Exception e) {
-        //         status = FAIL;
-        //         e.printStackTrace();
-        //     }
-        //
-        //     try {
-        //         btf.insert(new StringKey(key), rid);
-        //     } catch (Exception e) {
-        //         status = FAIL;
-        //         e.printStackTrace();
-        //     }
-        //
-        //     try {
-        //         temp = scan.getNextTuple(rid);
-        //     } catch (Exception e) {
-        //         status = FAIL;
-        //         e.printStackTrace();
-        //     }
-        // }
-        //
-        // // close the file scan
-        // scan.closescan();
-        //
-        // System.out.println("BTreeIndex file created successfully.\n");
-        //
-        // FldSpec[] projlist = new FldSpec[2];
-        // RelSpec rel = new RelSpec(RelSpec.outer);
-        // projlist[0] = new FldSpec(rel, 1);
-        // projlist[1] = new FldSpec(rel, 2);
-        //
-        // // start index scan
-        // IndexScan iscan = null;
-        // try {
-        //     iscan = new IndexScan(new IndexType(IndexType.B_Index), "test1.in", "BTreeIndex", attrType, attrSize, 2, 2, projlist, null, 2, true);
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        // }
-        //
-        //
-        // int count = 0;
-        // t = null;
-        // String outval = null;
-        //
-        // try {
-        //     t = iscan.get_next();
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        // }
-        //
-        // boolean flag = true;
-        //
-        // while (t != null) {
-        //     if (count >= NUM_RECORDS) {
-        //         System.err.println("Test1 -- OOPS! too many records");
-        //         status = FAIL;
-        //         flag = false;
-        //         break;
-        //     }
-        //
-        //     try {
-        //         outval = t.getStrFld(1);
-        //     } catch (Exception e) {
-        //         status = FAIL;
-        //         e.printStackTrace();
-        //     }
-        //
-        //     if (outval.compareTo(data2[count]) != 0) {
-        //         System.err.println("outval = " + outval + "\tdata2[count] = " + data2[count]);
-        //
-        //         System.err.println("Test1 -- OOPS! index scan not in sorted order");
-        //         status = FAIL;
-        //     }
-        //     count++;
-        //
-        //     try {
-        //         t = iscan.get_next();
-        //     } catch (Exception e) {
-        //         status = FAIL;
-        //         e.printStackTrace();
-        //     }
-        // }
-        // if (count < NUM_RECORDS) {
-        //     System.err.println("Test1 -- OOPS! too few records");
-        //     status = FAIL;
-        // } else if (flag && status) {
-        //     System.err.println("Test1 -- Index Scan OK");
-        // }
-        //
-        // // clean up
-        // try {
-        //     iscan.close();
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        // }
-        //
-        // System.err.println("------------------- TEST 1 completed ---------------------\n");
-        //
-        // return status;
-        return true;
+        System.out.println("------------------------ TEST 1 --------------------------");
+
+        boolean status = OK;
+
+        AttrType[] attrType = new AttrType[2];
+        attrType[0] = new AttrType(AttrType.attrString);
+        attrType[1] = new AttrType(AttrType.attrString);
+        short[] attrSize = new short[2];
+        attrSize[0] = REC_LEN2;
+        attrSize[1] = REC_LEN1;
+
+        // create a tuple of appropriate size
+        Tuple t = new Tuple();
+        try {
+            t.setHdr((short) 2, attrType, attrSize);
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+        }
+
+        int size = t.size();
+
+        // Create unsorted data file "test1.in"
+        RID rid;
+        Heapfile f = null;
+        try {
+            f = new Heapfile("test1.in");
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+        }
+
+        t = new Tuple(size);
+        try {
+            t.setHdr((short) 2, attrType, attrSize);
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+        }
+
+        for (int i = 0; i < NUM_RECORDS; i++) {
+            try {
+                t.setStrFld(2, data1[i]);
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+
+            try {
+                rid = f.insertRecordTuple(t.returnTupleByteArray());
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+        }
+
+        // create an scan on the heapfile
+        Scan scan = null;
+
+        try {
+            scan = new Scan(f, true);
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+            Runtime.getRuntime().exit(1);
+        }
+
+        // create the index file
+        BTreeFile btf = null;
+        try {
+            btf = new BTreeFile("BTreeIndex", AttrType.attrString, REC_LEN1, 1/*delete*/);
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+            Runtime.getRuntime().exit(1);
+        }
+
+        System.out.println("BTreeIndex created successfully.\n");
+
+        rid = new RID();
+        String key = null;
+        Tuple temp = null;
+
+        try {
+            temp = scan.getNextTuple(rid);
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+        }
+        while (temp != null) {
+            t.tupleCopy(temp);
+
+            try {
+                key = t.getStrFld(2);
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+
+            try {
+                btf.insert(new StringKey(key), rid);
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+
+            try {
+                temp = scan.getNextTuple(rid);
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+        }
+
+        // close the file scan
+        scan.closescan();
+
+        System.out.println("BTreeIndex file created successfully.\n");
+
+        FldSpec[] projlist = new FldSpec[2];
+        RelSpec rel = new RelSpec(RelSpec.outer);
+        projlist[0] = new FldSpec(rel, 1);
+        projlist[1] = new FldSpec(rel, 2);
+
+        // start index scan
+        IndexScan iscan = null;
+        try {
+            iscan = new IndexScan(new IndexType(IndexType.B_Index), "test1.in", "BTreeIndex", attrType, attrSize, 2, 2, projlist, null, 2, true);
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+        }
+
+
+        int count = 0;
+        t = null;
+        String outval = null;
+
+        try {
+            t = iscan.get_next();
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+        }
+
+        boolean flag = true;
+
+        while (t != null) {
+            if (count >= NUM_RECORDS) {
+                System.err.println("Test1 -- OOPS! too many records");
+                status = FAIL;
+                flag = false;
+                break;
+            }
+
+            try {
+                outval = t.getStrFld(1);
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+
+            if (outval.compareTo(data2[count]) != 0) {
+                System.err.println("outval = " + outval + "\tdata2[count] = " + data2[count]);
+
+                System.err.println("Test1 -- OOPS! index scan not in sorted order");
+                status = FAIL;
+            }
+            count++;
+
+            try {
+                t = iscan.get_next();
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+        }
+        if (count < NUM_RECORDS) {
+            System.err.println("Test1 -- OOPS! too few records");
+            status = FAIL;
+        } else if (flag && status) {
+            System.err.println("Test1 -- Index Scan OK");
+        }
+
+        // clean up
+        try {
+            iscan.close();
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+        }
+
+        System.err.println("------------------- TEST 1 completed ---------------------\n");
+
+        return status;
     }
 
 
     protected boolean test2() {
-        // System.out.println("------------------------ TEST 2 --------------------------");
-        //
-        // boolean status = OK;
-        //
-        // AttrType[] attrType = new AttrType[2];
-        // attrType[0] = new AttrType(AttrType.attrString);
-        // attrType[1] = new AttrType(AttrType.attrString);
-        // short[] attrSize = new short[2];
-        // attrSize[0] = REC_LEN2;
-        // attrSize[1] = REC_LEN1;
-        //
-        // // create a tuple of appropriate size
-        // Tuple t = new Tuple();
-        // try {
-        //     t.setHdr((short) 2, attrType, attrSize);
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        // }
-        //
-        // int size = t.size();
-        //
-        // RID rid;
-        // Heapfile f = null;
-        //
-        // // open existing data file
-        // try {
-        //     f = new Heapfile("test1.in");
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        // }
-        //
-        // t = new Tuple(size);
-        // try {
-        //     t.setHdr((short) 2, attrType, attrSize);
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        // }
-        //
-        // // open existing index
-        // BTreeFile btf = null;
-        // try {
-        //     btf = new BTreeFile("BTreeIndex");
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        // }
-        //
-        // System.out.println("BTreeIndex opened successfully.\n");
-        //
-        // rid = new RID();
-        // String key = null;
-        // Tuple temp = null;
-        //
-        //
-        // FldSpec[] projlist = new FldSpec[2];
-        // RelSpec rel = new RelSpec(RelSpec.outer);
-        // projlist[0] = new FldSpec(rel, 1);
-        // projlist[1] = new FldSpec(rel, 2);
-        //
-        // // set up an identity selection
-        // CondExpr[] expr = new CondExpr[2];
-        // expr[0] = new CondExpr();
-        // expr[0].op = new AttrOperator(AttrOperator.aopEQ);
-        // expr[0].type1 = new AttrType(AttrType.attrSymbol);
-        // expr[0].type2 = new AttrType(AttrType.attrString);
-        // expr[0].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 2);
-        // expr[0].operand2.string = "dsilva";
-        // expr[0].next = null;
-        // expr[1] = null;
-        //
-        // // start index scan
-        // IndexScan iscan = null;
-        // try {
-        //     iscan = new IndexScan(new IndexType(IndexType.B_Index), "test1.in", "BTreeIndex", attrType, attrSize, 2, 2, projlist, expr, 2, false);
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        // }
-        //
-        //
-        // int count = 0;
-        // t = null;
-        // String outval = null;
-        //
-        // try {
-        //     t = iscan.get_next();
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        // }
-        //
-        // if (t == null) {
-        //     System.err.println("Test 2 -- no record retrieved from identity search.");
-        //     status = FAIL;
-        //     return status;
-        // }
-        //
-        // try {
-        //     outval = t.getStrFld(2);
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        // }
-        //
-        // if (outval.compareTo("dsilva") != 0) {
-        //     System.err.println("Test2 -- error in identity search.");
-        //     status = FAIL;
-        // }
-        //
-        // try {
-        //     t = iscan.get_next();
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        // }
-        //
-        // if (t != null) {
-        //     System.err.println("Test2 -- OOPS! too many records");
-        //     status = FAIL;
-        // }
-        //
-        // // clean up
-        // try {
-        //     iscan.close();
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        // }
-        //
-        // // now try a range scan
-        // expr = new CondExpr[3];
-        // expr[0] = new CondExpr();
-        // expr[0].op = new AttrOperator(AttrOperator.aopGE);
-        // expr[0].type1 = new AttrType(AttrType.attrSymbol);
-        // expr[0].type2 = new AttrType(AttrType.attrString);
-        // expr[0].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 2);
-        // expr[0].operand2.string = "dsilva";
-        // expr[0].next = null;
-        // expr[1] = new CondExpr();
-        // expr[1].op = new AttrOperator(AttrOperator.aopLE);
-        // expr[1].type1 = new AttrType(AttrType.attrSymbol);
-        // expr[1].type2 = new AttrType(AttrType.attrString);
-        // expr[1].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 2);
-        // expr[1].operand2.string = "yuc";
-        // expr[1].next = null;
-        // expr[2] = null;
-        //
-        // // start index scan
-        // iscan = null;
-        // try {
-        //     iscan = new IndexScan(new IndexType(IndexType.B_Index), "test1.in", "BTreeIndex", attrType, attrSize, 2, 2, projlist, expr, 2, false);
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        // }
-        //
-        //
-        // count = 16; // because starting from dsilva
-        // t = null;
-        //
-        // try {
-        //     t = iscan.get_next();
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        // }
-        //
-        // boolean flag = true;
-        //
-        // while (t != null) {
-        //     if (count >= (NUM_RECORDS - 3)) {
-        //         System.err.println("Test2 -- OOPS! too many records");
-        //         status = FAIL;
-        //         flag = false;
-        //         break;
-        //     }
-        //
-        //     try {
-        //         outval = t.getStrFld(2);
-        //     } catch (Exception e) {
-        //         status = FAIL;
-        //         e.printStackTrace();
-        //     }
-        //
-        //     if (outval.compareTo(data2[count]) != 0) {
-        //         System.err.println("outval = " + outval + "\tdata2[count] = " + data2[count]);
-        //
-        //         System.err.println("Test2 -- OOPS! index scan not in sorted order");
-        //         status = FAIL;
-        //     }
-        //     count++;
-        //
-        //     try {
-        //         t = iscan.get_next();
-        //     } catch (Exception e) {
-        //         status = FAIL;
-        //         e.printStackTrace();
-        //     }
-        // }
-        // if (count < (NUM_RECORDS - 3)) {
-        //     System.err.println("Test2 -- OOPS! too few records");
-        //     status = FAIL;
-        // } else if (flag && status) {
-        //     System.err.println("Test2 -- Index Scan OK");
-        // }
-        //
-        // // clean up
-        // try {
-        //     iscan.close();
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        // }
-        //
-        // System.err.println("------------------- TEST 2 completed ---------------------\n");
-        //
-        // return status;
-        return true;
+        System.out.println("------------------------ TEST 2 --------------------------");
+
+        boolean status = OK;
+
+        AttrType[] attrType = new AttrType[2];
+        attrType[0] = new AttrType(AttrType.attrString);
+        attrType[1] = new AttrType(AttrType.attrString);
+        short[] attrSize = new short[2];
+        attrSize[0] = REC_LEN2;
+        attrSize[1] = REC_LEN1;
+
+        // create a tuple of appropriate size
+        Tuple t = new Tuple();
+        try {
+            t.setHdr((short) 2, attrType, attrSize);
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+        }
+
+        int size = t.size();
+
+        RID rid;
+        Heapfile f = null;
+
+        // open existing data file
+        try {
+            f = new Heapfile("test1.in");
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+        }
+
+        t = new Tuple(size);
+        try {
+            t.setHdr((short) 2, attrType, attrSize);
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+        }
+
+        // open existing index
+        BTreeFile btf = null;
+        try {
+            btf = new BTreeFile("BTreeIndex");
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+        }
+
+        System.out.println("BTreeIndex opened successfully.\n");
+
+        rid = new RID();
+        String key = null;
+        Tuple temp = null;
+
+
+        FldSpec[] projlist = new FldSpec[2];
+        RelSpec rel = new RelSpec(RelSpec.outer);
+        projlist[0] = new FldSpec(rel, 1);
+        projlist[1] = new FldSpec(rel, 2);
+
+        // set up an identity selection
+        CondExpr[] expr = new CondExpr[2];
+        expr[0] = new CondExpr();
+        expr[0].op = new AttrOperator(AttrOperator.aopEQ);
+        expr[0].type1 = new AttrType(AttrType.attrSymbol);
+        expr[0].type2 = new AttrType(AttrType.attrString);
+        expr[0].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 2);
+        expr[0].operand2.string = "dsilva";
+        expr[0].next = null;
+        expr[1] = null;
+
+        // start index scan
+        IndexScan iscan = null;
+        try {
+            iscan = new IndexScan(new IndexType(IndexType.B_Index), "test1.in", "BTreeIndex", attrType, attrSize, 2, 2, projlist, expr, 2, false);
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+        }
+
+
+        int count = 0;
+        t = null;
+        String outval = null;
+
+        try {
+            t = iscan.get_next();
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+        }
+
+        if (t == null) {
+            System.err.println("Test 2 -- no record retrieved from identity search.");
+            status = FAIL;
+            return status;
+        }
+
+        try {
+            outval = t.getStrFld(2);
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+        }
+
+        if (outval.compareTo("dsilva") != 0) {
+            System.err.println("Test2 -- error in identity search.");
+            status = FAIL;
+        }
+
+        try {
+            t = iscan.get_next();
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+        }
+
+        if (t != null) {
+            System.err.println("Test2 -- OOPS! too many records");
+            status = FAIL;
+        }
+
+        // clean up
+        try {
+            iscan.close();
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+        }
+
+        // now try a range scan
+        expr = new CondExpr[3];
+        expr[0] = new CondExpr();
+        expr[0].op = new AttrOperator(AttrOperator.aopGE);
+        expr[0].type1 = new AttrType(AttrType.attrSymbol);
+        expr[0].type2 = new AttrType(AttrType.attrString);
+        expr[0].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 2);
+        expr[0].operand2.string = "dsilva";
+        expr[0].next = null;
+        expr[1] = new CondExpr();
+        expr[1].op = new AttrOperator(AttrOperator.aopLE);
+        expr[1].type1 = new AttrType(AttrType.attrSymbol);
+        expr[1].type2 = new AttrType(AttrType.attrString);
+        expr[1].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 2);
+        expr[1].operand2.string = "yuc";
+        expr[1].next = null;
+        expr[2] = null;
+
+        // start index scan
+        iscan = null;
+        try {
+            iscan = new IndexScan(new IndexType(IndexType.B_Index), "test1.in", "BTreeIndex", attrType, attrSize, 2, 2, projlist, expr, 2, false);
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+        }
+
+
+        count = 16; // because starting from dsilva
+        t = null;
+
+        try {
+            t = iscan.get_next();
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+        }
+
+        boolean flag = true;
+
+        while (t != null) {
+            if (count >= (NUM_RECORDS - 3)) {
+                System.err.println("Test2 -- OOPS! too many records");
+                status = FAIL;
+                flag = false;
+                break;
+            }
+
+            try {
+                outval = t.getStrFld(2);
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+
+            if (outval.compareTo(data2[count]) != 0) {
+                System.err.println("outval = " + outval + "\tdata2[count] = " + data2[count]);
+
+                System.err.println("Test2 -- OOPS! index scan not in sorted order");
+                status = FAIL;
+            }
+            count++;
+
+            try {
+                t = iscan.get_next();
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+        }
+        if (count < (NUM_RECORDS - 3)) {
+            System.err.println("Test2 -- OOPS! too few records");
+            status = FAIL;
+        } else if (flag && status) {
+            System.err.println("Test2 -- Index Scan OK");
+        }
+
+        // clean up
+        try {
+            iscan.close();
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+        }
+
+        System.err.println("------------------- TEST 2 completed ---------------------\n");
+
+        return status;
     }
 
 
     protected boolean test3() {
-        // System.out.println("------------------------ TEST 3 --------------------------");
-        //
-        // boolean status = OK;
-        //
-        // Random random1 = new Random();
-        // Random random2 = new Random();
-        //
-        // AttrType[] attrType = new AttrType[4];
-        // attrType[0] = new AttrType(AttrType.attrString);
-        // attrType[1] = new AttrType(AttrType.attrString);
-        // attrType[2] = new AttrType(AttrType.attrInteger);
-        // attrType[3] = new AttrType(AttrType.attrReal);
-        // short[] attrSize = new short[2];
-        // attrSize[0] = REC_LEN1;
-        // attrSize[1] = REC_LEN1;
-        //
-        // Tuple t = new Tuple();
-        //
-        // try {
-        //     t.setHdr((short) 4, attrType, attrSize);
-        // } catch (Exception e) {
-        //     System.err.println("*** error in Tuple.setHdr() ***");
-        //     status = FAIL;
-        //     e.printStackTrace();
-        // }
-        // int size = t.size();
-        //
-        // // Create unsorted data file "test3.in"
-        // RID rid;
-        // Heapfile f = null;
-        // try {
-        //     f = new Heapfile("test3.in");
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        // }
-        //
-        // t = new Tuple(size);
-        // try {
-        //     t.setHdr((short) 4, attrType, attrSize);
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        // }
-        //
-        // int inum = 0;
-        // float fnum = 0;
-        // int count = 0;
-        //
-        // for (int i = 0; i < LARGE; i++) {
-        //     // setting fields
-        //     inum = random1.nextInt();
-        //     fnum = random2.nextFloat();
-        //     try {
-        //         t.setStrFld(1, data1[i % NUM_RECORDS]);
-        //         t.setIntFld(3, inum % 1000);
-        //         t.setFloFld(4, fnum);
-        //     } catch (Exception e) {
-        //         status = FAIL;
-        //         e.printStackTrace();
-        //     }
-        //
-        //     try {
-        //         rid = f.insertRecordTuple(t.returnTupleByteArray());
-        //     } catch (Exception e) {
-        //         status = FAIL;
-        //         e.printStackTrace();
-        //     }
-        // }
-        //
-        // // create an scan on the heapfile
-        // Scan scan = null;
-        //
-        // try {
-        //     scan = new Scan(f, true);
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        //     Runtime.getRuntime().exit(1);
-        // }
-        //
-        // // create the index file on the integer field
-        // BTreeFile btf = null;
-        // try {
-        //     btf = new BTreeFile("BTIndex", AttrType.attrInteger, 4, 1/*delete*/);
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        //     Runtime.getRuntime().exit(1);
-        // }
-        //
-        // System.out.println("BTreeIndex created successfully.\n");
-        //
-        // rid = new RID();
-        // int key = 0;
-        // Tuple temp = null;
-        //
-        // try {
-        //     temp = scan.getNextTuple(rid);
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        // }
-        // while (temp != null) {
-        //     t.tupleCopy(temp);
-        //
-        //     try {
-        //         key = t.getIntFld(3);
-        //     } catch (Exception e) {
-        //         status = FAIL;
-        //         e.printStackTrace();
-        //     }
-        //
-        //     try {
-        //         btf.insert(new IntegerKey(key), rid);
-        //     } catch (Exception e) {
-        //         status = FAIL;
-        //         e.printStackTrace();
-        //     }
-        //
-        //     try {
-        //         temp = scan.getNextTuple(rid);
-        //     } catch (Exception e) {
-        //         status = FAIL;
-        //         e.printStackTrace();
-        //     }
-        // }
-        //
-        // // close the file scan
-        // scan.closescan();
-        //
-        // System.out.println("BTreeIndex file created successfully.\n");
-        //
-        // FldSpec[] projlist = new FldSpec[4];
-        // RelSpec rel = new RelSpec(RelSpec.outer);
-        // projlist[0] = new FldSpec(rel, 1);
-        // projlist[1] = new FldSpec(rel, 2);
-        // projlist[2] = new FldSpec(rel, 3);
-        // projlist[3] = new FldSpec(rel, 4);
-        //
-        // // conditions
-        // CondExpr[] expr = new CondExpr[3];
-        // expr[0] = new CondExpr();
-        // expr[0].op = new AttrOperator(AttrOperator.aopGE);
-        // expr[0].type1 = new AttrType(AttrType.attrSymbol);
-        // expr[0].type2 = new AttrType(AttrType.attrInteger);
-        // expr[0].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 3);
-        // expr[0].operand2.integer = 100;
-        // expr[0].next = null;
-        // expr[1] = new CondExpr();
-        // expr[1].op = new AttrOperator(AttrOperator.aopLE);
-        // expr[1].type1 = new AttrType(AttrType.attrSymbol);
-        // expr[1].type2 = new AttrType(AttrType.attrInteger);
-        // expr[1].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 3);
-        // expr[1].operand2.integer = 900;
-        // expr[1].next = null;
-        // expr[2] = null;
-        //
-        // // start index scan
-        // IndexScan iscan = null;
-        // try {
-        //     iscan = new IndexScan(new IndexType(IndexType.B_Index), "test3.in", "BTIndex", attrType, attrSize, 4, 4, projlist, expr, 3, false);
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        // }
-        //
-        //
-        // t = null;
-        // int iout = 0;
-        // int ival = 100; // low key
-        //
-        // try {
-        //     t = iscan.get_next();
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        // }
-        //
-        // while (t != null) {
-        //     try {
-        //         iout = t.getIntFld(3);
-        //     } catch (Exception e) {
-        //         status = FAIL;
-        //         e.printStackTrace();
-        //     }
-        //
-        //     if (iout < ival) {
-        //         System.err.println("count = " + count + " iout = " + iout + " ival = " + ival);
-        //
-        //         System.err.println("Test3 -- OOPS! index scan not in sorted order");
-        //         status = FAIL;
-        //         break;
-        //     } else if (iout > 900) {
-        //         System.err.println("Test 3 -- OOPS! index scan passed high key");
-        //         status = FAIL;
-        //         break;
-        //     }
-        //
-        //     ival = iout;
-        //
-        //     try {
-        //         t = iscan.get_next();
-        //     } catch (Exception e) {
-        //         status = FAIL;
-        //         e.printStackTrace();
-        //     }
-        // }
-        // if (status) {
-        //     System.err.println("Test3 -- Index scan on int key OK\n");
-        // }
-        //
-        // // clean up
-        // try {
-        //     iscan.close();
-        // } catch (Exception e) {
-        //     status = FAIL;
-        //     e.printStackTrace();
-        // }
-        //
-        // System.err.println("------------------- TEST 3 completed ---------------------\n");
-        //
-        // return status;
-        return true;
+        System.out.println("------------------------ TEST 3 --------------------------");
+
+        boolean status = OK;
+
+        Random random1 = new Random();
+        Random random2 = new Random();
+
+        AttrType[] attrType = new AttrType[4];
+        attrType[0] = new AttrType(AttrType.attrString);
+        attrType[1] = new AttrType(AttrType.attrString);
+        attrType[2] = new AttrType(AttrType.attrInteger);
+        attrType[3] = new AttrType(AttrType.attrReal);
+        short[] attrSize = new short[2];
+        attrSize[0] = REC_LEN1;
+        attrSize[1] = REC_LEN1;
+
+        Tuple t = new Tuple();
+
+        try {
+            t.setHdr((short) 4, attrType, attrSize);
+        } catch (Exception e) {
+            System.err.println("*** error in Tuple.setHdr() ***");
+            status = FAIL;
+            e.printStackTrace();
+        }
+        int size = t.size();
+
+        // Create unsorted data file "test3.in"
+        RID rid;
+        Heapfile f = null;
+        try {
+            f = new Heapfile("test3.in");
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+        }
+
+        t = new Tuple(size);
+        try {
+            t.setHdr((short) 4, attrType, attrSize);
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+        }
+
+        int inum = 0;
+        float fnum = 0;
+        int count = 0;
+
+        for (int i = 0; i < LARGE; i++) {
+            // setting fields
+            inum = random1.nextInt();
+            fnum = random2.nextFloat();
+            try {
+                t.setStrFld(1, data1[i % NUM_RECORDS]);
+                t.setIntFld(3, inum % 1000);
+                t.setFloFld(4, fnum);
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+
+            try {
+                rid = f.insertRecordTuple(t.returnTupleByteArray());
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+        }
+
+        // create an scan on the heapfile
+        Scan scan = null;
+
+        try {
+            scan = new Scan(f, true);
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+            Runtime.getRuntime().exit(1);
+        }
+
+        // create the index file on the integer field
+        BTreeFile btf = null;
+        try {
+            btf = new BTreeFile("BTIndex", AttrType.attrInteger, 4, 1/*delete*/);
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+            Runtime.getRuntime().exit(1);
+        }
+
+        System.out.println("BTreeIndex created successfully.\n");
+
+        rid = new RID();
+        int key = 0;
+        Tuple temp = null;
+
+        try {
+            temp = scan.getNextTuple(rid);
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+        }
+        while (temp != null) {
+            t.tupleCopy(temp);
+
+            try {
+                key = t.getIntFld(3);
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+
+            try {
+                btf.insert(new IntegerKey(key), rid);
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+
+            try {
+                temp = scan.getNextTuple(rid);
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+        }
+
+        // close the file scan
+        scan.closescan();
+
+        System.out.println("BTreeIndex file created successfully.\n");
+
+        FldSpec[] projlist = new FldSpec[4];
+        RelSpec rel = new RelSpec(RelSpec.outer);
+        projlist[0] = new FldSpec(rel, 1);
+        projlist[1] = new FldSpec(rel, 2);
+        projlist[2] = new FldSpec(rel, 3);
+        projlist[3] = new FldSpec(rel, 4);
+
+        // conditions
+        CondExpr[] expr = new CondExpr[3];
+        expr[0] = new CondExpr();
+        expr[0].op = new AttrOperator(AttrOperator.aopGE);
+        expr[0].type1 = new AttrType(AttrType.attrSymbol);
+        expr[0].type2 = new AttrType(AttrType.attrInteger);
+        expr[0].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 3);
+        expr[0].operand2.integer = 100;
+        expr[0].next = null;
+        expr[1] = new CondExpr();
+        expr[1].op = new AttrOperator(AttrOperator.aopLE);
+        expr[1].type1 = new AttrType(AttrType.attrSymbol);
+        expr[1].type2 = new AttrType(AttrType.attrInteger);
+        expr[1].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 3);
+        expr[1].operand2.integer = 900;
+        expr[1].next = null;
+        expr[2] = null;
+
+        // start index scan
+        IndexScan iscan = null;
+        try {
+            iscan = new IndexScan(new IndexType(IndexType.B_Index), "test3.in", "BTIndex", attrType, attrSize, 4, 4, projlist, expr, 3, false);
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+        }
+
+
+        t = null;
+        int iout = 0;
+        int ival = 100; // low key
+
+        try {
+            t = iscan.get_next();
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+        }
+
+        while (t != null) {
+            try {
+                iout = t.getIntFld(3);
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+
+            if (iout < ival) {
+                System.err.println("count = " + count + " iout = " + iout + " ival = " + ival);
+
+                System.err.println("Test3 -- OOPS! index scan not in sorted order");
+                status = FAIL;
+                break;
+            } else if (iout > 900) {
+                System.err.println("Test 3 -- OOPS! index scan passed high key");
+                status = FAIL;
+                break;
+            }
+
+            ival = iout;
+
+            try {
+                t = iscan.get_next();
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+        }
+        if (status) {
+            System.err.println("Test3 -- Index scan on int key OK\n");
+        }
+
+        // clean up
+        try {
+            iscan.close();
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+        }
+
+        System.err.println("------------------- TEST 3 completed ---------------------\n");
+
+        return status;
     }
 
     protected boolean test4() {
-        System.out.println("------------------------ TEST 4 --------------------------");
+        System.out.println("-------------------- TEST 4 -----------TYPE 2-------------");
+        int type = 2;
         boolean status = OK;
         try{
             AttrType[] attrType = new AttrType[4];
@@ -793,7 +791,7 @@ class IndexDriver extends TestDriver
 
             System.out.println("  - Create a BigT\n");
             try {
-                big = new bigt("file_abcf.in", 2);
+                big = new bigt("file_test4.in", type);
                 f = big.getheapfile();
             } catch (Exception e) {
                 status = FAIL;
@@ -838,8 +836,8 @@ class IndexDriver extends TestDriver
                     e.printStackTrace();
                 }
             }
-
-            big.createIndex();
+            String indexName = "index_test4";
+            big.createIndex(indexName, "");
 
             Scan scan = null;
             Map t = new Map();
@@ -886,10 +884,10 @@ class IndexDriver extends TestDriver
 
             FldSpec[] projlist = new FldSpec[4];
             RelSpec rel = new RelSpec(RelSpec.outer);
-            projlist[0] = new FldSpec(rel, 1);
-            projlist[1] = new FldSpec(rel, 2);
-            projlist[2] = new FldSpec(rel, 3);
-            projlist[3] = new FldSpec(rel, 4);
+            projlist[0] = new FldSpec(rel, 0);
+            projlist[1] = new FldSpec(rel, 1);
+            projlist[2] = new FldSpec(rel, 2);
+            projlist[3] = new FldSpec(rel, 3);
 
             CondExpr[] expr = new CondExpr[2];
             expr[0] = new CondExpr();
@@ -905,12 +903,11 @@ class IndexDriver extends TestDriver
             MapIndexScan iscan = null;
             short[] res_str_sizes = new short[]{Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE};
             try {
-                iscan = new MapIndexScan(new IndexType(IndexType.B_Index), "file_abcf.in", "Index1", attrType, res_str_sizes, 4, 4, projlist, expr, 1, false);
+                iscan = new MapIndexScan(new IndexType(IndexType.B_Index), "file_test4.in", indexName, attrType, res_str_sizes, 4, 4, projlist, null, 1, false);
             } catch (Exception e) {
                 status = FAIL;
                 e.printStackTrace();
             }
-
 
             int count = 0;
             t = null;
@@ -973,7 +970,194 @@ class IndexDriver extends TestDriver
     }
 
     protected boolean test5() {
-        return true;
+        System.out.println("-------------------- TEST 5 -----------TYPE 4-------------");
+        int type = 4;
+        boolean status = OK;
+        try{
+            AttrType[] attrType = new AttrType[4];
+            attrType[0] = new AttrType(AttrType.attrString);
+            attrType[1] = new AttrType(AttrType.attrString);
+            attrType[2] = new AttrType(AttrType.attrInteger);
+            attrType[3] = new AttrType(AttrType.attrString);
+            short[] attrSize = new short[2];
+            attrSize[0] = REC_LEN1;
+            attrSize[1] = REC_LEN1;
+
+            Heapfile f = null;
+            bigt big = null;
+
+            Map[] mapArr = HFDriver.generateMaps();
+
+            System.out.println("  - Create a BigT\n");
+            try {
+                big = new bigt("file_test5.in", type);
+                f = big.getheapfile();
+            } catch (Exception e) {
+                status = FAIL;
+                System.err.println("*** Could not create BigT\n");
+                e.printStackTrace();
+            }
+
+            if (status == OK && SystemDefs.JavabaseBM.getNumUnpinnedBuffers()
+                    != SystemDefs.JavabaseBM.getNumBuffers()) {
+                System.err.println("*** The heap file has left pages pinned\n");
+                status = FAIL;
+            }
+
+            RID rid = null;
+            if (status == OK) {
+                System.out.println("   - Add " + choice + " records to the file\n");
+                for (int i = 0; (i < choice) && (status == OK); i++) {
+                    try {
+                        rid = big.insertMap(mapArr[i].getMapByteArray());
+                    } catch (Exception e) {
+                        status = FAIL;
+                        System.err.println("*** Error inserting record " + i + "\n");
+                        e.printStackTrace();
+                    }
+
+                    if (status == OK && SystemDefs.JavabaseBM.getNumUnpinnedBuffers()
+                            != SystemDefs.JavabaseBM.getNumBuffers()) {
+
+                        System.err.println("*** Insertion left a page pinned\n");
+                        status = FAIL;
+                    }
+                }
+
+                try {
+                    if (f.getRecCntMap() != choice) {
+                        status = FAIL;
+                        System.err.println("*** File reports " + f.getRecCntMap() +
+                                " records, not " + choice + "\n");
+                    }
+                } catch (Exception e) {
+                    status = FAIL;
+                    e.printStackTrace();
+                }
+            }
+            String indexName = "index_test5";
+            big.createIndex(indexName, "");
+
+            Scan scan = null;
+            Map t = new Map();
+
+            try {
+                scan = new Scan(f, true);
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+                Runtime.getRuntime().exit(1);
+            }
+
+            rid = new RID();
+            String key = null;
+            Map temp = null;
+            try {
+                temp = scan.getNextMap(rid);
+                temp.setFldOffset(temp.getMapByteArray());
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+            while (temp != null) {
+                try {
+                    big.insertIndex(rid, temp);
+                } catch (Exception e) {
+                    status = FAIL;
+                    e.printStackTrace();
+                }
+
+                try {
+                    temp = scan.getNextMap(rid);
+                    if(temp!=null){
+                        temp.setFldOffset(temp.getMapByteArray());
+                    }
+                } catch (Exception e) {
+                    status = FAIL;
+                    e.printStackTrace();
+                }
+            }
+
+            // close the file scan
+            scan.closescan();
+
+            FldSpec[] projlist = new FldSpec[4];
+            RelSpec rel = new RelSpec(RelSpec.outer);
+            projlist[0] = new FldSpec(rel, 0);
+            projlist[1] = new FldSpec(rel, 1);
+            projlist[2] = new FldSpec(rel, 2);
+            projlist[3] = new FldSpec(rel, 3);
+
+            // start index scan
+            MapIndexScan iscan = null;
+            short[] res_str_sizes = new short[]{Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE};
+            try {
+                iscan = new MapIndexScan(new IndexType(IndexType.B_Index), "file_test5.in", indexName, attrType, res_str_sizes, 4, 4, projlist, null, 1, false);
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+
+            int count = 0;
+            t = null;
+            String outval = null;
+
+            try {
+                t = iscan.get_next();
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+
+            boolean flag = true;
+
+            while (t != null) {
+                if (count >= choice) {
+                    System.err.println("Test5 -- OOPS! too many records");
+                    status = FAIL;
+                    flag = false;
+                    break;
+                }
+
+                try {
+                    t.setFldOffset(t.getMapByteArray());
+                    outval = t.getRowLabel();
+                } catch (Exception e) {
+                    status = FAIL;
+                    e.printStackTrace();
+                }
+                count++;
+
+                try {
+                    t = iscan.get_next();
+                } catch (Exception e) {
+                    status = FAIL;
+                    e.printStackTrace();
+                }
+            }
+            if (count < choice) {
+                System.err.println("Test5 -- OOPS! too few records");
+                status = FAIL;
+            } else if (flag && status) {
+                System.err.println("Test5 -- Index Scan OK");
+            }
+
+            // clean up
+            try {
+                iscan.close();
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+        }
+        catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+        }
+
+        System.err.println("------------------- TEST 5 completed ---------------------\n");
+
+        return status;
     }
 
     protected boolean test6() {

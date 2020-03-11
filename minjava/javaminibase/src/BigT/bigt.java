@@ -41,7 +41,7 @@ public class bigt{
         return _hf;
     }
 
-    public void createIndex() throws GetFileEntryException,
+    public void createIndex(String indexName1, String indexName2) throws GetFileEntryException,
             ConstructPageException,
             IOException,
             AddFileEntryException {
@@ -49,18 +49,18 @@ public class bigt{
             case 1:
                 break;
             case 2:
-                index1 = new BTreeFile("Index1", AttrType.attrString, 20, DeleteFashion.NAIVE_DELETE);
+                index1 = new BTreeFile(indexName1, AttrType.attrString, 20, DeleteFashion.FULL_DELETE);
                 break;
             case 3:
-                index1 = new BTreeFile("Index1", AttrType.attrString, 20, DeleteFashion.NAIVE_DELETE);
+                index1 = new BTreeFile(indexName1, AttrType.attrString, 20, DeleteFashion.FULL_DELETE);
                 break;
             case 4:
-                index1 = new BTreeFile("Index1", AttrType.attrString, 40, DeleteFashion.NAIVE_DELETE);
-                index2 = new BTreeFile("Index2", AttrType.attrInteger, 4, DeleteFashion.NAIVE_DELETE);
+                index1 = new BTreeFile(indexName1, AttrType.attrString, 40, DeleteFashion.FULL_DELETE);
+                index2 = new BTreeFile(indexName2, AttrType.attrInteger, 4, DeleteFashion.FULL_DELETE);
                 break;
             case 5:
-                index1 = new BTreeFile("Index1", AttrType.attrString, 40, DeleteFashion.NAIVE_DELETE);
-                index2 = new BTreeFile("Index2", AttrType.attrInteger, 4, DeleteFashion.NAIVE_DELETE);
+                index1 = new BTreeFile(indexName1, AttrType.attrString, 40, DeleteFashion.FULL_DELETE);
+                index2 = new BTreeFile(indexName2, AttrType.attrInteger, 4, DeleteFashion.FULL_DELETE);
                 break;
         }
     }

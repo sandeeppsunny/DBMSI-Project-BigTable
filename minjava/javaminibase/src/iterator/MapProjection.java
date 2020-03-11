@@ -111,7 +111,6 @@ public class MapProjection {
             FieldNumberOutOfBoundException,
             IOException {
 
-
         for (int i = 0; i < nOutFlds; i++) {
             switch (perm_mat[i].relation.key) {
                 case RelSpec.outer:      // Field of outer (t1)
