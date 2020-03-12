@@ -2,6 +2,7 @@ package tests;
 
 import java.io.*;
 
+import BigT.Map;
 import global.*;
 import bufmgr.*;
 import diskmgr.*;
@@ -861,11 +862,370 @@ class SORTDriver extends TestDriver
     }
 
     protected boolean test5() {
-        return true;
+        System.out.println("------------------------ TEST 5 --------------------------");
+        boolean status = OK;
+        try {
+            AttrType[] attrType = new AttrType[2];
+            attrType[0] = new AttrType(AttrType.attrString);
+            attrType[1] = new AttrType(AttrType.attrString);
+            short[] attrSize = new short[2];
+            attrSize[0] = 30;
+            attrSize[1] = 30;
+            MapOrder[] order = new MapOrder[2];
+            order[0] = new MapOrder(TupleOrder.Ascending);
+            order[1] = new MapOrder(TupleOrder.Descending);
+
+            // create a tuple of appropriate size
+            Map m = new Map();
+            try {
+                m.setDefaultHdr();
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+
+            int size = m.size();
+
+            // Create unsorted data file "test1.in"
+            RID rid;
+            Heapfile f = null;
+            try {
+                f = new Heapfile("test7.in");
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+
+
+            for (int i = 0; i < NUM_RECORDS; i++) {
+                Map s = new Map((int)m.getLength());
+                try {
+                    byte[] m_data = new byte[(int)m.getLength()];
+                    s.mapInit(m_data, 0, m.getLength());
+                    s.setDefaultHdr();
+                    s.setRowLabel(data2[i]);
+                    s.setColumnLabel(data1[i]);
+                    s.setTimeStamp(i);
+                    s.setValue("Val-" + i);
+                } catch (Exception e) {
+                    status = FAIL;
+                    e.printStackTrace();
+                }
+
+                try {
+                    rid = f.insertRecordMap(s.returnMapByteArray());
+                } catch (Exception e) {
+                    status = FAIL;
+                    e.printStackTrace();
+                    return status;
+                }
+            }
+
+            // create an iterator by open a file scan
+            FldSpec[] projlist = new FldSpec[2];
+            RelSpec rel = new RelSpec(RelSpec.outer);
+            projlist[0] = new FldSpec(rel, 0);
+            projlist[1] = new FldSpec(rel, 1);
+
+            // set up an identity selection
+            CondExpr[] expr = new CondExpr[3];
+            expr[0] = new CondExpr();
+            expr[0].op = new AttrOperator(AttrOperator.aopGE);
+            expr[0].type1 = new AttrType(AttrType.attrSymbol);
+            expr[0].type2 = new AttrType(AttrType.attrString);
+            expr[0].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 1);
+            expr[0].operand2.string = "andyw";
+            expr[0].next = null;
+            expr[1] = new CondExpr();
+            expr[1].op = new AttrOperator(AttrOperator.aopLE);
+            expr[1].type1 = new AttrType(AttrType.attrSymbol);
+            expr[1].type2 = new AttrType(AttrType.attrString);
+            expr[1].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 1);
+            expr[1].operand2.string = "randal";
+            expr[1].next = null;
+            expr[2] = null;
+
+            FileScanMap fscan = null;
+
+            try {
+                fscan = new FileScanMap("test7.in", projlist, expr);
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+
+            while(true) {
+                Map a = fscan.get_next();
+                if(a == null) {
+                    break;
+                }
+                a.setFldOffset(a.getMapByteArray());
+                a.print();
+            }
+
+
+            System.err.println("------------------- TEST 5 completed ---------------------\n");
+
+            return status;
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+            return status;
+        }
     }
 
+
     protected boolean test6() {
-        return true;
+        System.out.println("------------------------ TEST 6 --------------------------");
+        boolean status = OK;
+        try {
+            MapOrder[] order = new MapOrder[2];
+            order[0] = new MapOrder(TupleOrder.Ascending);
+            order[1] = new MapOrder(TupleOrder.Descending);
+
+            // create a tuple of appropriate size
+            Map m = new Map();
+            try {
+                m.setDefaultHdr();
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+
+            int size = m.size();
+
+            // Create unsorted data file "test1.in"
+            RID rid;
+            Heapfile f = null;
+            try {
+                f = new Heapfile("test8.in");
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+
+
+            for (int i = 0; i < NUM_RECORDS; i++) {
+                Map s = new Map((int)m.getLength());
+                try {
+                    byte[] m_data = new byte[(int)m.getLength()];
+                    s.mapInit(m_data, 0, m.getLength());
+                    s.setDefaultHdr();
+                    s.setRowLabel(data1[i]);
+                    s.setColumnLabel(data2[i]);
+                    s.setTimeStamp(i);
+                    s.setValue("Val-" + i);
+                } catch (Exception e) {
+                    status = FAIL;
+                    e.printStackTrace();
+                }
+
+                try {
+                    rid = f.insertRecordMap(s.returnMapByteArray());
+                } catch (Exception e) {
+                    status = FAIL;
+                    e.printStackTrace();
+                    return status;
+                }
+            }
+
+            // create an iterator by open a file scan
+            FldSpec[] projlist = new FldSpec[2];
+            RelSpec rel = new RelSpec(RelSpec.outer);
+            projlist[0] = new FldSpec(rel, 0);
+            projlist[1] = new FldSpec(rel, 1);
+
+            // set up an identity selection
+            CondExpr[] expr = new CondExpr[3];
+            expr[0] = new CondExpr();
+            expr[0].op = new AttrOperator(AttrOperator.aopGE);
+            expr[0].type1 = new AttrType(AttrType.attrSymbol);
+            expr[0].type2 = new AttrType(AttrType.attrString);
+            expr[0].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 1);
+            expr[0].operand2.string = "andyw";
+            expr[0].next = null;
+            expr[1] = new CondExpr();
+            expr[1].op = new AttrOperator(AttrOperator.aopLE);
+            expr[1].type1 = new AttrType(AttrType.attrSymbol);
+            expr[1].type2 = new AttrType(AttrType.attrString);
+            expr[1].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 1);
+            expr[1].operand2.string = "randal";
+            expr[1].next = null;
+            expr[2] = null;
+
+            // Sort in ascending order on row label
+            System.out.println("\n==============================");
+            System.out.println("Ascending order on row label\n");
+            FileScanMap fscan = null;
+
+            try {
+                fscan = new FileScanMap("test8.in", projlist, expr);
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+
+            // Sort "test8.in"
+            SortMap sort = null;
+            try {
+                sort = new SortMap(null, null, null, fscan, 1, order[0], null, SORTPGNUM);
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+
+            Map t = null;
+
+            int i=0;
+            while(true) {
+                try {
+                    t = sort.get_next();
+                    if(t == null) {
+                        break;
+                    }
+                    t.setFldOffset(t.getMapByteArray());
+                    t.print();
+
+                    if(!t.getRowLabel().equals(data2[i])) {
+                        System.out.println("Unexpected row value after sorting!");
+                        System.out.println("Expected :" + data2[i] + " but got " + t.getRowLabel());
+                        break;
+                    }
+                    i++;
+                } catch (Exception e) {
+                    status = FAIL;
+                    e.printStackTrace();
+                    break;
+                }
+            }
+
+            // Sort in descending order on row label
+            try {
+                fscan = new FileScanMap("test8.in", projlist, expr);
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+            try {
+                sort = new SortMap(null, null, null, fscan, 1, order[1], null, SORTPGNUM);
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+
+            i=61;
+            System.out.println("\n==============================");
+            System.out.println("Descending order on row label\n");
+            while(true) {
+                try {
+                    t = sort.get_next();
+                    if(t == null) {
+                        break;
+                    }
+                    t.setFldOffset(t.getMapByteArray());
+                    t.print();
+
+                    if(!t.getRowLabel().equals(data2[i])) {
+                        System.out.println("Unexpected row value after sorting!");
+                        System.out.println("Expected :" + data2[i] + " but got " + t.getRowLabel());
+                        break;
+                    }
+                    i--;
+                } catch (Exception e) {
+                    status = FAIL;
+                    e.printStackTrace();
+                    break;
+                }
+            }
+
+            // Sort in ascending order on timestamp
+            try {
+                fscan = new FileScanMap("test8.in", projlist, expr);
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+            try {
+                sort = new SortMap(null, null, null, fscan, 3, order[0], null, SORTPGNUM);
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+
+            Integer prev = null;
+            System.out.println("\n==============================");
+            System.out.println("Ascending order on timestamp\n");
+            while(true) {
+                try {
+                    t = sort.get_next();
+
+                    if(t == null) {
+                        break;
+                    }
+                    t.setFldOffset(t.getMapByteArray());
+                    t.print();
+
+                    if(prev != null && prev > t.getTimeStamp()) {
+                        System.out.println("Unexpected timestamp after sorting!");
+                        System.out.println("Expected greater than " + prev + " but got " + t.getTimeStamp());
+                        break;
+                    }
+                    prev = t.getTimeStamp();
+                } catch (Exception e) {
+                    status = FAIL;
+                    e.printStackTrace();
+                    break;
+                }
+            }
+
+            // Sort in ascending order on timestamp
+            try {
+                fscan = new FileScanMap("test8.in", projlist, expr);
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+            try {
+                sort = new SortMap(null, null, null, fscan, 3, order[1], null, SORTPGNUM);
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+
+            prev = null;
+            System.out.println("\n==============================");
+            System.out.println("Descending order on timestamp\n");
+            while(true) {
+                try {
+                    t = sort.get_next();
+
+                    if(t == null) {
+                        break;
+                    }
+                    t.setFldOffset(t.getMapByteArray());
+                    t.print();
+
+                    if(prev != null && prev < t.getTimeStamp()) {
+                        System.out.println("Unexpected timestamp after sorting!");
+                        System.out.println("Expected greater than " + prev + " but got " + t.getTimeStamp());
+                        break;
+                    }
+                    prev = t.getTimeStamp();
+                } catch (Exception e) {
+                    status = FAIL;
+                    e.printStackTrace();
+                    break;
+                }
+            }
+
+            System.err.println("------------------- TEST 6 completed ---------------------\n");
+
+            return status;
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+            return status;
+        }
     }
 
     protected String testName() {

@@ -11,6 +11,7 @@ import index.*;
 import btree.*;
 import BigT.*;
 
+import java.util.Arrays;
 import java.util.Random;
 
 
@@ -890,11 +891,21 @@ class IndexDriver extends TestDriver
             projlist[2] = new FldSpec(rel, 3);
             projlist[3] = new FldSpec(rel, 4);
 
+            CondExpr[] expr = new CondExpr[2];
+            expr[0] = new CondExpr();
+            expr[0].op = new AttrOperator(AttrOperator.aopEQ);
+            expr[0].type1 = new AttrType(AttrType.attrSymbol);
+            expr[0].type2 = new AttrType(AttrType.attrString);
+            expr[0].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 1);
+            expr[0].operand2.string = "RowLabel-96";
+            expr[0].next = null;
+            expr[1] = null;
+
             // start index scan
             MapIndexScan iscan = null;
             short[] res_str_sizes = new short[]{Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE};
             try {
-                iscan = new MapIndexScan(new IndexType(IndexType.B_Index), "file_abcf.in", "Index1", attrType, res_str_sizes, 4, 4, projlist, null, 1, true);
+                iscan = new MapIndexScan(new IndexType(IndexType.B_Index), "file_abcf.in", "Index1", attrType, res_str_sizes, 4, 4, projlist, expr, 1, false);
             } catch (Exception e) {
                 status = FAIL;
                 e.printStackTrace();
@@ -924,10 +935,11 @@ class IndexDriver extends TestDriver
 
                 try {
                     t.setFldOffset(t.getMapByteArray());
-                    outval = t.getRowLabel();
+                    t.print();
                 } catch (Exception e) {
                     status = FAIL;
                     e.printStackTrace();
+                    break;
                 }
                 count++;
 
@@ -938,10 +950,7 @@ class IndexDriver extends TestDriver
                     e.printStackTrace();
                 }
             }
-            if (count < choice) {
-                System.err.println("Test4 -- OOPS! too few records");
-                status = FAIL;
-            } else if (flag && status) {
+            if (flag && status) {
                 System.err.println("Test4 -- Index Scan OK");
             }
 
