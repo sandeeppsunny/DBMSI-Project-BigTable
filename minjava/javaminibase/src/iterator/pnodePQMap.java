@@ -25,6 +25,11 @@ public abstract class pnodePQMap {
     protected int fld_no;
 
     /**
+     * the order type of the sorting field
+     */
+    protected int order_type;
+
+    /**
      * the attribute type of the sorting field
      */
     protected AttrType fld_type;
@@ -97,6 +102,23 @@ public abstract class pnodePQMap {
     public int pnodeCMP(pnodeMap a, pnodeMap b)
             throws IOException, UnknowAttrType, TupleUtilsException, FieldNumberOutOfBoundException {
         int ans = MapUtils.CompareMapWithMap(a.map, b.map, fld_no);
+        switch(order_type) {
+            case 1:
+                ans = MapUtils.CompareMapWithMapFirstType(a.map, b.map);
+                break;
+            case 2:
+                ans = MapUtils.CompareMapWithMapSecondType(a.map, b.map);
+                break;
+            case 3:
+                ans = MapUtils.CompareMapWithMapThirdType(a.map, b.map);
+                break;
+            case 4:
+                ans = MapUtils.CompareMapWithMapFourthType(a.map, b.map);
+                break;
+            case 5:
+                ans = MapUtils.CompareMapWithMapFifthType(a.map, b.map);
+                break;
+        }
         return ans;
     }
 

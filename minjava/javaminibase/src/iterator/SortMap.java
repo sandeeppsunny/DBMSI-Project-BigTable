@@ -33,6 +33,7 @@ public class SortMap extends MapIterator implements GlobalConst {
     private int max_elems_in_heap;
     private int sortFldLen;
     private int map_size;
+    private int order_type;
 
     private pnodeSplayPQMap Q;
     private Heapfile[] temp_files;
@@ -141,8 +142,8 @@ public class SortMap extends MapIterator implements GlobalConst {
             Exception {
         Map map;
         pnodeMap cur_node;
-        pnodeSplayPQMap Q1 = new pnodeSplayPQMap(_sort_fld, sortFldType, order);
-        pnodeSplayPQMap Q2 = new pnodeSplayPQMap(_sort_fld, sortFldType, order);
+        pnodeSplayPQMap Q1 = new pnodeSplayPQMap(_sort_fld, order_type, sortFldType, order);
+        pnodeSplayPQMap Q2 = new pnodeSplayPQMap(_sort_fld, order_type, sortFldType, order);
         pnodeSplayPQMap pcurr_Q = Q1;
         pnodeSplayPQMap pother_Q = Q2;
         Map lastElem = new Map(map_size);  // need tuple.java
@@ -210,7 +211,25 @@ public class SortMap extends MapIterator implements GlobalConst {
             p_elems_curr_Q--;
 
             //comp_res = TupleUtils.CompareTupleWithValue(sortFldType, cur_node.tuple, _sort_fld, lastElem);  // need tuple_utils.java
+
             comp_res = MapUtils.CompareMapWithMap(cur_node.map, lastElem, _sort_fld);  // need tuple_utils.java
+            switch(order_type) {
+                case 1:
+                    comp_res = MapUtils.CompareMapWithMapFirstType(cur_node.map, lastElem);
+                    break;
+                case 2:
+                    comp_res = MapUtils.CompareMapWithMapSecondType(cur_node.map, lastElem);
+                    break;
+                case 3:
+                    comp_res = MapUtils.CompareMapWithMapThirdType(cur_node.map, lastElem);
+                    break;
+                case 4:
+                    comp_res = MapUtils.CompareMapWithMapFourthType(cur_node.map, lastElem);
+                    break;
+                case 5:
+                    comp_res = MapUtils.CompareMapWithMapFifthType(cur_node.map, lastElem);
+                    break;
+            }
 
             if ((comp_res < 0 && order.mapOrder == MapOrder.Ascending) || (comp_res > 0 && order.mapOrder == MapOrder.Descending)) {
                 // doesn't fit in current grun, put into the other queue
@@ -494,7 +513,7 @@ public class SortMap extends MapIterator implements GlobalConst {
                 //System.err.println("error in sort.java");
                 throw new UnknowAttrType("Sort.java: don't know how to handle attrSymbol, attrNull");
         }
-        */
+
         switch(_sort_fld) {
             case 1:
                 lastElem.setRowLabel(s);
@@ -511,7 +530,11 @@ public class SortMap extends MapIterator implements GlobalConst {
             default:
                 throw new UnknowAttrType("Sort.java: don't know how to handle attrSymbol, attrNull");
         }
-
+                */
+        lastElem.setRowLabel(s);
+        lastElem.setColumnLabel(s);
+        lastElem.setTimeStamp(Integer.MIN_VALUE);
+        lastElem.setRowLabel(s);
         return;
     }
 
@@ -555,7 +578,7 @@ public class SortMap extends MapIterator implements GlobalConst {
                 //System.err.println("error in sort.java");
                 throw new UnknowAttrType("Sort.java: don't know how to handle attrSymbol, attrNull");
         }
-         */
+
         switch(_sort_fld) {
             case 1:
                 lastElem.setRowLabel(s);
@@ -572,7 +595,11 @@ public class SortMap extends MapIterator implements GlobalConst {
             default:
                 throw new UnknowAttrType("Sort.java: don't know how to handle attrSymbol, attrNull");
         }
-
+        */
+        lastElem.setRowLabel(s);
+        lastElem.setColumnLabel(s);
+        lastElem.setTimeStamp(Integer.MAX_VALUE);
+        lastElem.setRowLabel(s);
         return;
     }
 
@@ -615,6 +642,29 @@ public class SortMap extends MapIterator implements GlobalConst {
         n_cols = len_in;
         int n_strs = 0;
 
+        switch(sort_fld) {
+            case 2:
+                _sort_fld = 2;
+                order_type = 2;
+                break;
+            case 3:
+                _sort_fld = 1;
+                order_type = 3;
+                break;
+            case 4:
+                _sort_fld = 2;
+                order_type = 4;
+                break;
+            case 5:
+                _sort_fld = 3;
+                order_type = 5;
+                break;
+            default:
+                // case 1 and default maps to first order type
+                _sort_fld = 1;
+                order_type = 1;
+        }
+
         for (int i = 0; i < len_in; i++) {
             _in[i] = new AttrType(in[i].attrType);
             if (in[i].attrType == AttrType.attrString) {
@@ -642,7 +692,6 @@ public class SortMap extends MapIterator implements GlobalConst {
         map_size = t.size();
 
         _am = am;
-        _sort_fld = sort_fld;
         order = sort_order;
         _n_pages = n_pages;
 
@@ -682,9 +731,9 @@ public class SortMap extends MapIterator implements GlobalConst {
         //    output_tuple = null;
 
         max_elems_in_heap = 200;
-        sortFldLen = str_sizes[sort_fld-1];
+        sortFldLen = str_sizes[_sort_fld-1];
 
-        Q = new pnodeSplayPQMap(sort_fld, in[sort_fld - 1], order);
+        Q = new pnodeSplayPQMap(_sort_fld, in[_sort_fld - 1], order);
 
         op_buf = new Map(map_size);   // need Tuple.java
         try {

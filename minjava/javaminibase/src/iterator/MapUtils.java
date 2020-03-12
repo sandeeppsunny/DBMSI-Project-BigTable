@@ -25,8 +25,8 @@ public class MapUtils {
      * @param m2       another map.
      * @param mapfldno the field numbers in the tuples to be compared.
      * @return 0        if the two are equal,
-     * 1        if the tuple is greater,
-     * -1        if the tuple is smaller,
+     * 1        if the map is greater,
+     * -1        if the map is smaller,
      * @throws FieldNumberOutOfBoundException mapfldno provided is out of bounds
      * @throws IOException                    some I/O fault
      */
@@ -52,6 +52,136 @@ public class MapUtils {
         }
     }
 
+    /**
+     * This function compares a map with another map in respective field, and
+     * returns:
+     * <p>
+     * 0        if the two are equal,
+     * 1        if the first map is greater,
+     * -1        if the first map is smaller,
+     *
+     * @param m1       one map.
+     * @param m2       another map.
+     * @return 0        if the two are equal,
+     * 1        if the map is greater,
+     * -1        if the map is smaller,
+     * @throws IOException                    some I/O fault
+     */
+    public static int CompareMapWithMapFirstType(Map m1, Map m2) throws IOException {
+        int rowComp =  m1.getRowLabel().compareTo(m2.getRowLabel());
+        if(rowComp == 0) {
+            int colComp = m1.getColumnLabel().compareTo(m2.getColumnLabel());
+            if(colComp == 0) {
+                return CompareMapWithMapFifthType(m1, m2);
+            } else {
+                return colComp;
+            }
+        } else {
+            return rowComp;
+        }
+    }
+
+    /**
+     * This function compares a map with another map in respective field, and
+     * returns:
+     * <p>
+     * 0        if the two are equal,
+     * 1        if the first map is greater,
+     * -1        if the first map is smaller,
+     *
+     * @param m1       one map.
+     * @param m2       another map.
+     * @return 0        if the two are equal,
+     * 1        if the map is greater,
+     * -1        if the map is smaller,
+     * @throws IOException                    some I/O fault
+     */
+    public static int CompareMapWithMapSecondType(Map m1, Map m2) throws IOException {
+        int colComp = m1.getColumnLabel().compareTo(m2.getColumnLabel());
+        if(colComp == 0) {
+            int rowComp = m1.getRowLabel().compareTo(m1.getColumnLabel());
+            if(rowComp == 0) {
+                return CompareMapWithMapFifthType(m1, m2);
+            } else {
+                return rowComp;
+            }
+        } else {
+            return colComp;
+        }
+    }
+
+    /**
+     * This function compares a map with another map in respective field, and
+     * returns:
+     * <p>
+     * 0        if the two are equal,
+     * 1        if the first map is greater,
+     * -1        if the first map is smaller,
+     *
+     * @param m1       one map.
+     * @param m2       another map.
+     * @return 0        if the two are equal,
+     * 1        if the map is greater,
+     * -1        if the map is smaller,
+     * @throws IOException                    some I/O fault
+     */
+    public static int CompareMapWithMapThirdType(Map m1, Map m2) throws IOException {
+        int rowComp = m1.getRowLabel().compareTo(m2.getColumnLabel());
+        if(rowComp == 0) {
+            return CompareMapWithMapFifthType(m1, m2);
+        } else {
+            return rowComp;
+        }
+    }
+
+    /**
+     * This function compares a map with another map in respective field, and
+     * returns:
+     * <p>
+     * 0        if the two are equal,
+     * 1        if the first map is greater,
+     * -1        if the first map is smaller,
+     *
+     * @param m1       one map.
+     * @param m2       another map.
+     * @return 0        if the two are equal,
+     * 1        if the map is greater,
+     * -1        if the map is smaller,
+     * @throws IOException                    some I/O fault
+     */
+    public static int CompareMapWithMapFourthType(Map m1, Map m2) throws IOException {
+        int colComp = m1.getColumnLabel().compareTo(m2.getColumnLabel());
+        if(colComp == 0) {
+            return CompareMapWithMapFifthType(m1, m2);
+        } else {
+            return colComp;
+        }
+    }
+
+    /**
+     * This function compares a map with another map in respective field, and
+     * returns:
+     * <p>
+     * 0        if the two are equal,
+     * 1        if the first map is greater,
+     * -1        if the first map is smaller,
+     *
+     * @param m1       one map.
+     * @param m2       another map.
+     * @return 0        if the two are equal,
+     * 1        if the map is greater,
+     * -1        if the map is smaller,
+     * @throws IOException                    some I/O fault
+     */
+    public static int CompareMapWithMapFifthType(Map m1, Map m2) throws IOException {
+        if (m1.getTimeStamp() > m2.getTimeStamp()) {
+            return 1;
+        } else if (m1.getTimeStamp() < m2.getTimeStamp()) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
     /**
      * This function Compares two maps in all fields
      *
