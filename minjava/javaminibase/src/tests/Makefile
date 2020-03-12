@@ -76,6 +76,9 @@ MapUnit:MapUnitTest.java
 mapunit: MapUnit
 	$(JAVA) tests.MapUnitTest
 
+batch:BatchInsert.java
+	$(JAVAC) BatchInsert.java
+
 MainTest:MainTest.java
 	$(JAVAC) MainTest.java
 

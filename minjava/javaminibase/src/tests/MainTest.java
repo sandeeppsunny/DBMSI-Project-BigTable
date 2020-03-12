@@ -68,13 +68,49 @@ class MainTest implements GlobalConst {
         display();
         Scanner sc = new Scanner(System.in);
         String option = sc.nextLine();
-        // bigt big = SystemDefs.JavabaseDB.table;
+        bigt big = null;
         while(option.equals("1")||option.equals("2")){
             if(option.equals("1")){
                 System.out.println("FORMAT: batchinsert DATAFILENAME TYPE BIGTABLENAME");
+                String batch = sc.nextLine();
+                String[] splits = batch.split(" ");
+                if(splits.length!=4){
+                    System.out.println("Wrong format, try again!");
+                    display();
+                    option = sc.nextLine();
+                    continue;
+                }
+                try{
+                    big = new bigt(splits[3], Integer.parseInt(splits[2]));
+                    BatchInsert batchInsert = new BatchInsert(big, splits[1], Integer.parseInt(splits[2]), splits[3]);
+                    batchInsert.run();
 
+                }
+                catch(Exception e){
+                    System.out.println("Error Occured");
+                    display();
+                    option = sc.nextLine();
+                    continue;
+                }
             }else{
                 System.out.println("FORMAT: query BIGTABLENAME TYPE ORDERTYPE ROWFILTER COLUMNFILTER VALUEFILTER NUMBUF");
+                String query = sc.nextLine();
+                String[] splits = query.split(" ");
+                if(splits.length!=8){
+                    System.out.println("Wrong format, try again!");
+                    display();
+                    option = sc.nextLine();
+                    continue;
+                }
+                try{
+                    bigt bigTable = new bigt(splits[1], Integer.parseInt(splits[2]));
+                }
+                catch(Exception e){
+                    System.out.println("Error Occured");
+                    display();
+                    option = sc.nextLine();
+                    continue;
+                }
 
             }
             display();
@@ -85,7 +121,7 @@ class MainTest implements GlobalConst {
         try {
             Runtime.getRuntime().exec(remove_logcmd);
             Runtime.getRuntime().exec(remove_dbcmd);
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.err.println("" + e);
         }
 
@@ -93,6 +129,19 @@ class MainTest implements GlobalConst {
 
     }
 
+    /*
+    -----Wrong Format-----
+    System.out.println("Wrong format, try again!");
+    display();
+    option = sc.nextLine();
+    continue;
+    -----Error Occured-----
+    System.out.println("Error Occured");
+    display();
+    option = sc.nextLine();
+    continue;
+    -----------------------
+    */
 
 
 }

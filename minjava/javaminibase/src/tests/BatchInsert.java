@@ -1,3 +1,5 @@
+package tests;
+
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -10,6 +12,7 @@ import btree.InsertRecException;
 import btree.LeafRedistributeException;
 import btree.RecordNotFoundException;
 import btree.RedistributeException;
+
 
 /**
  * BatchInsert
@@ -39,7 +42,6 @@ public class BatchInsert {
             map.setColumnLabel(labels[1]);
             map.setTimeStamp(Integer.parseInt(labels[2]));
             map.setValue(labels[3]);
-            map.print();
             table.insertMap(map);
         }
     }

@@ -24,6 +24,8 @@ public class bigt {
     private Heapfile _hf;
     private BTreeFile index1 = null;
     private BTreeFile index2 = null;
+    private String indexName1;
+    private String indexName2;
     private int type;
     public HashMap<String, ArrayList<RID>> hashMap = new HashMap<String, ArrayList<RID>>();
 
@@ -32,7 +34,9 @@ public class bigt {
         _hf = new Heapfile(name);
         this.name = name;
         this.type = type;
-        createIndex();
+        indexName1 = "index1";
+        indexName2 = "index2";
+        createIndex(indexName1, indexName2);
     }
 
     public Heapfile getheapfile() {
