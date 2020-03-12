@@ -733,7 +733,7 @@ public class SortMap extends MapIterator implements GlobalConst {
         max_elems_in_heap = 200;
         sortFldLen = str_sizes[_sort_fld-1];
 
-        Q = new pnodeSplayPQMap(_sort_fld, in[_sort_fld - 1], order);
+        Q = new pnodeSplayPQMap(_sort_fld, order_type, in[_sort_fld - 1], order);
 
         op_buf = new Map(map_size);   // need Tuple.java
         try {
