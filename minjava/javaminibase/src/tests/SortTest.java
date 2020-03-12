@@ -63,7 +63,7 @@ class SORTDriver extends TestDriver
 
         System.out.println("\n" + "Running " + testName() + " tests...." + "\n");
 
-        SystemDefs sysdef = new SystemDefs(dbpath, 300, NUMBUF, "Clock");
+        SystemDefs sysdef = new SystemDefs(dbpath, 1000, NUMBUF, "Clock");
 
         // Kill anything that might be hanging around
         String newdbpath;
@@ -1015,17 +1015,16 @@ class SORTDriver extends TestDriver
                     s.setColumnLabel(data2[i]);
                     s.setTimeStamp(i);
                     s.setValue("Val-" + i);
+                    try {
+                        rid = f.insertRecordMap(s.returnMapByteArray());
+                    } catch (Exception e) {
+                        status = FAIL;
+                        e.printStackTrace();
+                        return status;
+                    }
                 } catch (Exception e) {
                     status = FAIL;
                     e.printStackTrace();
-                }
-
-                try {
-                    rid = f.insertRecordMap(s.returnMapByteArray());
-                } catch (Exception e) {
-                    status = FAIL;
-                    e.printStackTrace();
-                    return status;
                 }
             }
 
@@ -1146,7 +1145,7 @@ class SORTDriver extends TestDriver
                 e.printStackTrace();
             }
             try {
-                sort = new SortMap(null, null, null, fscan, 3, order[0], null, SORTPGNUM);
+                sort = new SortMap(null, null, null, fscan, 5, order[0], null, SORTPGNUM);
             } catch (Exception e) {
                 status = FAIL;
                 e.printStackTrace();
@@ -1186,7 +1185,7 @@ class SORTDriver extends TestDriver
                 e.printStackTrace();
             }
             try {
-                sort = new SortMap(null, null, null, fscan, 3, order[1], null, SORTPGNUM);
+                sort = new SortMap(null, null, null, fscan, 5, order[1], null, SORTPGNUM);
             } catch (Exception e) {
                 status = FAIL;
                 e.printStackTrace();
@@ -1219,6 +1218,186 @@ class SORTDriver extends TestDriver
             }
 
             System.err.println("------------------- TEST 6 completed ---------------------\n");
+            return status;
+        } catch (Exception e) {
+            status = FAIL;
+            e.printStackTrace();
+            return status;
+        }
+    }
+
+    protected boolean test7() {
+        System.out.println("------------------------ TEST 7 --------------------------");
+        boolean status = OK;
+        try {
+            MapOrder[] order = new MapOrder[2];
+            order[0] = new MapOrder(TupleOrder.Ascending);
+            order[1] = new MapOrder(TupleOrder.Descending);
+
+            // create a tuple of appropriate size
+            Map m = new Map();
+            try {
+                m.setDefaultHdr();
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+
+            int size = m.size();
+
+            // Create unsorted data file "test1.in"
+            RID rid;
+            Heapfile f = null;
+            try {
+                f = new Heapfile("test9.in");
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+
+
+            for (int i = 1; i < 2; i++) {
+                Map s = new Map((int)m.getLength());
+                try {
+                    byte[] m_data = new byte[(int)m.getLength()];
+                    s.mapInit(m_data, 0, m.getLength());
+                    s.setDefaultHdr();
+                    s.setRowLabel(data2[i]);
+                    s.setColumnLabel(data2[i]);
+                    s.setTimeStamp(i);
+                    s.setValue("Val-" + i);
+                    try {
+                        rid = f.insertRecordMap(s.returnMapByteArray());
+                    } catch (Exception e) {
+                        status = FAIL;
+                        e.printStackTrace();
+                        return status;
+                    }
+                    s.setColumnLabel(data2[i+1]);
+                    try {
+                        rid = f.insertRecordMap(s.returnMapByteArray());
+                    } catch (Exception e) {
+                        status = FAIL;
+                        e.printStackTrace();
+                        return status;
+                    }
+                    s.setColumnLabel(data2[i-1]);
+                    try {
+                        rid = f.insertRecordMap(s.returnMapByteArray());
+                    } catch (Exception e) {
+                        status = FAIL;
+                        e.printStackTrace();
+                        return status;
+                    }
+                } catch (Exception e) {
+                    status = FAIL;
+                    e.printStackTrace();
+                }
+            }
+            int rec = f.getRecCntMap();
+            System.out.println("Number of records :" + rec);
+            System.out.println("Input record number :" + Integer.toString(data2.length-2));
+
+            // create an iterator by open a file scan
+            FldSpec[] projlist = new FldSpec[2];
+            RelSpec rel = new RelSpec(RelSpec.outer);
+            projlist[0] = new FldSpec(rel, 0);
+            projlist[1] = new FldSpec(rel, 1);
+
+            // set up an identity selection
+            CondExpr[] expr = new CondExpr[3];
+            expr[0] = new CondExpr();
+            expr[0].op = new AttrOperator(AttrOperator.aopGE);
+            expr[0].type1 = new AttrType(AttrType.attrSymbol);
+            expr[0].type2 = new AttrType(AttrType.attrString);
+            expr[0].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 1);
+            expr[0].operand2.string = "andyw";
+            expr[0].next = null;
+            expr[1] = new CondExpr();
+            expr[1].op = new AttrOperator(AttrOperator.aopLE);
+            expr[1].type1 = new AttrType(AttrType.attrSymbol);
+            expr[1].type2 = new AttrType(AttrType.attrString);
+            expr[1].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 1);
+            expr[1].operand2.string = "randal";
+            expr[1].next = null;
+            expr[2] = null;
+
+            // Sort in ascending order on row label
+            System.out.println("\n==============================");
+            System.out.println("Ascending order on row label and then column label\n");
+            FileScanMap fscan = null;
+
+            try {
+                fscan = new FileScanMap("test9.in", projlist, null);
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+
+            // Sort "test8.in"
+            SortMap sort = null;
+            try {
+                sort = new SortMap(null, null, null, fscan, 1, order[0], null, SORTPGNUM);
+            } catch (Exception e) {
+                status = FAIL;
+                e.printStackTrace();
+            }
+
+            Map t = null;
+
+            int i=1;
+            while(true) {
+                try {
+                    t = sort.get_next();
+                    if(t == null) {
+                        break;
+                    }
+                    t.setFldOffset(t.getMapByteArray());
+                    t.print();
+                    String firstRowLabel = t.getRowLabel();
+                    String firstColumnLabel = t.getColumnLabel();
+
+                    t = sort.get_next();
+                    if(t == null) {
+                        break;
+                    }
+                    t.setFldOffset(t.getMapByteArray());
+                    t.print();
+                    String secondRowLabel = t.getRowLabel();
+                    String secondColumnLabel = t.getColumnLabel();
+
+                    t = sort.get_next();
+                    if(t == null) {
+                        break;
+                    }
+                    t.setFldOffset(t.getMapByteArray());
+                    t.print();
+                    String thirdRowLabel = t.getRowLabel();
+                    String thirdColumnLabel = t.getColumnLabel();
+
+                    if(!(firstRowLabel.equals(data2[i]) && secondRowLabel.equals(data2[i])
+                        && thirdRowLabel.equals(data2[i]))) {
+                        System.out.println("Unexpected row value after sorting!");
+                        System.out.println("Expected :" + data2[i] + " but got " + firstRowLabel + " for first row label and "
+                                + secondRowLabel + " for second row label and " + thirdRowLabel + " for third row label.");
+                        break;
+                    }
+                    if(!(firstColumnLabel.compareTo(secondColumnLabel) < 0 &&
+                        secondColumnLabel.compareTo(thirdColumnLabel) < 0)) {
+                        System.out.println("Columns are not sorted");
+                        System.out.println("Got " + firstColumnLabel + " for first column label and "
+                                + secondColumnLabel + " for second column label and " + thirdColumnLabel + " for third column label.");
+                        break;
+                    }
+                    i++;
+                } catch (Exception e) {
+                    status = FAIL;
+                    e.printStackTrace();
+                    break;
+                }
+            }
+
+            System.err.println("------------------- TEST 7 completed ---------------------\n");
 
             return status;
         } catch (Exception e) {

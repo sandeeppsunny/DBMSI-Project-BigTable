@@ -34,6 +34,7 @@ public class pnodeSplayPQMap extends pnodePQMap {
         fld_no = 0;
         fld_type = new AttrType(AttrType.attrInteger);
         sort_order = new MapOrder(MapOrder.Ascending);
+        order_type = 1;
     }
 
     /**
@@ -49,8 +50,24 @@ public class pnodeSplayPQMap extends pnodePQMap {
         fld_no = fldNo;
         fld_type = fldType;
         sort_order = order;
+        order_type = 1;
     }
 
+    /**
+     * class constructor.
+     *
+     * @param fldNo   the field number for sorting
+     * @param fldType the type of the field for sorting
+     * @param order   the order of sorting (Ascending or Descending)
+     */
+    public pnodeSplayPQMap(int fldNo, int order_type, AttrType fldType, MapOrder order) {
+        root = null;
+        count = 0;
+        fld_no = fldNo;
+        fld_type = fldType;
+        sort_order = order;
+        this.order_type = order_type;
+    }
     /**
      * Inserts an element into the binary tree.
      *
