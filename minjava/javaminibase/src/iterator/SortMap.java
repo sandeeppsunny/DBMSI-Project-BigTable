@@ -634,10 +634,10 @@ public class SortMap extends MapIterator implements GlobalConst {
         in[2] = new AttrType(AttrType.attrInteger);
         in[3] = new AttrType(AttrType.attrString);
         short[] str_sizes = new short[4];
-        str_sizes[0] = 30;
-        str_sizes[1] = 30;
+        str_sizes[0] = Map.DEFAULT_STRING_ATTRIBUTE_SIZE;
+        str_sizes[1] = Map.DEFAULT_STRING_ATTRIBUTE_SIZE;
         str_sizes[2] = 4;
-        str_sizes[3] = 30;
+        str_sizes[3] = Map.DEFAULT_STRING_ATTRIBUTE_SIZE;
         _in = new AttrType[len_in];
         n_cols = len_in;
         int n_strs = 0;
