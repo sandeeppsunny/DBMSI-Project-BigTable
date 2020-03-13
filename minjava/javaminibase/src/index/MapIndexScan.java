@@ -9,7 +9,6 @@ import heap.*;
 
 import java.io.*;
 import BigT.*;
-import javafx.util.Pair;
 
 /**
  * Index Scan iterator will directly access the required tuple using
@@ -233,7 +232,7 @@ public class MapIndexScan extends MapIterator{
     }
 
 
-    public Pair<Map,RID> get_next_rid()
+    public Pair get_next_rid()
             throws IndexException,
             UnknownKeyTypeException,
             IOException {
@@ -294,7 +293,7 @@ public class MapIndexScan extends MapIterator{
                     // attrReal not supported for now
                     throw new UnknownKeyTypeException("Only Integer and String keys are supported so far");
                 }
-                return new Pair<Map, RID>(Jtuple,new RID());
+                return new Pair(Jtuple, new RID());
             }
 
             // not index_only, need to return the whole tuple
@@ -318,7 +317,7 @@ public class MapIndexScan extends MapIterator{
                 throw new IndexException(e, "IndexScan.java: Heapfile error");
             }
             if (eval) {
-                return new Pair<Map, RID>(map1,rid);
+                return new Pair(map1, rid);
             }
 
             try {

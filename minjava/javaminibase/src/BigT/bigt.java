@@ -13,7 +13,6 @@ import btree.*;
 import heap.*;
 import iterator.*;
 import index.*;
-import javafx.util.Pair;
 import java.util.*;
 
 public class bigt {
@@ -44,6 +43,10 @@ public class bigt {
 
     public String getName(){
         return name;
+    }
+
+    public int getType() {
+        return type;
     }
 
     public Heapfile getheapfile() {
@@ -204,14 +207,14 @@ public class bigt {
 
         ArrayList<Map> mapList = new ArrayList<Map>();
         HashMap<Map, RID> ridHashMap = new HashMap<Map, RID>();
-        Pair<Map, RID> t = iscan.get_next_rid();
+        Pair t = iscan.get_next_rid();
 
         while (t != null) {
-            Map temp = t.getKey();
+            Map temp = t.getMap();
             temp.setFldOffset(temp.getMapByteArray());
             if(temp.getRowLabel().equals(map.getRowLabel())&&temp.getColumnLabel().equals(map.getColumnLabel())){
                 mapList.add(temp);
-                ridHashMap.put(temp, t.getValue());
+                ridHashMap.put(temp, t.getRid());
             }
             t = iscan.get_next_rid();
         }
@@ -246,7 +249,8 @@ public class bigt {
 
     }
 
-    public Stream openStream(int orderType, String rowFilter, String columnFilter, String valueFilter) {
-        return null;
+    public Stream openStream(int orderType, String rowFilter, String columnFilter, String valueFilter, int numBuf) {
+        Stream stream = new Stream(this, orderType, rowFilter, columnFilter, valueFilter, numBuf);
+        return stream;
     }
 }
