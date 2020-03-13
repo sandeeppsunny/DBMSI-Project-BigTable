@@ -54,7 +54,7 @@ public class SystemDefs {
 
         try {
             JavabaseBM = new BufMgr(bufpoolsize, replacement_policy);
-            JavabaseDB = new DB();
+            JavabaseDB = new bigDB();
 /*
 	JavabaseCatalog = new Catalog(); 
 */

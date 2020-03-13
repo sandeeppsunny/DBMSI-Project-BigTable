@@ -30,18 +30,12 @@ class MainTest implements GlobalConst {
 
         String dbpath = "/tmp/maintest" + System.getProperty("user.name") + ".minibase-db";
         String logpath = "/tmp/maintest" + System.getProperty("user.name") + ".minibase-log";
-        SystemDefs sysdef = new SystemDefs(dbpath, 10000, 1000, "LRU");
-        SystemDefs.JavabaseDB.pcounter.initialize();
+        // SystemDefs.JavabaseDB.pcounter.initialize();
 
-        // Kill anything that might be hanging around
-        String newdbpath;
-        String newlogpath;
+        // // Kill anything that might be hanging around
         String remove_logcmd;
         String remove_dbcmd;
         String remove_cmd = "/bin/rm -rf ";
-
-        newdbpath = dbpath;
-        newlogpath = logpath;
 
         remove_logcmd = remove_cmd + logpath;
         remove_dbcmd = remove_cmd + dbpath;
@@ -55,18 +49,20 @@ class MainTest implements GlobalConst {
             System.err.println("" + e);
         }
 
-        remove_logcmd = remove_cmd + newlogpath;
-        remove_dbcmd = remove_cmd + newdbpath;
+        SystemDefs sysdef = new SystemDefs(dbpath, 10000, 1000, "LRU");
 
-        //This step seems redundant for me.  But it's in the original
-        //C++ code.  So I am keeping it as of now, just in case I
-        //I missed something
-        try {
-            Runtime.getRuntime().exec(remove_logcmd);
-            Runtime.getRuntime().exec(remove_dbcmd);
-        } catch (IOException e) {
-            System.err.println("" + e);
-        }
+        // remove_logcmd = remove_cmd + newlogpath;
+        // remove_dbcmd = remove_cmd + newdbpath;
+
+        // //This step seems redundant for me.  But it's in the original
+        // //C++ code.  So I am keeping it as of now, just in case I
+        // //I missed something
+        // try {
+        //     Runtime.getRuntime().exec(remove_logcmd);
+        //     Runtime.getRuntime().exec(remove_dbcmd);
+        // } catch (IOException e) {
+        //     System.err.println("" + e);
+        // }
         display();
         Scanner sc = new Scanner(System.in);
         String option = sc.nextLine();
@@ -83,10 +79,18 @@ class MainTest implements GlobalConst {
                     continue;
                 }
                 try{
+                    File f = new File(dbpath);
+                    if(f.exists()) {
+                        SystemDefs.MINIBASE_RESTART_FLAG = true;
+                    } else {
+                        SystemDefs.MINIBASE_RESTART_FLAG = false;
+                    }
+                    sysdef = new SystemDefs(dbpath, 10000, Integer.parseInt(splits[4]), "LRU");
                     big = new bigt(splits[3], Integer.parseInt(splits[2]));
-                    BatchInsert batchInsert = new BatchInsert(big, splits[1], Integer.parseInt(splits[2]), splits[3]);
+                    BatchInsert batchInsert = new BatchInsert(big, splits[1]);
                     batchInsert.run();
-
+                    SystemDefs.JavabaseBM.flushAllPages();
+                    SystemDefs.JavabaseDB.closeDB();
                 }
                 catch(Exception e){
                     System.out.println("Error Occured");
@@ -106,6 +110,13 @@ class MainTest implements GlobalConst {
                     continue;
                 }
                 try{
+                    File f = new File(dbpath);
+                    if(f.exists()) {
+                        SystemDefs.MINIBASE_RESTART_FLAG = true;
+                    } else {
+                        SystemDefs.MINIBASE_RESTART_FLAG = false;
+                    }
+                    sysdef = new SystemDefs(dbpath, 10000, Integer.parseInt(splits[7]), "LRU");
                     Stream stream = big.openStream(Integer.parseInt(splits[3]), splits[4],
                             splits[5], splits[6], Integer.parseInt(splits[7]));
                     Map t = stream.getNext();
@@ -120,6 +131,8 @@ class MainTest implements GlobalConst {
                     System.out.println("Number of unpinned Buffers " + SystemDefs.JavabaseBM.getNumUnpinnedBuffers());
                     System.out.println("Number of buffers " + SystemDefs.JavabaseBM.getNumBuffers());
                     stream.closestream();
+                    SystemDefs.JavabaseBM.flushAllPages();
+                    SystemDefs.JavabaseDB.closeDB();
                 }
                 catch(Exception e){
                     System.out.println("Error Occured");
@@ -131,6 +144,13 @@ class MainTest implements GlobalConst {
 
             }else{
                 try{
+                    File f = new File(dbpath);
+                    if(f.exists()) {
+                        SystemDefs.MINIBASE_RESTART_FLAG = true;
+                    } else {
+                        SystemDefs.MINIBASE_RESTART_FLAG = false;
+                    }
+                    sysdef = new SystemDefs(dbpath, 10000, 100, "LRU");
                     Scan scan = new Scan(big.getheapfile(), true);
                     RID rid = new RID();
                     Map temp = scan.getNextMap(rid);
@@ -144,6 +164,8 @@ class MainTest implements GlobalConst {
                         }
                     }
                     System.out.println(big.getMapCnt());
+                    SystemDefs.JavabaseBM.flushAllPages();
+                    SystemDefs.JavabaseDB.closeDB();
                 }
                 catch(Exception e){
                     System.out.println("Error Occured");
