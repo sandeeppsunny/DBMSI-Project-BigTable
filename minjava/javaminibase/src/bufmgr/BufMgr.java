@@ -473,7 +473,7 @@ public class BufMgr implements GlobalConst {
                 replacer = new LRU(this);
                 System.out.println("Replacer: LRU\n");
             } else if (replacerArg.compareTo("MRU") == 0) {
-                replacer = new LRU(this);
+                replacer = new MRU(this);
                 System.out.println("Replacer: MRU\n");
             } else {
                 replacer = new Clock(this);

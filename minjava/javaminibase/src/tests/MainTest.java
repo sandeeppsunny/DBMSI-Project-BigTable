@@ -30,7 +30,7 @@ class MainTest implements GlobalConst {
 
         String dbpath = "/tmp/maintest" + System.getProperty("user.name") + ".minibase-db";
         String logpath = "/tmp/maintest" + System.getProperty("user.name") + ".minibase-log";
-        SystemDefs sysdef = new SystemDefs(dbpath, 10000, 1000, "Clock");
+        SystemDefs sysdef = new SystemDefs(dbpath, 10000, 1000, "LRU");
         SystemDefs.JavabaseDB.pcounter.initialize();
 
         // Kill anything that might be hanging around
@@ -90,6 +90,7 @@ class MainTest implements GlobalConst {
                 }
                 catch(Exception e){
                     System.out.println("Error Occured");
+                    e.printStackTrace();
                     display();
                     option = sc.nextLine();
                     continue;
@@ -122,6 +123,7 @@ class MainTest implements GlobalConst {
                 }
                 catch(Exception e){
                     System.out.println("Error Occured");
+                    e.printStackTrace();
                     display();
                     option = sc.nextLine();
                     continue;
@@ -145,6 +147,7 @@ class MainTest implements GlobalConst {
                 }
                 catch(Exception e){
                     System.out.println("Error Occured");
+                    e.printStackTrace();
                     display();
                     option = sc.nextLine();
                     continue;

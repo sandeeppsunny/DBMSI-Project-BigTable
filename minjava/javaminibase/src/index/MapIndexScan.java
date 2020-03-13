@@ -204,21 +204,22 @@ public class MapIndexScan extends MapIterator{
             } catch (Exception e) {
                 throw new IndexException(e, "IndexScan.java: getRecord failed");
             }
+            if(map1!=null){
+                try {
+                    map1.setFldOffset(map1.getMapByteArray());
+                } catch (Exception e) {
+                    throw new IndexException("IndexScan.java Exception: Unable to set map fldOffset");
+                }
 
-            try {
-                map1.setFldOffset(map1.getMapByteArray());
-            } catch (Exception e) {
-                throw new IndexException(e, "IndexScan.java: Heapfile error");
-            }
-
-            boolean eval;
-            try {
-                eval = PredEval.Eval(_selects, map1, null, _types, null);
-            } catch (Exception e) {
-                throw new IndexException(e, "IndexScan.java: Heapfile error");
-            }
-            if (eval) {
-                return map1;
+                boolean eval;
+                try {
+                    eval = PredEval.Eval(_selects, map1, null, _types, null);
+                } catch (Exception e) {
+                    throw new IOException("");
+                }
+                if (eval) {
+                    return map1;
+                }
             }
 
             try {
@@ -304,20 +305,22 @@ public class MapIndexScan extends MapIterator{
                 throw new IndexException(e, "IndexScan.java: getRecord failed");
             }
 
-            try {
-                map1.setFldOffset(map1.getMapByteArray());
-            } catch (Exception e) {
-                throw new IndexException(e, "IndexScan.java: Heapfile error");
-            }
+            if(map1 != null){
+                try {
+                    map1.setFldOffset(map1.getMapByteArray());
+                } catch (Exception e) {
+                    throw new IndexException("IndexScan.java Exception: Unable to set map fldOffset");
+                }
 
-            boolean eval;
-            try {
-                eval = PredEval.Eval(_selects, map1, null, _types, null);
-            } catch (Exception e) {
-                throw new IndexException(e, "IndexScan.java: Heapfile error");
-            }
-            if (eval) {
-                return new Pair(map1, rid);
+                boolean eval;
+                try {
+                    eval = PredEval.Eval(_selects, map1, null, _types, null);
+                } catch (Exception e) {
+                    throw new IndexException(e, "IndexScan.java: Heapfile error");
+                }
+                if (eval) {
+                    return new Pair(map1, rid);
+                }
             }
 
             try {
