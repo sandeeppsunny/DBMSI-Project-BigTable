@@ -19,11 +19,15 @@ import btree.RedistributeException;
  */
 public class BatchInsert {
     String datafile;
+    String bigTable;
+    int type;
     bigt table;
 
-    BatchInsert(bigt table, String datafile) {
+    BatchInsert(bigt table, String datafile, int type, String bigTable) {
         this.table = table;
         this.datafile = datafile;
+        this.type = type;
+        this.bigTable = bigTable;
     }
 
     public void run() throws DeleteFashionException, LeafRedistributeException, RedistributeException,
@@ -38,7 +42,7 @@ public class BatchInsert {
             map.setColumnLabel(labels[1]);
             map.setTimeStamp(Integer.parseInt(labels[2]));
             map.setValue(labels[3]);
-            this.table.insertMap(map);
+            table.insertMap(map);
         }
     }
 }
