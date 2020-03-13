@@ -36,7 +36,7 @@ public class BatchInsert {
         Map map = new Map();
         String[] labels;
         for (String line : lines) {
-            labels = line.split(",");
+            labels = line.split(" ");
             map.setDefaultHdr();
             map.setRowLabel(labels[0]);
             map.setColumnLabel(labels[1]);
