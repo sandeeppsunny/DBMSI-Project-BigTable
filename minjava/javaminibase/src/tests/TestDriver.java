@@ -116,6 +116,13 @@ public class TestDriver {
     }
 
     /**
+     * @return whether the test has completely successfully
+     */
+    protected boolean test8() {
+        return true;
+    }
+
+    /**
      * @return <code>String</code> object which contains the name of the test
      */
     protected String testName() {
@@ -228,6 +235,9 @@ public class TestDriver {
             _passAll = FAIL;
         }
         if (!test7()) {
+            _passAll = FAIL;
+        }
+        if (!test8()) {
             _passAll = FAIL;
         }
         return _passAll;
