@@ -355,6 +355,10 @@ public class MapIndexScan extends MapIterator{
         }
     }
 
+    public void set_selects(CondExpr[] exprs){
+        _selects = exprs;
+    }
+
     public FldSpec[] perm_mat;
     private IndexFile indFile;
     private IndexFileScan indScan;

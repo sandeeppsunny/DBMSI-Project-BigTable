@@ -444,6 +444,13 @@ public class BufMgr implements GlobalConst {
     }
 
 
+    public void displayFrameDesc(){
+        for(int i = 0; i < frmeTable.length; i++){
+            System.out.println("Frame Number " + i + " isDirty: " +frmeTable[i].dirty + " PinCount " + frmeTable[i].pin_cnt);
+        }
+        System.out.println();
+    }
+
     /**
      * Create a buffer manager object.
      *

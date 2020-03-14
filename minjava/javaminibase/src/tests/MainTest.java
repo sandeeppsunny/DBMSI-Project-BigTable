@@ -30,7 +30,7 @@ class MainTest implements GlobalConst {
 
         String dbpath = "/tmp/maintest" + System.getProperty("user.name") + ".minibase-db";
         String logpath = "/tmp/maintest" + System.getProperty("user.name") + ".minibase-log";
-        SystemDefs sysdef = new SystemDefs(dbpath, 10000, 1000, "LRU");
+        SystemDefs sysdef = new SystemDefs(dbpath, 100000, 1000, "LRU");
         SystemDefs.JavabaseDB.pcounter.initialize();
 
         // Kill anything that might be hanging around
@@ -86,7 +86,6 @@ class MainTest implements GlobalConst {
                     big = new bigt(splits[3], Integer.parseInt(splits[2]));
                     BatchInsert batchInsert = new BatchInsert(big, splits[1], Integer.parseInt(splits[2]), splits[3]);
                     batchInsert.run();
-
                 }
                 catch(Exception e){
                     System.out.println("Error Occured");
@@ -117,6 +116,8 @@ class MainTest implements GlobalConst {
                         t.print();
                         t = stream.getNext();
                     }
+//                    SystemDefs.JavabaseBM.displayFrameDesc();
+//                    big.unpinAllPages();
                     System.out.println("Number of unpinned Buffers " + SystemDefs.JavabaseBM.getNumUnpinnedBuffers());
                     System.out.println("Number of buffers " + SystemDefs.JavabaseBM.getNumBuffers());
                     stream.closestream();
@@ -144,6 +145,7 @@ class MainTest implements GlobalConst {
                         }
                     }
                     System.out.println(big.getMapCnt());
+                    scan.closescan();
                 }
                 catch(Exception e){
                     System.out.println("Error Occured");

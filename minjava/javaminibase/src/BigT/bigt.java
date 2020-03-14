@@ -30,6 +30,12 @@ public class bigt {
     public String indexName1;
     public String indexName2;
     private int type;
+    AttrType[] attrType;
+    FldSpec[] projlist;
+    CondExpr[] expr;
+    MapIndexScan iscan;
+    short[] res_str_sizes = new short[]{Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE};
+
 
     public bigt(java.lang.String name, int type) throws HFException, HFBufMgrException, HFDiskMgrException, IOException,
             GetFileEntryException, ConstructPageException, AddFileEntryException {
@@ -39,6 +45,35 @@ public class bigt {
         indexName1 = "index1";
         indexName2 = "index2";
         createIndex(indexName1, indexName2);
+        attrType = new AttrType[4];
+        attrType[0] = new AttrType(AttrType.attrString);
+        attrType[1] = new AttrType(AttrType.attrString);
+        attrType[2] = new AttrType(AttrType.attrInteger);
+        attrType[3] = new AttrType(AttrType.attrString);
+        projlist = new FldSpec[4];
+        RelSpec rel = new RelSpec(RelSpec.outer);
+        projlist[0] = new FldSpec(rel, 0);
+        projlist[1] = new FldSpec(rel, 1);
+        projlist[2] = new FldSpec(rel, 2);
+        projlist[3] = new FldSpec(rel, 3);
+
+        expr = new CondExpr[3];
+        expr[0] = new CondExpr();
+        expr[0].op = new AttrOperator(AttrOperator.aopEQ);
+        expr[0].type1 = new AttrType(AttrType.attrSymbol);
+        expr[0].type2 = new AttrType(AttrType.attrString);
+        expr[0].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 1);
+        expr[0].operand2.string = "";
+        expr[0].next = null;
+        expr[1] = new CondExpr();
+        expr[1].op = new AttrOperator(AttrOperator.aopEQ);
+        expr[1].type1 = new AttrType(AttrType.attrSymbol);
+        expr[1].type2 = new AttrType(AttrType.attrString);
+        expr[1].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 2);
+        expr[1].operand2.string = "";
+        expr[1].next = null;
+        expr[2] = null;
+
     }
 
     public String getName(){
@@ -75,6 +110,13 @@ public class bigt {
                 index2 = new BTreeFile(indexName2, AttrType.attrInteger, 4, DeleteFashion.FULL_DELETE);
                 break;
         }
+        if(type != 1)
+            try{
+                iscan = new MapIndexScan(new IndexType(IndexType.B_Index), name, indexName1, attrType, res_str_sizes, 4, 4, projlist, expr, 1, false);
+            }catch(Exception e){
+                System.err.println("createIndex bigt.java exception : Failed to initialize scan");
+                e.printStackTrace();
+            }
     }
 
     public void insertIndex(RID rid, Map map) throws KeyTooLongException, KeyNotMatchException, LeafInsertRecException,
@@ -152,6 +194,8 @@ public class bigt {
             map.setFldOffset(map.getMapByteArray());
             RID rid = insertWithIndex(map);
             insertIndex(rid, map);
+//            RID rid = _hf.insertRecordMap(map.getMapByteArray());
+//            insertIndex(rid, map);
             return rid;
         }
     }
@@ -172,39 +216,9 @@ public class bigt {
             UnknownIndexTypeException,
             Exception
         {
-
-        AttrType[] attrType = new AttrType[4];
-        attrType[0] = new AttrType(AttrType.attrString);
-        attrType[1] = new AttrType(AttrType.attrString);
-        attrType[2] = new AttrType(AttrType.attrInteger);
-        attrType[3] = new AttrType(AttrType.attrString);
-        FldSpec[] projlist = new FldSpec[4];
-        RelSpec rel = new RelSpec(RelSpec.outer);
-        projlist[0] = new FldSpec(rel, 0);
-        projlist[1] = new FldSpec(rel, 1);
-        projlist[2] = new FldSpec(rel, 2);
-        projlist[3] = new FldSpec(rel, 3);
-
-        CondExpr[] expr = new CondExpr[3];
-        expr[0] = new CondExpr();
-        expr[0].op = new AttrOperator(AttrOperator.aopEQ);
-        expr[0].type1 = new AttrType(AttrType.attrSymbol);
-        expr[0].type2 = new AttrType(AttrType.attrString);
-        expr[0].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 1);
-        expr[0].operand2.string = map.getRowLabel();
-        expr[0].next = null;
-        expr[1] = new CondExpr();
-        expr[1].op = new AttrOperator(AttrOperator.aopEQ);
-        expr[1].type1 = new AttrType(AttrType.attrSymbol);
-        expr[1].type2 = new AttrType(AttrType.attrString);
-        expr[1].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 2);
-        expr[1].operand2.string = map.getColumnLabel();
-        expr[1].next = null;
-        expr[2] = null;
-
-        short[] res_str_sizes = new short[]{Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE};
-        MapIndexScan iscan = new MapIndexScan(new IndexType(IndexType.B_Index), name, indexName1, attrType, res_str_sizes, 4, 4, projlist, expr, 1, false);
-
+            expr[0].operand2.string = map.getRowLabel();
+            expr[1].operand2.string = map.getColumnLabel();
+            iscan.set_selects(expr);
         ArrayList<Map> mapList = new ArrayList<Map>();
         HashMap<Map, RID> ridHashMap = new HashMap<Map, RID>();
         Pair t = iscan.get_next_rid();
@@ -237,11 +251,12 @@ public class bigt {
         // }
         // System.out.println(getMapCnt()+" "+mapList.size());
         // System.out.println("-----------------------");
+
         if(mapList.size() < 3) {
             return _hf.insertRecordMap(map.getMapByteArray());
         } else {
             RID deleteRID = ridHashMap.get(mapList.get(0));
-            _hf.deleteRecordTuple(deleteRID);
+            _hf.deleteRecordMap(deleteRID);
             removeIndex(deleteRID, mapList.get(0));
 
             return _hf.insertRecordMap(map.getMapByteArray());
@@ -252,5 +267,24 @@ public class bigt {
     public Stream openStream(int orderType, String rowFilter, String columnFilter, String valueFilter, int numBuf) {
         Stream stream = new Stream(this, orderType, rowFilter, columnFilter, valueFilter, numBuf);
         return stream;
+    }
+
+    public void unpinAllPages(){
+        try{
+            int num_pages  = SystemDefs.JavabaseBM.getNumBuffers();
+            for(int i = 0; i <= num_pages; i++){
+                PageId pageId = new PageId(i);
+                try{
+                    SystemDefs.JavabaseBM.unpinPage(pageId, true);
+                }catch(Exception e){
+//                    System.out.println("Page " + i + " Exception");
+                    continue;
+                }
+            }
+        }catch(Exception ex){
+            System.err.println("Bigt.java unpinAllPages: Failed to unpin all pages");
+            ex.printStackTrace();
+        }
+
     }
 }

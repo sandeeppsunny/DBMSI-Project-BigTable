@@ -810,7 +810,7 @@ class IndexDriver extends TestDriver
                 System.out.println("   - Add " + choice + " records to the file\n");
                 for (int i = 0; (i < choice) && (status == OK); i++) {
                     try {
-                        rid = big.insertMap(mapArr[i].getMapByteArray());
+                        rid = big.insertMap(mapArr[i]);
                     } catch (Exception e) {
                         status = FAIL;
                         System.err.println("*** Error inserting record " + i + "\n");
@@ -1009,7 +1009,7 @@ class IndexDriver extends TestDriver
                 System.out.println("   - Add " + choice + " records to the file\n");
                 for (int i = 0; (i < choice) && (status == OK); i++) {
                     try {
-                        rid = big.insertMap(mapArr[i].getMapByteArray());
+                        rid = big.insertMap(mapArr[i]);
                     } catch (Exception e) {
                         status = FAIL;
                         System.err.println("*** Error inserting record " + i + "\n");

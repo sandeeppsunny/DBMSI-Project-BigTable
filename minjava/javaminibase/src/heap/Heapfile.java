@@ -1032,7 +1032,7 @@ public class Heapfile implements Filetype, GlobalConst {
 
             for(int i=3; i<mapList.size(); i++) {
                 RID ridToDelete = ridHashMap.get(mapList.get(i));
-                deleteRecordTuple(ridToDelete);
+                deleteRecordMap(ridToDelete);
             }
             return ridToUpdate;
         }

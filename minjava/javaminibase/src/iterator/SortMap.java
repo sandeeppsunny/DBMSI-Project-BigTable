@@ -814,7 +814,11 @@ public class SortMap extends MapIterator implements GlobalConst {
                     throw new SortException(e, "Sort.java: BUFmgr error");
                 }
                 for (int i = 0; i < _n_pages; i++) bufs_pids[i].pid = INVALID_PAGE;
+                System.out.println("After Free Buffer Pages in Sort - close");
+                System.out.println("Number of unpinned Buffers " + SystemDefs.JavabaseBM.getNumUnpinnedBuffers());
+                System.out.println("Number of buffers " + SystemDefs.JavabaseBM.getNumBuffers());
             }
+            System.out.println("Number of Temporary maps used: " + temp_files.length);
 
             for (int i = 0; i < temp_files.length; i++) {
                 if (temp_files[i] != null) {
