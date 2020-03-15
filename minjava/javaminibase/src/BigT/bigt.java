@@ -246,7 +246,7 @@ public class bigt {
         });
         // System.out.println("-----------------------");
         // for(int i=0; i<mapList.size(); i++) {
-        //     mapList.get(i).setFldOffset(map.getMapByteArray());
+        //     mapList.get(i).setFldOffset(mapList.get(i).getMapByteArray());
         //     mapList.get(i).print();
         // }
         // System.out.println(getMapCnt()+" "+mapList.size());

@@ -998,18 +998,8 @@ public class Heapfile implements Filetype, GlobalConst {
             }
             map.setFldOffset(map.getMapByteArray());
             if(MapUtils.CompareMapWithMap(map, newMap, 1) == 0 && MapUtils.CompareMapWithMap(map, newMap, 2) == 0) {
-                if(MapUtils.CompareMapWithMap(map, newMap, 3) == 0) {
-                    updateRecordMap(rid, map);
-
-                    scan.closescan();
-                    return rid;
-                } else {
-                    RID tempRid = new RID();
-                    tempRid.copyRid(rid);
-
-                    ridHashMap.put(map, tempRid);
-                    mapList.add(map);
-                }
+                ridHashMap.put(map, rid);
+                mapList.add(map);
             }
         }
         scan.closescan();
@@ -1027,14 +1017,10 @@ public class Heapfile implements Filetype, GlobalConst {
         if(mapList.size() < 3) {
             return insertRecordMap(recPtr);
         } else {
-            RID ridToUpdate = ridHashMap.get(mapList.get(0));
-            updateRecordMap(ridToUpdate, newMap);
+            RID deleteRID = ridHashMap.get(mapList.get(0));
+            deleteRecordMap(deleteRID);
 
-            for(int i=3; i<mapList.size(); i++) {
-                RID ridToDelete = ridHashMap.get(mapList.get(i));
-                deleteRecordMap(ridToDelete);
-            }
-            return ridToUpdate;
+            return insertRecordMap(newMap.getMapByteArray());
         }
     }
 

@@ -71,6 +71,7 @@ class MainTest implements GlobalConst {
         Scanner sc = new Scanner(System.in);
         String option = sc.nextLine();
         bigt big = null;
+        int pages = 0;
         while(option.equals("1")||option.equals("2")||option.equals("4")){
             if(option.equals("1")){
                 System.out.println("FORMAT: batchinsert DATAFILENAME TYPE BIGTABLENAME NUMBUF");
@@ -83,9 +84,12 @@ class MainTest implements GlobalConst {
                     continue;
                 }
                 try{
+                    long startTime = System.nanoTime();
                     big = new bigt(splits[3], Integer.parseInt(splits[2]));
                     BatchInsert batchInsert = new BatchInsert(big, splits[1], Integer.parseInt(splits[2]), splits[3]);
-                    batchInsert.run();
+                    pages = batchInsert.run();
+                    long endTime = System.nanoTime();
+                    System.out.println("TIME TAKEN "+((endTime - startTime)/1000000000) + " s");
                 }
                 catch(Exception e){
                     System.out.println("Error Occured");
@@ -144,8 +148,8 @@ class MainTest implements GlobalConst {
                             temp.print();
                         }
                     }
-                    System.out.println(big.getMapCnt());
                     scan.closescan();
+                    System.out.println("RECORD COUNT: "+big.getMapCnt());
                 }
                 catch(Exception e){
                     System.out.println("Error Occured");
@@ -155,8 +159,11 @@ class MainTest implements GlobalConst {
                     continue;
                 }
             }
-            System.out.println("READ COUNT : "+SystemDefs.JavabaseDB.pcounter.getRCounter());
-            System.out.println("WRITE COUNT : "+SystemDefs.JavabaseDB.pcounter.getWCounter());
+            int read = SystemDefs.JavabaseDB.pcounter.getRCounter()+1;
+            int write = SystemDefs.JavabaseDB.pcounter.getWCounter()+1;
+            System.out.println("READ COUNT : "+read);
+            System.out.println("WRITE COUNT : "+write);
+            System.out.println("PAGE COUNT : "+pages);
             display();
             option = sc.nextLine();
         }
