@@ -118,8 +118,8 @@ class MainTest implements GlobalConst {
                     }
 //                    SystemDefs.JavabaseBM.displayFrameDesc();
 //                    big.unpinAllPages();
-                    System.out.println("Number of unpinned Buffers " + SystemDefs.JavabaseBM.getNumUnpinnedBuffers());
-                    System.out.println("Number of buffers " + SystemDefs.JavabaseBM.getNumBuffers());
+//                    System.out.println("Number of unpinned Buffers " + SystemDefs.JavabaseBM.getNumUnpinnedBuffers());
+//                    System.out.println("Number of buffers " + SystemDefs.JavabaseBM.getNumBuffers());
                     stream.closestream();
                 }
                 catch(Exception e){
