@@ -99,7 +99,7 @@ public class MapUtils {
     public static int CompareMapWithMapSecondType(Map m1, Map m2) throws IOException {
         int colComp = m1.getColumnLabel().compareTo(m2.getColumnLabel());
         if(colComp == 0) {
-            int rowComp = m1.getRowLabel().compareTo(m1.getColumnLabel());
+            int rowComp = m1.getRowLabel().compareTo(m2.getRowLabel());
             if(rowComp == 0) {
                 return CompareMapWithMapFifthType(m1, m2);
             } else {
@@ -126,7 +126,7 @@ public class MapUtils {
      * @throws IOException                    some I/O fault
      */
     public static int CompareMapWithMapThirdType(Map m1, Map m2) throws IOException {
-        int rowComp = m1.getRowLabel().compareTo(m2.getColumnLabel());
+        int rowComp = m1.getRowLabel().compareTo(m2.getRowLabel());
         if(rowComp == 0) {
             return CompareMapWithMapFifthType(m1, m2);
         } else {
