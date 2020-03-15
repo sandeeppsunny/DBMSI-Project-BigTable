@@ -72,7 +72,6 @@ public class Stream {
             expr1.operand2.string = filterSplit[0];
             expr1.next = null;
             CondExpr expr2 = new CondExpr();
-            expr2 = new CondExpr();
             expr2.op = new AttrOperator(AttrOperator.aopLE);
             expr2.type1 = new AttrType(AttrType.attrSymbol);
             expr2.type2 = new AttrType(AttrType.attrString);
