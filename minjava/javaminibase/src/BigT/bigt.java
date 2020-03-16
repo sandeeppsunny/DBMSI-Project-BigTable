@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import BigT.Map;
 import diskmgr.*;
@@ -174,12 +175,55 @@ public class bigt {
         return _hf.getRecCntMap();
     }
 
-    public int getRowCnt() {
-        return 0;
+    public int getRowCnt()  throws Exception{
+        if(type==1){
+            return getCount(true);
+        }else{
+            return getCountWithIndex(true);
+        }
     }
 
-    public int getColumnCnt() {
-        return 0;
+    public int getColumnCnt()  throws Exception{
+        if(type==1){
+            return getCount(false);
+        }else{
+            return getCountWithIndex(false);
+        }
+    }
+
+    public int getCount(boolean countType) throws Exception{
+        Scan scan = _hf.openScanMap();
+        RID rid = new RID();
+        Map map = new Map();
+        map = scan.getNextMap(rid);
+        HashSet<String> distinct = new HashSet<String>();
+        while(map!=null){
+            map.setFldOffset(map.getMapByteArray());
+            if(countType){
+                distinct.add(map.getRowLabel());
+            }else{
+                distinct.add(map.getColumnLabel());
+            }
+            map = scan.getNextMap(rid);
+        }
+        return distinct.size();
+    }
+
+    public int getCountWithIndex(boolean countType)  throws Exception{
+        MapIndexScan mapIndexScan = new MapIndexScan(new IndexType(IndexType.B_Index), name, indexName1, attrType, res_str_sizes, 4, 4, projlist, null, 1, false);
+        Pair pair = mapIndexScan.get_next_rid();
+        HashSet<String> distinct = new HashSet<String>();
+        while(pair!=null){
+            Map map = pair.getMap();
+            map.setFldOffset(map.getMapByteArray());
+            if(countType){
+                distinct.add(map.getRowLabel());
+            }else{
+                distinct.add(map.getColumnLabel());
+            }
+            pair = mapIndexScan.get_next_rid();
+        }
+        return distinct.size();
     }
 
     public RID insertMap(Map map) throws DeleteFashionException, LeafRedistributeException, RedistributeException,
