@@ -212,7 +212,7 @@ public class bigt {
         {
             expr[0].operand2.string = map.getRowLabel();
             expr[1].operand2.string = map.getColumnLabel();
-            iscan = new MapIndexScan(new IndexType(IndexType.B_Index), name, indexName1, attrType, res_str_sizes, 4, 4, projlist, expr, null, g1, false);
+            iscan = new MapIndexScan(new IndexType(IndexType.B_Index), name, indexName1, attrType, res_str_sizes, 4, 4, projlist, expr, null, 1, false);
 
         ArrayList<Map> mapList = new ArrayList<Map>();
         HashMap<Map, RID> ridHashMap = new HashMap<Map, RID>();
