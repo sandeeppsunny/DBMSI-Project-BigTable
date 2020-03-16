@@ -903,7 +903,7 @@ class IndexDriver extends TestDriver
             MapIndexScan iscan = null;
             short[] res_str_sizes = new short[]{Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE};
             try {
-                iscan = new MapIndexScan(new IndexType(IndexType.B_Index), "file_test4.in", indexName, attrType, res_str_sizes, 4, 4, projlist, null, 1, false);
+                iscan = new MapIndexScan(new IndexType(IndexType.B_Index), "file_test4.in", indexName, attrType, res_str_sizes, 4, 4, projlist, null, null, 1, false);
             } catch (Exception e) {
                 status = FAIL;
                 e.printStackTrace();
@@ -1092,7 +1092,7 @@ class IndexDriver extends TestDriver
             MapIndexScan iscan = null;
             short[] res_str_sizes = new short[]{Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE};
             try {
-                iscan = new MapIndexScan(new IndexType(IndexType.B_Index), "file_test5.in", indexName, attrType, res_str_sizes, 4, 4, projlist, null, 1, false);
+                iscan = new MapIndexScan(new IndexType(IndexType.B_Index), "file_test5.in", indexName, attrType, res_str_sizes, 4, 4, projlist, null, null, 1, false);
             } catch (Exception e) {
                 status = FAIL;
                 e.printStackTrace();
