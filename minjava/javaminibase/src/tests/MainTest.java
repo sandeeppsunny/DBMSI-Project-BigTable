@@ -109,6 +109,7 @@ class MainTest implements GlobalConst {
                     continue;
                 }
                 try{
+                    big = new bigt(splits[1], Integer.parseInt(splits[2]));
                     Stream stream = big.openStream(Integer.parseInt(splits[3]), splits[4],
                             splits[5], splits[6], Integer.parseInt(splits[7]));
                     Map t = stream.getNext();
