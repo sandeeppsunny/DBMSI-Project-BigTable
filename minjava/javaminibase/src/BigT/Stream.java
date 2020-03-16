@@ -20,6 +20,7 @@ public class Stream {
     SortMap sortMap;
 
     CondExpr[] condExprs;
+    CondExpr[] condExprForKey;
 
     public Stream(bigt bigtable, int orderType, String rowFilter, String columnFilter, String valueFilter, int numBuf) {
         this.indexType = bigtable.getType();
@@ -29,12 +30,38 @@ public class Stream {
         exprs.addAll(processFilter(rowFilter, 1));
         exprs.addAll(processFilter(columnFilter, 2));
         exprs.addAll(processFilter(valueFilter, 4));
+
         condExprs = new CondExpr[exprs.size() + 1];
         int i = 0;
         for (CondExpr expr : exprs) {
             condExprs[i++] = expr;
         }
         condExprs[i] = null;
+
+        List<CondExpr> exprForKey = new ArrayList<CondExpr>();
+        switch(indexType) {
+            case 2:
+                exprForKey.addAll(processFilter(rowFilter, 1));
+                break;
+            case 3:
+                exprForKey.addAll(processFilter(columnFilter, 2));
+                break;
+            case 4:
+                exprForKey.addAll(processFilter(columnFilter, 2));
+                exprForKey.addAll(processFilter(rowFilter, 1));
+                break;
+            case 5:
+                exprForKey.addAll(processFilter(rowFilter, 1));
+                exprForKey.addAll(processFilter(valueFilter, 4));
+                break;
+        }
+        condExprForKey = new CondExpr[exprForKey.size() + 1];
+        i = 0;
+        for (CondExpr expr : exprForKey) {
+            condExprForKey[i++] = expr;
+        }
+        condExprForKey[i] = null;
+
         try {
             switch (indexType) {
                 case 1:
@@ -49,7 +76,7 @@ public class Stream {
                     short[] res_str_sizes = new short[]{Map.DEFAULT_STRING_ATTRIBUTE_SIZE,
                             Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE};
                     mapIterator = new MapIndexScan(new IndexType(IndexType.B_Index), bigtable.getName(), "index1",
-                            attrType, res_str_sizes, 4, 4, null, condExprs, indexType, false);
+                            attrType, res_str_sizes, 4, 4, null, condExprs, condExprForKey, indexType, false);
             }
             sortMap = new SortMap(null, null, null, mapIterator, this.orderType, new MapOrder(MapOrder.Ascending), null, this.numBuf);
         } catch (Exception e) {

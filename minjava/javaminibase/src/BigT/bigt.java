@@ -40,8 +40,9 @@ public class bigt {
 
     public bigt(java.lang.String name, int type) throws HFException, HFBufMgrException, HFDiskMgrException, IOException,
             GetFileEntryException, ConstructPageException, AddFileEntryException {
-        _hf = new Heapfile(name);
-        this.name = name;
+        String file_name = name+type;
+        _hf = new Heapfile(file_name);
+        this.name = file_name;
         this.type = type;
         indexName1 = "index1";
         indexName2 = "index2";
@@ -111,13 +112,6 @@ public class bigt {
                 index2 = new BTreeFile(indexName2, AttrType.attrInteger, 4, DeleteFashion.FULL_DELETE);
                 break;
         }
-        if(type != 1)
-            try{
-                iscan = new MapIndexScan(new IndexType(IndexType.B_Index), name, indexName1, attrType, res_str_sizes, 4, 4, projlist, expr, 1, false);
-            }catch(Exception e){
-                System.err.println("createIndex bigt.java exception : Failed to initialize scan");
-                e.printStackTrace();
-            }
     }
 
     public void insertIndex(RID rid, Map map) throws KeyTooLongException, KeyNotMatchException, LeafInsertRecException,
@@ -262,7 +256,8 @@ public class bigt {
         {
             expr[0].operand2.string = map.getRowLabel();
             expr[1].operand2.string = map.getColumnLabel();
-            iscan.set_selects(expr);
+            iscan = new MapIndexScan(new IndexType(IndexType.B_Index), name, indexName1, attrType, res_str_sizes, 4, 4, projlist, expr, null, 1, false);
+
         ArrayList<Map> mapList = new ArrayList<Map>();
         HashMap<Map, RID> ridHashMap = new HashMap<Map, RID>();
         Pair t = iscan.get_next_rid();
