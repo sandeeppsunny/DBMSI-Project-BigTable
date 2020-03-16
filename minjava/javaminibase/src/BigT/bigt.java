@@ -204,7 +204,7 @@ public class bigt {
     }
 
     public int getCountWithIndex(boolean countType)  throws Exception{
-        MapIndexScan mapIndexScan = new MapIndexScan(new IndexType(IndexType.B_Index), name, indexName1, attrType, res_str_sizes, 4, 4, projlist, null, 1, false);
+        MapIndexScan mapIndexScan = new MapIndexScan(new IndexType(IndexType.B_Index), name, indexName1, attrType, res_str_sizes, 4, 4, projlist, null,null, 1, false);
         Pair pair = mapIndexScan.get_next_rid();
         HashSet<String> distinct = new HashSet<String>();
         while(pair!=null){
