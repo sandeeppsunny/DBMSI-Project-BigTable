@@ -50,6 +50,7 @@ public class MapIndexScan extends MapIterator{
             int noOutFlds,
             FldSpec outFlds[],
             CondExpr selects[],
+            CondExpr selectForKey[],
             final int fldNum,
             final boolean indexOnly
     )
@@ -77,6 +78,7 @@ public class MapIndexScan extends MapIterator{
         }
 
         _selects = selects;
+        _select_for_key = selectForKey;
         perm_mat = outFlds;
         _noOutFlds = noOutFlds;
         map1 = new Map();
@@ -108,7 +110,8 @@ public class MapIndexScan extends MapIterator{
                 }
 
                 try {
-                    indScan = (BTFileScan) IndexUtils.BTree_scan(selects, indFile);
+
+                    indScan = (BTFileScan) IndexUtils.BTree_scan(_select_for_key, indFile);
                 } catch (Exception e) {
                     throw new IndexException(e, "IndexScan.java: BTreeFile exceptions caught from IndexUtils.BTree_scan().");
                 }
@@ -210,7 +213,6 @@ public class MapIndexScan extends MapIterator{
                 } catch (Exception e) {
                     throw new IndexException("IndexScan.java Exception: Unable to set map fldOffset");
                 }
-
                 boolean eval;
                 try {
                     eval = PredEval.Eval(_selects, map1, null, _types, null);
@@ -365,6 +367,7 @@ public class MapIndexScan extends MapIterator{
     private AttrType[] _types;
     private short[] _s_sizes;
     private CondExpr[] _selects;
+    private CondExpr[] _select_for_key;
     private int _noInFlds;
     private int _noOutFlds;
     private Heapfile f;
