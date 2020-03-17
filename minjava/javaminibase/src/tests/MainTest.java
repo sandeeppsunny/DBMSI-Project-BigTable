@@ -151,6 +151,8 @@ class MainTest implements GlobalConst {
                     }
                     scan.closescan();
                     System.out.println("RECORD COUNT: "+big.getMapCnt());
+                    System.out.println("ROW COUNT: "+big.getRowCnt());
+                    System.out.println("COLUMN COUNT: "+big.getColumnCnt());
                 }
                 catch(Exception e){
                     System.out.println("Error Occured");
