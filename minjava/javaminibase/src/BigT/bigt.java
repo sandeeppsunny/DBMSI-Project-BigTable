@@ -127,11 +127,11 @@ public class bigt {
                 index1.insert(new StringKey(map.getColumnLabel()), rid);
                 break;
             case 4:
-                index1.insert(new StringKey(map.getColumnLabel() + map.getRowLabel()), rid);
+                index1.insert(new StringKey(map.getColumnLabel() + "%" + map.getRowLabel()), rid);
                 index2.insert(new IntegerKey(map.getTimeStamp()), rid);
                 break;
             case 5:
-                index1.insert(new StringKey(map.getRowLabel() + map.getValue()), rid);
+                index1.insert(new StringKey(map.getRowLabel() + "%" + map.getValue()), rid);
                 index2.insert(new IntegerKey(map.getTimeStamp()), rid);
                 break;
         }
@@ -153,11 +153,11 @@ public class bigt {
                 index1.Delete(new StringKey(map.getColumnLabel()), rid);
                 break;
             case 4:
-                index1.Delete(new StringKey(map.getColumnLabel() + map.getRowLabel()), rid);
+                index1.Delete(new StringKey(map.getColumnLabel() + "%" + map.getRowLabel()), rid);
                 index2.Delete(new IntegerKey(map.getTimeStamp()), rid);
                 break;
             case 5:
-                index1.Delete(new StringKey(map.getRowLabel() + map.getValue()), rid);
+                index1.Delete(new StringKey(map.getRowLabel() + "%" + map.getValue()), rid);
                 index2.Delete(new IntegerKey(map.getTimeStamp()), rid);
                 break;
         }
@@ -212,7 +212,23 @@ public class bigt {
         {
             expr[0].operand2.string = map.getRowLabel();
             expr[1].operand2.string = map.getColumnLabel();
-            iscan = new MapIndexScan(new IndexType(IndexType.B_Index), name, indexName1, attrType, res_str_sizes, 4, 4, projlist, expr, null, 1, false);
+            CondExpr[] condExprForKey = Stream.getKeyFilterForIndexType(type, map.getRowLabel(), map.getColumnLabel(), "*");
+            int keyFldNum = 1;
+            switch(type) {
+                case 2:
+                    keyFldNum = 1;
+                    break;
+                case 3:
+                    keyFldNum = 2;
+                    break;
+                case 4:
+                    keyFldNum = 2;
+                    break;
+                case 5:
+                    keyFldNum = 1;
+                    break;
+            }
+            iscan = new MapIndexScan(new IndexType(IndexType.B_Index), name, indexName1, attrType, res_str_sizes, 4, 4, projlist, expr, condExprForKey, keyFldNum, false);
 
         ArrayList<Map> mapList = new ArrayList<Map>();
         HashMap<Map, RID> ridHashMap = new HashMap<Map, RID>();

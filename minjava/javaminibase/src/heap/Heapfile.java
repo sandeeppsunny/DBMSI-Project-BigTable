@@ -998,7 +998,9 @@ public class Heapfile implements Filetype, GlobalConst {
             }
             map.setFldOffset(map.getMapByteArray());
             if(MapUtils.CompareMapWithMap(map, newMap, 1) == 0 && MapUtils.CompareMapWithMap(map, newMap, 2) == 0) {
-                ridHashMap.put(map, rid);
+                RID tempRid = new RID();
+                tempRid.copyRid(rid);
+                ridHashMap.put(map, tempRid);
                 mapList.add(map);
             }
         }

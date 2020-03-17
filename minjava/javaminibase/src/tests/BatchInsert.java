@@ -42,7 +42,7 @@ public class BatchInsert {
             if(i%(lines.size()/10)==0){
                 System.out.print("*");
             }
-            labels = line.split(" ");
+            labels = line.split(",");
             map.setDefaultHdr();
             map.setRowLabel(labels[0]);
             map.setColumnLabel(labels[1]);

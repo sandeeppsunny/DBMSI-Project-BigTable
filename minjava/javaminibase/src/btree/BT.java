@@ -52,10 +52,23 @@ public class BT implements GlobalConst {
     public final static int keyCompare(KeyClass key1, KeyClass key2)
             throws KeyNotMatchException {
         if ((key1 instanceof IntegerKey) && (key2 instanceof IntegerKey)) {
-
             return (((IntegerKey) key1).getKey()).intValue()
                     - (((IntegerKey) key2).getKey()).intValue();
         } else if ((key1 instanceof StringKey) && (key2 instanceof StringKey)) {
+            String firstKey = key1.toString();
+            String secondKey = key2.toString();
+            System.out.println(firstKey + " SANDYP-1 "+secondKey);
+            if(firstKey.contains("%") && secondKey.contains("%")) {
+                return firstKey.compareTo(secondKey);
+            } else if(firstKey.contains("%") && !secondKey.contains("%")) {
+                //System.out.println("SANDYP-2");
+                int pos = firstKey.indexOf('%');
+                return firstKey.substring(0, pos).compareTo(secondKey);
+            } else if(!firstKey.contains("%") && secondKey.contains("%")) {
+                //System.out.println("SANDYP-3");
+                int pos = secondKey.indexOf('%');
+                return firstKey.compareTo(secondKey.substring(pos+1));
+            }
             return ((StringKey) key1).getKey().compareTo(((StringKey) key2).getKey());
         } else {
             throw new KeyNotMatchException(null, "key types do not match");
