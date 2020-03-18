@@ -272,7 +272,7 @@ public class bigt {
                     keyFldNum = 1;
                     break;
             }
-            iscan = new MapIndexScan(new IndexType(IndexType.B_Index), name, indexName1, attrType, res_str_sizes, 4, 4, projlist, null, condExprForKey, keyFldNum, false);
+            iscan = new MapIndexScan(new IndexType(IndexType.B_Index), name, indexName1, attrType, res_str_sizes, 4, 4, projlist, expr, condExprForKey, keyFldNum, false);
 
         ArrayList<Map> mapList = new ArrayList<Map>();
         HashMap<Map, RID> ridHashMap = new HashMap<Map, RID>();
