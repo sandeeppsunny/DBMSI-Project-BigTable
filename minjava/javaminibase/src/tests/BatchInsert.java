@@ -38,6 +38,7 @@ public class BatchInsert {
         int i =0;
         int pages =0;
         for (String line : lines) {
+            line = line.replaceAll("[^\\x00-\\x7F]", "");
             i++;
             if(i%(lines.size()/10)==0){
                 System.out.print("*");
