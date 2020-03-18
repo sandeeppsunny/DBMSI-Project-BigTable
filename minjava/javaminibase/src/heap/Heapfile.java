@@ -1002,6 +1002,9 @@ public class Heapfile implements Filetype, GlobalConst {
                 tempRid.copyRid(rid);
                 ridHashMap.put(map, tempRid);
                 mapList.add(map);
+                if(mapList.size() == 3) {
+                    isScanComplete = true;
+                }
             }
         }
         scan.closescan();
@@ -1022,7 +1025,7 @@ public class Heapfile implements Filetype, GlobalConst {
             RID deleteRID = ridHashMap.get(mapList.get(0));
             deleteRecordMap(deleteRID);
 
-            return insertRecordMap(newMap.getMapByteArray());
+            return insertRecordMap(recPtr);
         }
     }
 

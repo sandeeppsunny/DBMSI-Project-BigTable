@@ -40,7 +40,7 @@ public class BatchInsert {
         for (String line : lines) {
             line = line.replaceAll("[^\\x00-\\x7F]", "");
             i++;
-            if(i%(lines.size()/10)==0){
+            if(lines.size()>10 && i%(lines.size()/10)==0){
                 System.out.print("*");
             }
             labels = line.split(",");

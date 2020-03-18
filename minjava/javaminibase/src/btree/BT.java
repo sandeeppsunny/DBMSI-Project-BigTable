@@ -57,14 +57,14 @@ public class BT implements GlobalConst {
         } else if ((key1 instanceof StringKey) && (key2 instanceof StringKey)) {
             String firstKey = key1.toString();
             String secondKey = key2.toString();
-            if(firstKey.contains("%") && secondKey.contains("%")) {
+            int firstPos = firstKey.indexOf('%');
+            int secondPos = secondKey.indexOf('%');
+            if(firstPos >=0 && secondPos >=0) {
                 return firstKey.compareTo(secondKey);
-            } else if(firstKey.contains("%") && !secondKey.contains("%")) {
-                int pos = firstKey.indexOf('%');
-                return firstKey.substring(0, pos).compareTo(secondKey);
-            } else if(!firstKey.contains("%") && secondKey.contains("%")) {
-                int pos = secondKey.indexOf('%');
-                return firstKey.compareTo(secondKey.substring(pos+1));
+            } else if(firstPos >= 0 && secondPos == -1) {
+                return firstKey.substring(0, firstPos).compareTo(secondKey);
+            } else if(firstPos == -1 && secondPos >= 0) {
+                return firstKey.compareTo(secondKey.substring(0, secondPos));
             }
             return ((StringKey) key1).getKey().compareTo(((StringKey) key2).getKey());
         } else {

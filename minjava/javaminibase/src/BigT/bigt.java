@@ -98,17 +98,17 @@ public class bigt {
             case 1:
                 break;
             case 2:
-                index1 = new BTreeFile(indexName1, AttrType.attrString, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.FULL_DELETE);
+                index1 = new BTreeFile(indexName1, AttrType.attrString, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.NAIVE_DELETE);
                 break;
             case 3:
-                index1 = new BTreeFile(indexName1, AttrType.attrString, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.FULL_DELETE);
+                index1 = new BTreeFile(indexName1, AttrType.attrString, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.NAIVE_DELETE);
                 break;
             case 4:
-                index1 = new BTreeFile(indexName1, AttrType.attrString, 3*Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.FULL_DELETE);
+                index1 = new BTreeFile(indexName1, AttrType.attrString, 3*Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.NAIVE_DELETE);
                 index2 = new BTreeFile(indexName2, AttrType.attrInteger, 4, DeleteFashion.FULL_DELETE);
                 break;
             case 5:
-                index1 = new BTreeFile(indexName1, AttrType.attrString, 3*Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.FULL_DELETE);
+                index1 = new BTreeFile(indexName1, AttrType.attrString, 3*Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.NAIVE_DELETE);
                 index2 = new BTreeFile(indexName2, AttrType.attrInteger, 4, DeleteFashion.FULL_DELETE);
                 break;
         }
@@ -272,7 +272,7 @@ public class bigt {
                     keyFldNum = 1;
                     break;
             }
-            iscan = new MapIndexScan(new IndexType(IndexType.B_Index), name, indexName1, attrType, res_str_sizes, 4, 4, projlist, expr, condExprForKey, keyFldNum, false);
+            iscan = new MapIndexScan(new IndexType(IndexType.B_Index), name, indexName1, attrType, res_str_sizes, 4, 4, projlist, null, condExprForKey, keyFldNum, false);
 
         ArrayList<Map> mapList = new ArrayList<Map>();
         HashMap<Map, RID> ridHashMap = new HashMap<Map, RID>();
@@ -284,6 +284,9 @@ public class bigt {
             if(temp.getRowLabel().equals(map.getRowLabel())&&temp.getColumnLabel().equals(map.getColumnLabel())){
                 mapList.add(temp);
                 ridHashMap.put(temp, t.getRid());
+                if(mapList.size() == 3) {
+                    break;
+                }
             }
             t = iscan.get_next_rid();
         }
