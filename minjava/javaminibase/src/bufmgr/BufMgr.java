@@ -782,6 +782,72 @@ public class BufMgr implements GlobalConst {
 
     }
 
+    /**
+     * User should call this method if she needs to delete a page.
+     * this routine will call DB to deallocate the page.
+     *
+     * @param globalPageId the page number in the data base.
+     * @throws InvalidBufferException      if buffer pool corrupted.
+     * @throws ReplacerException           if there is a replacer error.
+     * @throws HashOperationException      if there is a hash table error.
+     * @throws InvalidFrameNumberException if there is an invalid frame number.
+     * @throws PageNotReadException        if a page cannot be read.
+     * @throws BufferPoolExceededException if the buffer pool is already full.
+     * @throws PagePinnedException         if a page is left pinned.
+     * @throws PageUnpinnedException       if there is a page that is already unpinned.
+     * @throws HashEntryNotFoundException  if there is no entry
+     *                                     of page in the hash table.
+     * @throws IOException                 if there is other kinds of I/O error.
+     * @throws BufMgrException             other error occured in bufmgr layer
+     * @throws DiskMgrException            other error occured in diskmgr layer
+     */
+    public void freePageForcibly(PageId globalPageId)
+            throws InvalidBufferException,
+            ReplacerException,
+            HashOperationException,
+            InvalidFrameNumberException,
+            PageNotReadException,
+            BufferPoolExceededException,
+            PagePinnedException,
+            PageUnpinnedException,
+            HashEntryNotFoundException,
+            BufMgrException,
+            DiskMgrException,
+            IOException {
+        int frameNo;
+        frameNo = hashTable.lookup(globalPageId);
+
+        //if globalPageId is not in pool, frameNo < 0
+        //then call deallocate
+        if (frameNo < 0) {
+            deallocate_page(globalPageId);
+
+            return;
+        }
+        if (frameNo >= (int) numBuffers) {
+            throw new InvalidBufferException(null, "BUFMGR, BAD_BUFFER");
+
+        }
+
+        try {
+            replacer.freeForcibly(frameNo);
+        } catch (Exception e1) {
+            throw new ReplacerException(e1, "BUFMGR, REPLACER_ERROR");
+        }
+
+        try {
+            hashTable.remove(frmeTable[frameNo].pageNo);
+        } catch (Exception e2) {
+            throw new HashOperationException(e2, "BUFMGR, HASH_TABLE_ERROR");
+        }
+
+        frmeTable[frameNo].pageNo.pid = INVALID_PAGE; // frame is empty
+        frmeTable[frameNo].dirty = false;
+
+
+        deallocate_page(globalPageId);
+
+    }
 
     /**
      * Added to flush a particular page of the buffer pool to disk

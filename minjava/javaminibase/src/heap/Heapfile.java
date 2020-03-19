@@ -1669,7 +1669,7 @@ public class Heapfile implements Filetype, GlobalConst {
             // the current directory page.
 
             nextDirPageId = currentDirPage.getNextPage();
-            freePage(currentDirPageId);
+            freePageForcibly(currentDirPageId);
 
             currentDirPageId.pid = nextDirPageId.pid;
             if (nextDirPageId.pid != INVALID_PAGE) {
@@ -1718,6 +1718,17 @@ public class Heapfile implements Filetype, GlobalConst {
 
         try {
             SystemDefs.JavabaseBM.freePage(pageno);
+        } catch (Exception e) {
+            throw new HFBufMgrException(e, "Heapfile.java: freePage() failed");
+        }
+
+    } // end of freePage
+
+    public void freePageForcibly(PageId pageno)
+            throws HFBufMgrException {
+
+        try {
+            SystemDefs.JavabaseBM.freePageForcibly(pageno);
         } catch (Exception e) {
             throw new HFBufMgrException(e, "Heapfile.java: freePage() failed");
         }
