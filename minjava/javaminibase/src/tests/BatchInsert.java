@@ -1,5 +1,8 @@
 package tests;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -32,25 +35,31 @@ public class BatchInsert {
 
     public int run() throws DeleteFashionException, LeafRedistributeException, RedistributeException,
             InsertRecException, FreePageException, RecordNotFoundException, IndexFullDeleteException, Exception {
+        File inputFile = new File(this.datafile);
+        BufferedReader br = new BufferedReader(new FileReader(inputFile));
         List<String> lines = Files.readAllLines(Paths.get(this.datafile));
         Map map = new Map();
+        String line = "";
         String[] labels;
         int i =0;
         int pages =0;
-        for (String line : lines) {
+        while((line=br.readLine())!=null) {
             line = line.replaceAll("[^\\x00-\\x7F]", "");
             i++;
-            if(lines.size()>10 && i%(lines.size()/10)==0){
+            /*if(lines.size()>10 && i%(lines.size()/10)==0){
+
                 System.out.print("*");
-            }
+            }*/
             labels = line.split(",");
             map.setDefaultHdr();
             map.setRowLabel(labels[0]);
             map.setColumnLabel(labels[1]);
-            map.setTimeStamp(Integer.parseInt(labels[2]));
-            map.setValue(labels[3]);
-            RID rid = table.insertMap(map);
-            pages = rid.pageNo.pid;
+            map.setTimeStamp(Integer.parseInt(labels[3]));
+            map.setValue(labels[2]);
+            System.out.print(i + " -> ");
+            map.print();
+            MID mid = table.insertMap(map);
+            pages = mid.pageNo.pid;
         }
         System.out.println("");
         return pages;
