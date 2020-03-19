@@ -17,7 +17,7 @@ import java.util.Scanner;
 class MainTest implements GlobalConst {
 
     public static void display(){
-        SystemDefs.JavabaseDB.pcounter.initialize();
+//        SystemDefs.JavabaseDB.pcounter.initialize();
         System.out.println("------------------------ BigTable Tests --------------------------");
         System.out.println("Press 1 for Batch Insert");
         System.out.println("Press 2 for Query");
@@ -30,8 +30,7 @@ class MainTest implements GlobalConst {
 
         String dbpath = "/tmp/maintest" + System.getProperty("user.name") + ".minibase-db";
         String logpath = "/tmp/maintest" + System.getProperty("user.name") + ".minibase-log";
-        SystemDefs sysdef = new SystemDefs(dbpath, 100000, 1000, "LRU");
-        SystemDefs.JavabaseDB.pcounter.initialize();
+        SystemDefs sysdef = null;
 
         // Kill anything that might be hanging around
         String newdbpath;
@@ -83,6 +82,11 @@ class MainTest implements GlobalConst {
                     option = sc.nextLine();
                     continue;
                 }
+                dbpath = "/tmp/" + splits[3] + Integer.parseInt(splits[2]) + ".minibase-db";
+                if(sysdef == null || !SystemDefs.JavabaseDB.db_name().equals(dbpath)){
+                    sysdef = new SystemDefs(dbpath, 100000, Integer.parseInt(splits[4]), "MRU");
+                    SystemDefs.JavabaseDB.pcounter.initialize();
+                }
                 try{
                     long startTime = System.nanoTime();
                     big = new bigt(splits[3], Integer.parseInt(splits[2]));
@@ -99,6 +103,7 @@ class MainTest implements GlobalConst {
                     continue;
                 }
             }else if (option.equals("2")){
+                SystemDefs.JavabaseDB.pcounter.initialize();
                 System.out.println("FORMAT: query BIGTABLENAME TYPE ORDERTYPE ROWFILTER COLUMNFILTER VALUEFILTER NUMBUF");
                 String query = sc.nextLine();
                 String[] splits = query.split(" ");
@@ -171,6 +176,7 @@ class MainTest implements GlobalConst {
             option = sc.nextLine();
         }
 
+        remove_dbcmd = remove_cmd + dbpath;
         //Clean up again
         try {
             Runtime.getRuntime().exec(remove_logcmd);

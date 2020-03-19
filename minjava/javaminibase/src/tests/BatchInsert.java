@@ -37,7 +37,6 @@ public class BatchInsert {
             InsertRecException, FreePageException, RecordNotFoundException, IndexFullDeleteException, Exception {
         File inputFile = new File(this.datafile);
         BufferedReader br = new BufferedReader(new FileReader(inputFile));
-        List<String> lines = Files.readAllLines(Paths.get(this.datafile));
         Map map = new Map();
         String line = "";
         String[] labels;
