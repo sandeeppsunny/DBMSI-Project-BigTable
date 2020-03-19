@@ -294,7 +294,6 @@ public class Stream {
 
     public void closestream() {
         try {
-            mapIterator.close();
             sortMap.close();
         } catch (Exception e){
             e.printStackTrace();
