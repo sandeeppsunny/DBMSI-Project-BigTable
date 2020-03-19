@@ -4,10 +4,10 @@ import global.*;
 
 /**
  * IndexData: It extends the DataClass.
- * It defines the data "rid" for leaf node in B++ tree.
+ * It defines the data "mid" for leaf node in B++ tree.
  */
 public class LeafData extends DataClass {
-    private RID myRid;
+    private MID myRid;
 
     public String toString() {
         String s;
@@ -19,30 +19,30 @@ public class LeafData extends DataClass {
     /**
      * Class constructor
      *
-     * @param rid the data rid
+     * @param mid the data mid
      */
-    LeafData(RID rid) {
-        myRid = new RID(rid.pageNo, rid.slotNo);
+    LeafData(MID mid) {
+        myRid = new MID(mid.pageNo, mid.slotNo);
     }
 
     ;
 
     /**
-     * get a copy of the rid
+     * get a copy of the mid
      *
      * @return the reference of the copy
      */
-    public RID getData() {
-        return new RID(myRid.pageNo, myRid.slotNo);
+    public MID getData() {
+        return new MID(myRid.pageNo, myRid.slotNo);
     }
 
     ;
 
     /**
-     * set the rid
+     * set the mid
      */
-    public void setData(RID rid) {
-        myRid = new RID(rid.pageNo, rid.slotNo);
+    public void setData(MID mid) {
+        myRid = new MID(mid.pageNo, mid.slotNo);
     }
 
     ;

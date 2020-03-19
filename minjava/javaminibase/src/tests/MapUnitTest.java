@@ -1,7 +1,7 @@
 package tests;
 
 import BigT.Map;
-import global.RID;
+import global.MID;
 import heap.Heapfile;
 import iterator.MapUtils;
 

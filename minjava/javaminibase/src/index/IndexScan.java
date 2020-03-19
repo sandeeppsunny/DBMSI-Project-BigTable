@@ -134,7 +134,7 @@ public class IndexScan extends Iterator {
             throws IndexException,
             UnknownKeyTypeException,
             IOException {
-        RID rid;
+        MID mid;
         int unused;
         KeyDataEntry nextentry = null;
 
@@ -194,9 +194,9 @@ public class IndexScan extends Iterator {
             }
 
             // not index_only, need to return the whole tuple
-            rid = ((LeafData) nextentry.data).getData();
+            mid = ((LeafData) nextentry.data).getData();
             try {
-                tuple1 = f.getRecordTuple(rid);
+                tuple1 = f.getRecordTuple(mid);
             } catch (Exception e) {
                 throw new IndexException(e, "IndexScan.java: getRecord failed");
             }

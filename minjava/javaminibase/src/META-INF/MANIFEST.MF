@@ -50,7 +50,7 @@ Digest-Algorithms: SHA MD5
 SHA-Digest: zYsPDAyN1lIpgS55owSg10mYBi0=
 MD5-Digest: JQp8N5KIZIWfLMA5MoActQ==
 
-Name: global/RID.class
+Name: global/MID.class
 Digest-Algorithms: SHA MD5 
 SHA-Digest: ObTMLhy3syvFlS1ElmIwauC156c=
 MD5-Digest: j/ZaQPbytUDnm+J8U1ltQg==

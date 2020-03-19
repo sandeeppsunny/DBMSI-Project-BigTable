@@ -119,11 +119,11 @@ public class FileScan extends Iterator {
             UnknowAttrType,
             FieldNumberOutOfBoundException,
             WrongPermat {
-        RID rid = new RID();
+        MID mid = new MID();
         ;
 
         while (true) {
-            if ((tuple1 = scan.getNextTuple(rid)) == null) {
+            if ((tuple1 = scan.getNextTuple(mid)) == null) {
                 return null;
             }
 

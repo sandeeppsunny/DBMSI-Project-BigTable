@@ -1,10 +1,10 @@
 package BigT;
 
-import global.RID;
+import global.MID;
 
 public class Pair {
-    public RID getRid() {
-        return rid;
+    public MID getRid() {
+        return mid;
     }
 
     public Map getMap() {
@@ -12,9 +12,9 @@ public class Pair {
     }
 
     Map map;
-    RID rid;
-    public Pair(Map map, RID rid) {
+    MID mid;
+    public Pair(Map map, MID mid) {
         this.map = map;
-        this.rid = rid;
+        this.mid = mid;
     }
 }

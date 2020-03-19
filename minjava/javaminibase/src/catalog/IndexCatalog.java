@@ -72,7 +72,7 @@ public class IndexCatalog extends Heapfile
         RelDesc record = null;
         int status;
         int recSize;
-        RID rid = null;
+        MID mid = null;
         Scan pscan = null;
         int count = 0;
 
@@ -121,7 +121,7 @@ public class IndexCatalog extends Heapfile
 
         while (true) {
             try {
-                tuple = pscan.getNextTuple(rid);
+                tuple = pscan.getNextTuple(mid);
                 if (tuple == null)
                     throw new Catalogindexnotfound(null,
                             "Catalog: Index not Found!");
@@ -153,7 +153,7 @@ public class IndexCatalog extends Heapfile
             Catalogattrnotfound,
             Exception {
         int recSize;
-        RID rid = null;
+        MID mid = null;
         Scan pscan = null;
 
         if ((relation == null) || (attrName == null))
@@ -175,7 +175,7 @@ public class IndexCatalog extends Heapfile
 
         while (true) {
             try {
-                tuple = pscan.getNextTuple(rid);
+                tuple = pscan.getNextTuple(mid);
                 if (tuple == null)
                     throw new Catalogattrnotfound(null, "Catalog: Attribute not Found!");
                 read_tuple(tuple, record);
@@ -207,7 +207,7 @@ public class IndexCatalog extends Heapfile
         AttrDesc record = null;
         int status;
         int recSize;
-        RID rid = null;
+        MID mid = null;
         Scan pscan = null;
         int count = 0;
 
@@ -252,7 +252,7 @@ public class IndexCatalog extends Heapfile
 
         while (true) {
             try {
-                tuple = pscan.getNextTuple(rid);
+                tuple = pscan.getNextTuple(mid);
                 if (tuple == null)
                     throw new Catalogindexnotfound(null,
                             "Catalog: Index not Found!");
@@ -314,7 +314,7 @@ public class IndexCatalog extends Heapfile
     public void addInfo(IndexDesc record)
             throws IOException,
             IndexCatalogException {
-        RID rid;
+        MID mid;
 
         try {
             make_tuple(tuple, record);
@@ -339,7 +339,7 @@ public class IndexCatalog extends Heapfile
             Catalogattrnotfound,
             IndexCatalogException {
         int recSize;
-        RID rid = null;
+        MID mid = null;
         Scan pscan = null;
         IndexDesc record = null;
 
@@ -357,7 +357,7 @@ public class IndexCatalog extends Heapfile
 
         while (true) {
             try {
-                tuple = pscan.getNextTuple(rid);
+                tuple = pscan.getNextTuple(mid);
                 if (tuple == null)
                     throw new Catalogattrnotfound(null,
                             "Catalog: Attribute not Found!");
@@ -370,7 +370,7 @@ public class IndexCatalog extends Heapfile
                     && record.attrName.equalsIgnoreCase(attrName) == true
                     && (record.accessType == accessType)) {
                 try {
-                    deleteRecordTuple(rid);  //  FOUND -  DELETE
+                    deleteRecordTuple(mid);  //  FOUND -  DELETE
                 } catch (Exception e) {
                     throw new IndexCatalogException(e, "deleteRecord() failed");
                 }
@@ -396,7 +396,7 @@ public class IndexCatalog extends Heapfile
             Catalogindexnotfound,
             IndexCatalogException,
             java.lang.Exception {
-        RID rid = null;
+        MID mid = null;
         IndexDesc indexRec = null;
         AttrDesc attrRec = null;
         int intKey = 0;
@@ -540,11 +540,11 @@ public class IndexCatalog extends Heapfile
         recSize = tuple.size();
 
 
-        // NOW PROCESS THE HEAPFILE AND INSERT KEY,RID INTO INDEX
+        // NOW PROCESS THE HEAPFILE AND INSERT KEY,MID INTO INDEX
 
         while (true) {
             try {
-                tuple = pscan.getNextTuple(rid);
+                tuple = pscan.getNextTuple(mid);
                 if (tuple == null)
                     return;
             } catch (Exception e) {
@@ -568,7 +568,7 @@ public class IndexCatalog extends Heapfile
 
             if (accessType.indexType == IndexType.B_Index) {
                 try {
-                    btree.insert(key, rid);
+                    btree.insert(key, mid);
                 } catch (Exception e) {
                     throw new IndexCatalogException(e, "insert failed");
                 }

@@ -92,11 +92,11 @@ public class FileScanMap extends MapIterator {
             UnknowAttrType,
             FieldNumberOutOfBoundException,
             WrongPermat {
-        RID rid = new RID();
+        MID mid = new MID();
         ;
 
         while (true) {
-            if ((map1 = scan.getNextMap(rid)) == null) {
+            if ((map1 = scan.getNextMap(mid)) == null) {
                 return null;
             }
             map1.setDefaultHdr();

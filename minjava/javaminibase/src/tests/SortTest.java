@@ -145,7 +145,7 @@ class SORTDriver extends TestDriver
         int size = t.size();
 
         // Create unsorted data file "test1.in"
-        RID rid;
+        MID mid;
         Heapfile f = null;
         try {
             f = new Heapfile("test1.in");
@@ -171,7 +171,7 @@ class SORTDriver extends TestDriver
             }
 
             try {
-                rid = f.insertRecordTuple(t.returnTupleByteArray());
+                mid = f.insertRecordTuple(t.returnTupleByteArray());
             } catch (Exception e) {
                 status = FAIL;
                 e.printStackTrace();
@@ -291,7 +291,7 @@ class SORTDriver extends TestDriver
         int size = t.size();
 
         // Create unsorted data file "test2.in"
-        RID rid;
+        MID mid;
         Heapfile f = null;
         try {
             f = new Heapfile("test2.in");
@@ -317,7 +317,7 @@ class SORTDriver extends TestDriver
             }
 
             try {
-                rid = f.insertRecordTuple(t.returnTupleByteArray());
+                mid = f.insertRecordTuple(t.returnTupleByteArray());
             } catch (Exception e) {
                 status = FAIL;
                 e.printStackTrace();
@@ -443,7 +443,7 @@ class SORTDriver extends TestDriver
         int size = t.size();
 
         // Create unsorted data file "test3.in"
-        RID rid;
+        MID mid;
         Heapfile f = null;
         try {
             f = new Heapfile("test3.in");
@@ -478,7 +478,7 @@ class SORTDriver extends TestDriver
             }
 
             try {
-                rid = f.insertRecordTuple(t.returnTupleByteArray());
+                mid = f.insertRecordTuple(t.returnTupleByteArray());
             } catch (Exception e) {
                 status = FAIL;
                 e.printStackTrace();
@@ -706,7 +706,7 @@ class SORTDriver extends TestDriver
         int size = t.size();
 
         // Create unsorted data file
-        RID rid1, rid2;
+        MID rid1, rid2;
         Heapfile f1 = null;
         Heapfile f2 = null;
         try {
@@ -887,7 +887,7 @@ class SORTDriver extends TestDriver
             int size = m.size();
 
             // Create unsorted data file "test1.in"
-            RID rid;
+            MID mid;
             Heapfile f = null;
             try {
                 f = new Heapfile("test7.in");
@@ -913,7 +913,7 @@ class SORTDriver extends TestDriver
                 }
 
                 try {
-                    rid = f.insertRecordMap(s.returnMapByteArray());
+                    mid = f.insertRecordMap(s.returnMapByteArray());
                 } catch (Exception e) {
                     status = FAIL;
                     e.printStackTrace();
@@ -995,7 +995,7 @@ class SORTDriver extends TestDriver
             int size = m.size();
 
             // Create unsorted data file "test1.in"
-            RID rid;
+            MID mid;
             Heapfile f = null;
             try {
                 f = new Heapfile("test8.in");
@@ -1016,7 +1016,7 @@ class SORTDriver extends TestDriver
                     s.setTimeStamp(i);
                     s.setValue("Val-" + i);
                     try {
-                        rid = f.insertRecordMap(s.returnMapByteArray());
+                        mid = f.insertRecordMap(s.returnMapByteArray());
                     } catch (Exception e) {
                         status = FAIL;
                         e.printStackTrace();
@@ -1337,7 +1337,7 @@ class SORTDriver extends TestDriver
             int size = m.size();
 
             // Create unsorted data file "test1.in"
-            RID rid;
+            MID mid;
             Heapfile f = null;
             try {
                 f = new Heapfile("test9.in");
@@ -1562,7 +1562,7 @@ class SORTDriver extends TestDriver
             int size = m.size();
 
             // Create unsorted data file "test1.in"
-            RID rid;
+            MID mid;
             Heapfile f = null;
             try {
                 f = new Heapfile("test10.in");
@@ -1583,7 +1583,7 @@ class SORTDriver extends TestDriver
                     s.setTimeStamp(i);
                     s.setValue("Val-" + i);
                     try {
-                        rid = f.insertRecordMap(s.returnMapByteArray());
+                        mid = f.insertRecordMap(s.returnMapByteArray());
                     } catch (Exception e) {
                         status = FAIL;
                         e.printStackTrace();
@@ -1591,7 +1591,7 @@ class SORTDriver extends TestDriver
                     }
                     s.setRowLabel(data2[i + 1]);
                     try {
-                        rid = f.insertRecordMap(s.returnMapByteArray());
+                        mid = f.insertRecordMap(s.returnMapByteArray());
                     } catch (Exception e) {
                         status = FAIL;
                         e.printStackTrace();
@@ -1599,7 +1599,7 @@ class SORTDriver extends TestDriver
                     }
                     s.setRowLabel(data2[i - 1]);
                     try {
-                        rid = f.insertRecordMap(s.returnMapByteArray());
+                        mid = f.insertRecordMap(s.returnMapByteArray());
                     } catch (Exception e) {
                         status = FAIL;
                         e.printStackTrace();

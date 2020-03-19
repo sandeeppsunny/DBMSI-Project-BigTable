@@ -47,7 +47,7 @@ public class Scan implements GlobalConst {
     /** record ID of the DataPageInfo struct (in the directory page) which
      * describes the data page where our current record lives.
      */
-    private RID datapageRid = new RID();
+    private MID datapageRid = new MID();
 
     /** the actual PageId of the data page with the current record */
     private PageId datapageId = new PageId();
@@ -56,7 +56,7 @@ public class Scan implements GlobalConst {
     private HFPage datapage = new HFPage();
 
     /** record ID of the current record (from the current data page) */
-    private RID userrid = new RID();
+    private MID userrid = new MID();
 
     /** Status of next user status */
     private boolean nextUserStatus;
@@ -86,10 +86,10 @@ public class Scan implements GlobalConst {
      * @exception InvalidTupleSizeException Invalid tuple size
      * @exception IOException I/O errors
      *
-     * @param rid Record ID of the record
+     * @param mid Record ID of the record
      * @return the Tuple of the retrieved record.
      */
-    public Tuple getNextTuple(RID rid)
+    public Tuple getNextTuple(MID mid)
             throws InvalidTupleSizeException,
             IOException {
         Tuple recptrtuple = null;
@@ -101,17 +101,17 @@ public class Scan implements GlobalConst {
         if (datapage == null)
             return null;
 
-        rid.pageNo.pid = userrid.pageNo.pid;
-        rid.slotNo = userrid.slotNo;
+        mid.pageNo.pid = userrid.pageNo.pid;
+        mid.slotNo = userrid.slotNo;
 
         try {
-            recptrtuple = datapage.getTupleRecord(rid);
+            recptrtuple = datapage.getTupleRecord(mid);
         } catch (Exception e) {
             //    System.err.println("SCAN: Error in Scan" + e);
             e.printStackTrace();
         }
 
-        userrid = datapage.nextRecord(rid);
+        userrid = datapage.nextRecord(mid);
         if (userrid == null) nextUserStatus = false;
         else nextUserStatus = true;
 
@@ -123,10 +123,10 @@ public class Scan implements GlobalConst {
      * @exception InvalidTupleSizeException Invalid tuple size
      * @exception IOException I/O errors
      *
-     * @param rid Record ID of the record
+     * @param mid Record ID of the record
      * @return the Map of the retrieved record.
      */
-    public Map getNextMap(RID rid)
+    public Map getNextMap(MID mid)
             throws InvalidTupleSizeException,
             IOException {
         Map recptrmap = null;
@@ -142,17 +142,17 @@ public class Scan implements GlobalConst {
             return null;
         }
 
-        rid.pageNo.pid = userrid.pageNo.pid;
-        rid.slotNo = userrid.slotNo;
+        mid.pageNo.pid = userrid.pageNo.pid;
+        mid.slotNo = userrid.slotNo;
 
         try {
-            recptrmap = datapage.getMapRecord(rid);
+            recptrmap = datapage.getMapRecord(mid);
         } catch (Exception e) {
             //    System.err.println("SCAN: Error in Scan" + e);
             e.printStackTrace();
         }
 
-        userrid = datapage.nextRecord(rid);
+        userrid = datapage.nextRecord(mid);
         if (userrid == null) nextUserStatus = false;
         else nextUserStatus = true;
 
@@ -160,28 +160,28 @@ public class Scan implements GlobalConst {
     }
 
 
-    /** Position the scan cursor to the record with the given rid.
+    /** Position the scan cursor to the record with the given mid.
      *
      * @exception InvalidTupleSizeException Invalid tuple size
      * @exception IOException I/O errors
-     * @param rid Record ID of the given record
+     * @param mid Record ID of the given record
      * @return true if successful,
      *			false otherwise.
      */
-    public boolean positionTuple(RID rid)
+    public boolean positionTuple(MID mid)
             throws InvalidTupleSizeException,
             IOException {
-        RID nxtrid = new RID();
+        MID nxtrid = new MID();
         boolean bst;
 
         bst = peekNext(nxtrid);
 
-        if (nxtrid.equals(rid) == true)
+        if (nxtrid.equals(mid) == true)
             return true;
 
         // This is kind lame, but otherwise it will take all day.
         PageId pgid = new PageId();
-        pgid.pid = rid.pageNo.pid;
+        pgid.pid = mid.pageNo.pid;
 
         if (!datapageId.equals(pgid)) {
 
@@ -216,34 +216,34 @@ public class Scan implements GlobalConst {
 
         bst = peekNext(nxtrid);
 
-        while ((bst == true) && (nxtrid != rid))
+        while ((bst == true) && (nxtrid != mid))
             bst = mvNextTuple(nxtrid);
 
         return bst;
     }
 
-    /** Position the scan cursor to the record with the given rid.
+    /** Position the scan cursor to the record with the given mid.
      *
      * @exception InvalidTupleSizeException Invalid tuple size
      * @exception IOException I/O errors
-     * @param rid Record ID of the given record
+     * @param mid Record ID of the given record
      * @return true if successful,
      *			false otherwise.
      */
-    public boolean positionMap(RID rid)
+    public boolean positionMap(MID mid)
             throws InvalidTupleSizeException,
             IOException {
-        RID nxtrid = new RID();
+        MID nxtrid = new MID();
         boolean bst;
 
         bst = peekNext(nxtrid);
 
-        if (nxtrid.equals(rid) == true)
+        if (nxtrid.equals(mid) == true)
             return true;
 
         // This is kind lame, but otherwise it will take all day.
         PageId pgid = new PageId();
-        pgid.pid = rid.pageNo.pid;
+        pgid.pid = mid.pageNo.pid;
 
         if (!datapageId.equals(pgid)) {
 
@@ -278,7 +278,7 @@ public class Scan implements GlobalConst {
 
         bst = peekNext(nxtrid);
 
-        while ((bst == true) && (nxtrid != rid))
+        while ((bst == true) && (nxtrid != mid))
             bst = mvNextMap(nxtrid);
 
         return bst;
@@ -967,28 +967,28 @@ public class Scan implements GlobalConst {
         return true;
     }
 
-    private boolean peekNext(RID rid) {
+    private boolean peekNext(MID mid) {
 
-        rid.pageNo.pid = userrid.pageNo.pid;
-        rid.slotNo = userrid.slotNo;
+        mid.pageNo.pid = userrid.pageNo.pid;
+        mid.slotNo = userrid.slotNo;
         return true;
 
     }
 
 
     /** Move to the next record in a sequential scan.
-     * Also returns the RID of the (new) current record.
+     * Also returns the MID of the (new) current record.
      */
-    private boolean mvNextTuple(RID rid)
+    private boolean mvNextTuple(MID mid)
             throws InvalidTupleSizeException,
             IOException {
-        RID nextrid;
+        MID nextrid;
         boolean status;
 
         if (datapage == null)
             return false;
 
-        nextrid = datapage.nextRecord(rid);
+        nextrid = datapage.nextRecord(mid);
 
         if (nextrid != null) {
             userrid.pageNo.pid = nextrid.pageNo.pid;
@@ -999,8 +999,8 @@ public class Scan implements GlobalConst {
             status = nextDataPageTuple();
 
             if (status == true) {
-                rid.pageNo.pid = userrid.pageNo.pid;
-                rid.slotNo = userrid.slotNo;
+                mid.pageNo.pid = userrid.pageNo.pid;
+                mid.slotNo = userrid.slotNo;
             }
 
         }
@@ -1008,18 +1008,18 @@ public class Scan implements GlobalConst {
     }
 
     /** Move to the next record in a sequential scan.
-     * Also returns the RID of the (new) current record.
+     * Also returns the MID of the (new) current record.
      */
-    private boolean mvNextMap(RID rid)
+    private boolean mvNextMap(MID mid)
             throws InvalidTupleSizeException,
             IOException {
-        RID nextrid;
+        MID nextrid;
         boolean status;
 
         if (datapage == null)
             return false;
 
-        nextrid = datapage.nextRecord(rid);
+        nextrid = datapage.nextRecord(mid);
 
         if (nextrid != null) {
             userrid.pageNo.pid = nextrid.pageNo.pid;
@@ -1030,8 +1030,8 @@ public class Scan implements GlobalConst {
             status = nextDataPageMap();
 
             if (status == true) {
-                rid.pageNo.pid = userrid.pageNo.pid;
-                rid.slotNo = userrid.slotNo;
+                mid.pageNo.pid = userrid.pageNo.pid;
+                mid.slotNo = userrid.slotNo;
             }
 
         }

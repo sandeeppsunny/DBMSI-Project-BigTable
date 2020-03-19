@@ -131,9 +131,9 @@ public class SpoofIbuf implements GlobalConst {
         curr_page = 0;
         while (curr_page < _n_pages) {
             while (t_read < t_per_pg) {
-                RID rid = new RID();
+                MID mid = new MID();
                 try {
-                    if ((t = hf_scan.getNextTuple(rid)) == null) return tot_read;
+                    if ((t = hf_scan.getNextTuple(mid)) == null) return tot_read;
                     t_copy = t.getTupleByteArray();
                     System.arraycopy(t_copy, 0, _bufs[curr_page], t_read * t_size, t_size);
                 } catch (Exception e) {

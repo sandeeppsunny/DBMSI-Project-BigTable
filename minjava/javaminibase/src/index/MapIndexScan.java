@@ -140,7 +140,7 @@ public class MapIndexScan extends MapIterator{
             throws IndexException,
             UnknownKeyTypeException,
             IOException {
-        RID rid;
+        MID mid;
         int unused;
         KeyDataEntry nextentry = null;
 
@@ -201,9 +201,9 @@ public class MapIndexScan extends MapIterator{
             }
 
             // not index_only, need to return the whole tuple
-            rid = ((LeafData) nextentry.data).getData();
+            mid = ((LeafData) nextentry.data).getData();
             try {
-                map1 = f.getRecordMap(rid);
+                map1 = f.getRecordMap(mid);
             } catch (Exception e) {
                 throw new IndexException(e, "IndexScan.java: getRecord failed");
             }
@@ -235,11 +235,11 @@ public class MapIndexScan extends MapIterator{
     }
 
 
-    public Pair get_next_rid()
+    public Pair get_next_mid()
             throws IndexException,
             UnknownKeyTypeException,
             IOException {
-        RID rid;
+        MID mid;
         int unused;
         KeyDataEntry nextentry = null;
 
@@ -296,13 +296,13 @@ public class MapIndexScan extends MapIterator{
                     // attrReal not supported for now
                     throw new UnknownKeyTypeException("Only Integer and String keys are supported so far");
                 }
-                return new Pair(Jtuple, new RID());
+                return new Pair(Jtuple, new MID());
             }
 
             // not index_only, need to return the whole tuple
-            rid = ((LeafData) nextentry.data).getData();
+            mid = ((LeafData) nextentry.data).getData();
             try {
-                map1 = f.getRecordMap(rid);
+                map1 = f.getRecordMap(mid);
             } catch (Exception e) {
                 throw new IndexException(e, "IndexScan.java: getRecord failed");
             }
@@ -321,7 +321,7 @@ public class MapIndexScan extends MapIterator{
                     throw new IndexException(e, "IndexScan.java: Heapfile error");
                 }
                 if (eval) {
-                    return new Pair(map1, rid);
+                    return new Pair(map1, mid);
                 }
             }
 

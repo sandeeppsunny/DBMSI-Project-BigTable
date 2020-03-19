@@ -22,7 +22,7 @@ public abstract class IndexFile {
      * Insert entry into the index file.
      *
      * @param data the key for the entry
-     * @param rid  the rid of the tuple with the key
+     * @param mid  the mid of the tuple with the key
      * @throws IOException             from lower layers
      * @throws KeyTooLongException     the key is too long
      * @throws KeyNotMatchException    the keys do not match
@@ -39,7 +39,7 @@ public abstract class IndexFile {
      * @throws LeafDeleteException     delete leaf page failed
      * @throws InsertException         insert record failed
      */
-    abstract public void insert(final KeyClass data, final RID rid)
+    abstract public void insert(final KeyClass data, final MID mid)
             throws KeyTooLongException,
             KeyNotMatchException,
             LeafInsertRecException,
@@ -60,7 +60,7 @@ public abstract class IndexFile {
      * Delete entry from the index file.
      *
      * @param data the key for the entry
-     * @param rid  the rid of the tuple with the key
+     * @param mid  the mid of the tuple with the key
      * @throws IOException               from lower layers
      * @throws DeleteFashionException    delete fashion undefined
      * @throws LeafRedistributeException failed to redistribute leaf page
@@ -79,7 +79,7 @@ public abstract class IndexFile {
      * @throws DeleteRecException        delete record failed
      * @throws IndexSearchException      index search failed
      */
-    abstract public boolean Delete(final KeyClass data, final RID rid)
+    abstract public boolean Delete(final KeyClass data, final MID mid)
             throws DeleteFashionException,
             LeafRedistributeException,
             RedistributeException,

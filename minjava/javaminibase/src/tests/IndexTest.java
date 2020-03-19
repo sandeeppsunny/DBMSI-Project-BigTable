@@ -145,7 +145,7 @@ class IndexDriver extends TestDriver
         int size = t.size();
 
         // Create unsorted data file "test1.in"
-        RID rid;
+        MID mid;
         Heapfile f = null;
         try {
             f = new Heapfile("test1.in");
@@ -171,7 +171,7 @@ class IndexDriver extends TestDriver
             }
 
             try {
-                rid = f.insertRecordTuple(t.returnTupleByteArray());
+                mid = f.insertRecordTuple(t.returnTupleByteArray());
             } catch (Exception e) {
                 status = FAIL;
                 e.printStackTrace();
@@ -201,12 +201,12 @@ class IndexDriver extends TestDriver
 
         System.out.println("BTreeIndex created successfully.\n");
 
-        rid = new RID();
+        mid = new MID();
         String key = null;
         Tuple temp = null;
 
         try {
-            temp = scan.getNextTuple(rid);
+            temp = scan.getNextTuple(mid);
         } catch (Exception e) {
             status = FAIL;
             e.printStackTrace();
@@ -222,14 +222,14 @@ class IndexDriver extends TestDriver
             }
 
             try {
-                btf.insert(new StringKey(key), rid);
+                btf.insert(new StringKey(key), mid);
             } catch (Exception e) {
                 status = FAIL;
                 e.printStackTrace();
             }
 
             try {
-                temp = scan.getNextTuple(rid);
+                temp = scan.getNextTuple(mid);
             } catch (Exception e) {
                 status = FAIL;
                 e.printStackTrace();
@@ -343,7 +343,7 @@ class IndexDriver extends TestDriver
 
         int size = t.size();
 
-        RID rid;
+        MID mid;
         Heapfile f = null;
 
         // open existing data file
@@ -373,7 +373,7 @@ class IndexDriver extends TestDriver
 
         System.out.println("BTreeIndex opened successfully.\n");
 
-        rid = new RID();
+        mid = new MID();
         String key = null;
         Tuple temp = null;
 
@@ -573,7 +573,7 @@ class IndexDriver extends TestDriver
         int size = t.size();
 
         // Create unsorted data file "test3.in"
-        RID rid;
+        MID mid;
         Heapfile f = null;
         try {
             f = new Heapfile("test3.in");
@@ -608,7 +608,7 @@ class IndexDriver extends TestDriver
             }
 
             try {
-                rid = f.insertRecordTuple(t.returnTupleByteArray());
+                mid = f.insertRecordTuple(t.returnTupleByteArray());
             } catch (Exception e) {
                 status = FAIL;
                 e.printStackTrace();
@@ -638,12 +638,12 @@ class IndexDriver extends TestDriver
 
         System.out.println("BTreeIndex created successfully.\n");
 
-        rid = new RID();
+        mid = new MID();
         int key = 0;
         Tuple temp = null;
 
         try {
-            temp = scan.getNextTuple(rid);
+            temp = scan.getNextTuple(mid);
         } catch (Exception e) {
             status = FAIL;
             e.printStackTrace();
@@ -659,14 +659,14 @@ class IndexDriver extends TestDriver
             }
 
             try {
-                btf.insert(new IntegerKey(key), rid);
+                btf.insert(new IntegerKey(key), mid);
             } catch (Exception e) {
                 status = FAIL;
                 e.printStackTrace();
             }
 
             try {
-                temp = scan.getNextTuple(rid);
+                temp = scan.getNextTuple(mid);
             } catch (Exception e) {
                 status = FAIL;
                 e.printStackTrace();
@@ -805,12 +805,12 @@ class IndexDriver extends TestDriver
                 status = FAIL;
             }
 
-            RID rid = null;
+            MID mid = null;
             if (status == OK) {
                 System.out.println("   - Add " + choice + " records to the file\n");
                 for (int i = 0; (i < choice) && (status == OK); i++) {
                     try {
-                        rid = big.insertMap(mapArr[i]);
+                        mid = big.insertMap(mapArr[i]);
                     } catch (Exception e) {
                         status = FAIL;
                         System.err.println("*** Error inserting record " + i + "\n");
@@ -850,11 +850,11 @@ class IndexDriver extends TestDriver
                 Runtime.getRuntime().exit(1);
             }
 
-            rid = new RID();
+            mid = new MID();
             String key = null;
             Map temp = null;
             try {
-                temp = scan.getNextMap(rid);
+                temp = scan.getNextMap(mid);
                 temp.setFldOffset(temp.getMapByteArray());
             } catch (Exception e) {
                 status = FAIL;
@@ -862,14 +862,14 @@ class IndexDriver extends TestDriver
             }
             while (temp != null) {
                 try {
-                    big.insertIndex(rid, temp);
+                    big.insertIndex(mid, temp);
                 } catch (Exception e) {
                     status = FAIL;
                     e.printStackTrace();
                 }
 
                 try {
-                    temp = scan.getNextMap(rid);
+                    temp = scan.getNextMap(mid);
                     if(temp!=null){
                         temp.setFldOffset(temp.getMapByteArray());
                     }
@@ -1004,12 +1004,12 @@ class IndexDriver extends TestDriver
                 status = FAIL;
             }
 
-            RID rid = null;
+            MID mid = null;
             if (status == OK) {
                 System.out.println("   - Add " + choice + " records to the file\n");
                 for (int i = 0; (i < choice) && (status == OK); i++) {
                     try {
-                        rid = big.insertMap(mapArr[i]);
+                        mid = big.insertMap(mapArr[i]);
                     } catch (Exception e) {
                         status = FAIL;
                         System.err.println("*** Error inserting record " + i + "\n");
@@ -1049,11 +1049,11 @@ class IndexDriver extends TestDriver
                 Runtime.getRuntime().exit(1);
             }
 
-            rid = new RID();
+            mid = new MID();
             String key = null;
             Map temp = null;
             try {
-                temp = scan.getNextMap(rid);
+                temp = scan.getNextMap(mid);
                 temp.setFldOffset(temp.getMapByteArray());
             } catch (Exception e) {
                 status = FAIL;
@@ -1061,14 +1061,14 @@ class IndexDriver extends TestDriver
             }
             while (temp != null) {
                 try {
-                    big.insertIndex(rid, temp);
+                    big.insertIndex(mid, temp);
                 } catch (Exception e) {
                     status = FAIL;
                     e.printStackTrace();
                 }
 
                 try {
-                    temp = scan.getNextMap(rid);
+                    temp = scan.getNextMap(mid);
                     if(temp!=null){
                         temp.setFldOffset(temp.getMapByteArray());
                     }

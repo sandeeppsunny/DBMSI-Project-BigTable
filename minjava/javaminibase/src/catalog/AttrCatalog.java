@@ -76,7 +76,7 @@ public class AttrCatalog extends Heapfile
             IOException,
             Catalogattrnotfound {
         int recSize;
-        RID rid = null;
+        MID mid = null;
         Scan pscan = null;
 
 
@@ -96,7 +96,7 @@ public class AttrCatalog extends Heapfile
 
         while (true) {
             try {
-                tuple = pscan.getNextTuple(rid);
+                tuple = pscan.getNextTuple(mid);
                 if (tuple == null)
                     throw new Catalogattrnotfound(null, "Catalog: Attribute not Found!");
                 read_tuple(tuple, record);
@@ -128,7 +128,7 @@ public class AttrCatalog extends Heapfile
         AttrDesc attrRec = null;
         int status;
         int recSize;
-        RID rid = null;
+        MID mid = null;
         Scan pscan = null;
         int count = 0;
 
@@ -178,7 +178,7 @@ public class AttrCatalog extends Heapfile
 
         while (true) {
             try {
-                tuple = pscan.getNextTuple(rid);
+                tuple = pscan.getNextTuple(mid);
                 if (tuple == null)
                     throw new Catalogindexnotfound(null,
                             "Catalog: Index not Found!");
@@ -283,7 +283,7 @@ public class AttrCatalog extends Heapfile
     public void addInfo(AttrDesc record)
             throws AttrCatalogException,
             IOException {
-        RID rid;
+        MID mid;
 
         try {
             make_tuple(tuple, record);
@@ -309,7 +309,7 @@ public class AttrCatalog extends Heapfile
             Catalogmissparam,
             Catalogattrnotfound {
         int recSize;
-        RID rid = null;
+        MID mid = null;
         Scan pscan = null;
         AttrDesc record = null;
 
@@ -328,7 +328,7 @@ public class AttrCatalog extends Heapfile
         // SCAN FILE
         while (true) {
             try {
-                tuple = pscan.getNextTuple(rid);
+                tuple = pscan.getNextTuple(mid);
                 if (tuple == null)
                     throw new Catalogattrnotfound(null,
                             "Catalog: Attribute not Found!");
@@ -340,7 +340,7 @@ public class AttrCatalog extends Heapfile
             if (record.relName.equalsIgnoreCase(relation) == true
                     && record.attrName.equalsIgnoreCase(attrName) == true) {
                 try {
-                    deleteRecordTuple(rid);
+                    deleteRecordTuple(mid);
                 } catch (Exception e3) {
                     throw new AttrCatalogException(e3, "deleteRecord failed");
                 }

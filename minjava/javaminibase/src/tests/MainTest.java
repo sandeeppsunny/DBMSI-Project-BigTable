@@ -138,12 +138,12 @@ class MainTest implements GlobalConst {
             }else{
                 try{
                     Scan scan = new Scan(big.getheapfile(), true);
-                    RID rid = new RID();
-                    Map temp = scan.getNextMap(rid);
+                    MID mid = new MID();
+                    Map temp = scan.getNextMap(mid);
                     temp.setFldOffset(temp.getMapByteArray());
                     temp.print();
                     while (temp != null) {
-                        temp = scan.getNextMap(rid);
+                        temp = scan.getNextMap(mid);
                         if(temp!=null){
                             temp.setFldOffset(temp.getMapByteArray());
                             temp.print();

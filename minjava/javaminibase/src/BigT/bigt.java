@@ -114,7 +114,7 @@ public class bigt {
         }
     }
 
-    public void insertIndex(RID rid, Map map) throws KeyTooLongException, KeyNotMatchException, LeafInsertRecException,
+    public void insertIndex(MID mid, Map map) throws KeyTooLongException, KeyNotMatchException, LeafInsertRecException,
             IndexInsertRecException, ConstructPageException, UnpinPageException, PinPageException,
             NodeNotMatchException, ConvertException, DeleteRecException, IndexSearchException, IteratorException,
             LeafDeleteException, InsertException, IOException {
@@ -122,23 +122,23 @@ public class bigt {
             case 1:
                 break;
             case 2:
-                index1.insert(new StringKey(map.getRowLabel()), rid);
+                index1.insert(new StringKey(map.getRowLabel()), mid);
                 break;
             case 3:
-                index1.insert(new StringKey(map.getColumnLabel()), rid);
+                index1.insert(new StringKey(map.getColumnLabel()), mid);
                 break;
             case 4:
-                index1.insert(new StringKey(map.getColumnLabel() + "%" + map.getRowLabel()), rid);
-                index2.insert(new IntegerKey(map.getTimeStamp()), rid);
+                index1.insert(new StringKey(map.getColumnLabel() + "%" + map.getRowLabel()), mid);
+                index2.insert(new IntegerKey(map.getTimeStamp()), mid);
                 break;
             case 5:
-                index1.insert(new StringKey(map.getRowLabel() + "%" + map.getValue()), rid);
-                index2.insert(new IntegerKey(map.getTimeStamp()), rid);
+                index1.insert(new StringKey(map.getRowLabel() + "%" + map.getValue()), mid);
+                index2.insert(new IntegerKey(map.getTimeStamp()), mid);
                 break;
         }
     }
 
-    public void removeIndex(RID rid, Map map)
+    public void removeIndex(MID mid, Map map)
             throws KeyTooLongException, KeyNotMatchException, LeafInsertRecException, IndexInsertRecException,
             ConstructPageException, UnpinPageException, PinPageException, NodeNotMatchException, ConvertException,
             DeleteRecException, IndexSearchException, IteratorException, LeafDeleteException, InsertException,
@@ -148,18 +148,18 @@ public class bigt {
             case 1:
                 break;
             case 2:
-                index1.Delete(new StringKey(map.getRowLabel()), rid);
+                index1.Delete(new StringKey(map.getRowLabel()), mid);
                 break;
             case 3:
-                index1.Delete(new StringKey(map.getColumnLabel()), rid);
+                index1.Delete(new StringKey(map.getColumnLabel()), mid);
                 break;
             case 4:
-                index1.Delete(new StringKey(map.getColumnLabel() + "%" + map.getRowLabel()), rid);
-                index2.Delete(new IntegerKey(map.getTimeStamp()), rid);
+                index1.Delete(new StringKey(map.getColumnLabel() + "%" + map.getRowLabel()), mid);
+                index2.Delete(new IntegerKey(map.getTimeStamp()), mid);
                 break;
             case 5:
-                index1.Delete(new StringKey(map.getRowLabel() + "%" + map.getValue()), rid);
-                index2.Delete(new IntegerKey(map.getTimeStamp()), rid);
+                index1.Delete(new StringKey(map.getRowLabel() + "%" + map.getValue()), mid);
+                index2.Delete(new IntegerKey(map.getTimeStamp()), mid);
                 break;
         }
     }
@@ -187,9 +187,9 @@ public class bigt {
 
     public int getCount(boolean countType) throws Exception{
         Scan scan = _hf.openScanMap();
-        RID rid = new RID();
+        MID mid = new MID();
         Map map = new Map();
-        map = scan.getNextMap(rid);
+        map = scan.getNextMap(mid);
         HashSet<String> distinct = new HashSet<String>();
         while(map!=null){
             map.setFldOffset(map.getMapByteArray());
@@ -198,14 +198,14 @@ public class bigt {
             }else{
                 distinct.add(map.getColumnLabel());
             }
-            map = scan.getNextMap(rid);
+            map = scan.getNextMap(mid);
         }
         return distinct.size();
     }
 
     public int getCountWithIndex(boolean countType)  throws Exception{
         MapIndexScan mapIndexScan = new MapIndexScan(new IndexType(IndexType.B_Index), name, indexName1, attrType, res_str_sizes, 4, 4, projlist, null,null, 1, false);
-        Pair pair = mapIndexScan.get_next_rid();
+        Pair pair = mapIndexScan.get_next_mid();
         HashSet<String> distinct = new HashSet<String>();
         while(pair!=null){
             Map map = pair.getMap();
@@ -215,31 +215,31 @@ public class bigt {
             }else{
                 distinct.add(map.getColumnLabel());
             }
-            pair = mapIndexScan.get_next_rid();
+            pair = mapIndexScan.get_next_mid();
         }
         return distinct.size();
     }
 
-    public RID insertMap(Map map) throws DeleteFashionException, LeafRedistributeException, RedistributeException,
+    public MID insertMap(Map map) throws DeleteFashionException, LeafRedistributeException, RedistributeException,
             InsertRecException, FreePageException, RecordNotFoundException, IndexFullDeleteException, Exception {
 
         if(type==1){
-            RID rid = _hf.insertRecordMapWithoutIndex(map.getMapByteArray());
-            insertIndex(rid, map);
-            return rid;
+            MID mid = _hf.insertRecordMapWithoutIndex(map.getMapByteArray());
+            insertIndex(mid, map);
+            return mid;
         }
         else{
             map.setFldOffset(map.getMapByteArray());
-            RID rid = insertWithIndex(map);
-            insertIndex(rid, map);
-//            RID rid = _hf.insertRecordMap(map.getMapByteArray());
-//            insertIndex(rid, map);
-            return rid;
+            MID mid = insertWithIndex(map);
+            insertIndex(mid, map);
+//            MID mid = _hf.insertRecordMap(map.getMapByteArray());
+//            insertIndex(mid, map);
+            return mid;
         }
     }
 
 
-    public RID insertWithIndex(Map map)
+    public MID insertWithIndex(Map map)
         throws IOException,
             IndexException,
             InvalidSlotNumberException,
@@ -275,8 +275,8 @@ public class bigt {
             iscan = new MapIndexScan(new IndexType(IndexType.B_Index), name, indexName1, attrType, res_str_sizes, 4, 4, projlist, expr, condExprForKey, keyFldNum, false);
 
         ArrayList<Map> mapList = new ArrayList<Map>();
-        HashMap<Map, RID> ridHashMap = new HashMap<Map, RID>();
-        Pair t = iscan.get_next_rid();
+        HashMap<Map, MID> ridHashMap = new HashMap<Map, MID>();
+        Pair t = iscan.get_next_mid();
 
         while (t != null) {
             Map temp = t.getMap();
@@ -288,7 +288,7 @@ public class bigt {
                     break;
                 }
             }
-            t = iscan.get_next_rid();
+            t = iscan.get_next_mid();
         }
         iscan.close();
         Collections.sort(mapList, new Comparator<Map>() {
@@ -313,9 +313,9 @@ public class bigt {
         if(mapList.size() < 3) {
             return _hf.insertRecordMap(map.getMapByteArray());
         } else {
-            RID deleteRID = ridHashMap.get(mapList.get(0));
-            _hf.deleteRecordMap(deleteRID);
-            removeIndex(deleteRID, mapList.get(0));
+            MID deleteMID = ridHashMap.get(mapList.get(0));
+            _hf.deleteRecordMap(deleteMID);
+            removeIndex(deleteMID, mapList.get(0));
 
             return _hf.insertRecordMap(map.getMapByteArray());
         }

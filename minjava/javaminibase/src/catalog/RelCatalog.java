@@ -59,7 +59,7 @@ public class RelCatalog extends Heapfile
             IOException,
             Catalogrelnotfound {
         int recSize;
-        RID rid = null;
+        MID mid = null;
         Scan pscan = null;
 
         if (relation == null)
@@ -74,7 +74,7 @@ public class RelCatalog extends Heapfile
 
         while (true) {
             try {
-                tuple = pscan.getNextTuple(rid);
+                tuple = pscan.getNextTuple(mid);
                 if (tuple == null)
                     throw new Catalogrelnotfound(null, "Catalog: Relation not Found!");
                 read_tuple(tuple, record);
@@ -272,7 +272,7 @@ public class RelCatalog extends Heapfile
     public void addInfo(RelDesc record)
             throws RelCatalogException,
             IOException {
-        RID rid;
+        MID mid;
 
         try {
             make_tuple(tuple, record);
@@ -297,7 +297,7 @@ public class RelCatalog extends Heapfile
             IOException,
             Catalogmissparam,
             Catalogattrnotfound {
-        RID rid = null;
+        MID mid = null;
         Scan pscan = null;
         int recSize;
         RelDesc record = null;
@@ -314,7 +314,7 @@ public class RelCatalog extends Heapfile
 
         while (true) {
             try {
-                tuple = pscan.getNextTuple(rid);
+                tuple = pscan.getNextTuple(mid);
                 if (tuple == null)
                     throw new Catalogattrnotfound(null,
                             "Catalog Attribute not Found!");
@@ -326,7 +326,7 @@ public class RelCatalog extends Heapfile
 
             if (record.relName.equalsIgnoreCase(relation) == true) {
                 try {
-                    deleteRecordTuple(rid);
+                    deleteRecordTuple(mid);
                 } catch (Exception e3) {
                     System.err.println("deleteRecord" + e3);
                     throw new RelCatalogException(e3, "deleteRecord failed");
