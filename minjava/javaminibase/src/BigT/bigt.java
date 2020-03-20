@@ -267,6 +267,7 @@ public class bigt {
             prevKey = curKey;
             curMapPair = iscan.get_next_mid();
         }
+        iscan.close();
 
         if(duplicateMaps.size() == 4){
             _hf.deleteRecordMap(duplicateMaps.get(0).getRid());
