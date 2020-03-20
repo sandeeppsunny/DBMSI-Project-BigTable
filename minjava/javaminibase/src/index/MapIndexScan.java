@@ -241,6 +241,7 @@ public class MapIndexScan extends MapIterator{
             IOException {
         MID mid;
         int unused;
+        String indexKey = "";
         KeyDataEntry nextentry = null;
 
         try {
@@ -257,46 +258,16 @@ public class MapIndexScan extends MapIterator{
                 AttrType[] attrType = new AttrType[1];
                 short[] s_sizes = new short[1];
 
-                if (_types[_fldNum - 1].attrType == AttrType.attrInteger) {
-                    attrType[0] = new AttrType(AttrType.attrInteger);
-                    try {
-                        Jtuple.setHdr((short) 1, attrType, s_sizes);
-                    } catch (Exception e) {
-                        throw new IndexException(e, "IndexScan.java: Heapfile error");
-                    }
+               if (_types[_fldNum - 1].attrType == AttrType.attrString) {
 
-                    try {
-                        Jtuple.setIntFld(1, ((IntegerKey) nextentry.key).getKey().intValue());
-                    } catch (Exception e) {
-                        throw new IndexException(e, "IndexScan.java: Heapfile error");
-                    }
-                } else if (_types[_fldNum - 1].attrType == AttrType.attrString) {
+                   indexKey = ((StringKey) nextentry.key).getKey();
+                   mid = ((LeafData) nextentry.data).getData();
 
-                    attrType[0] = new AttrType(AttrType.attrString);
-                    // calculate string size of _fldNum
-                    int count = 0;
-                    for (int i = 0; i < _fldNum; i++) {
-                        if (_types[i].attrType == AttrType.attrString)
-                            count++;
-                    }
-                    s_sizes[0] = _s_sizes[count - 1];
-
-                    try {
-                        Jtuple.setHdr((short) 1, attrType, s_sizes);
-                    } catch (Exception e) {
-                        throw new IndexException(e, "IndexScan.java: Heapfile error");
-                    }
-
-                    try {
-                        Jtuple.setStrFld(1, ((StringKey) nextentry.key).getKey());
-                    } catch (Exception e) {
-                        throw new IndexException(e, "IndexScan.java: Heapfile error");
-                    }
                 } else {
                     // attrReal not supported for now
                     throw new UnknownKeyTypeException("Only Integer and String keys are supported so far");
                 }
-                return new Pair(Jtuple, new MID());
+                return new Pair(null, mid, indexKey);
             }
 
             // not index_only, need to return the whole tuple
