@@ -19,17 +19,14 @@ import java.util.*;
 public class bigt {
 
     private String name;
-    // PageId _firstDirPageId; // page number of header page
-    // int _ftype;
-    // private boolean _file_deleted;
-    // private String _fileName;
-    // private static int tempfilecount = 0;
 
     private Heapfile _hf;
     private BTreeFile index1 = null;
     private BTreeFile index2 = null;
+    private BTreeFile utilityIndex = null;
     public String indexName1;
     public String indexName2;
+    public String indexUtil;
     private int type;
     AttrType[] attrType;
     FldSpec[] projlist;
@@ -44,9 +41,11 @@ public class bigt {
         _hf = new Heapfile(file_name);
         this.name = file_name;
         this.type = type;
-        indexName1 = "index1";
-        indexName2 = "index2";
+        indexUtil = file_name + "_" + "indexUtil";
+        indexName1 = file_name + "_" +"index1";
+        indexName2 = file_name + "_" + "index2";
         createIndex(indexName1, indexName2);
+        createIndexUtil();
         attrType = new AttrType[4];
         attrType[0] = new AttrType(AttrType.attrString);
         attrType[1] = new AttrType(AttrType.attrString);
@@ -98,17 +97,17 @@ public class bigt {
             case 1:
                 break;
             case 2:
-                index1 = new BTreeFile(indexName1, AttrType.attrString, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.NAIVE_DELETE);
+                index1 = new BTreeFile(indexName1, AttrType.attrString, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.FULL_DELETE);
                 break;
             case 3:
-                index1 = new BTreeFile(indexName1, AttrType.attrString, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.NAIVE_DELETE);
+                index1 = new BTreeFile(indexName1, AttrType.attrString, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.FULL_DELETE);
                 break;
             case 4:
-                index1 = new BTreeFile(indexName1, AttrType.attrString, 3*Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.NAIVE_DELETE);
+                index1 = new BTreeFile(indexName1, AttrType.attrString, 3*Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.FULL_DELETE);
                 index2 = new BTreeFile(indexName2, AttrType.attrInteger, 4, DeleteFashion.FULL_DELETE);
                 break;
             case 5:
-                index1 = new BTreeFile(indexName1, AttrType.attrString, 3*Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.NAIVE_DELETE);
+                index1 = new BTreeFile(indexName1, AttrType.attrString, 3*Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.FULL_DELETE);
                 index2 = new BTreeFile(indexName2, AttrType.attrInteger, 4, DeleteFashion.FULL_DELETE);
                 break;
         }
@@ -170,71 +169,108 @@ public class bigt {
     }
 
     public int getRowCnt()  throws Exception{
-        if(type==1){
-            return getCount(true);
-        }else{
-            return getCountWithIndex(true);
-        }
+        return getCount(true);
     }
 
     public int getColumnCnt()  throws Exception{
-        if(type==1){
-            return getCount(false);
-        }else{
-            return getCountWithIndex(false);
-        }
+        return getCount(false);
     }
 
     public int getCount(boolean countType) throws Exception{
-        Scan scan = _hf.openScanMap();
+        FileScanMap scan = new FileScanMap(getName(), null, null);
         MID mid = new MID();
-        Map map = new Map();
-        map = scan.getNextMap(mid);
+        Pair mapPair;
+        mapPair = scan.get_next_mid();
         HashSet<String> distinct = new HashSet<String>();
-        while(map!=null){
-            map.setFldOffset(map.getMapByteArray());
+        while(mapPair!=null){
             if(countType){
-                distinct.add(map.getRowLabel());
+                distinct.add(mapPair.getMap().getRowLabel());
             }else{
-                distinct.add(map.getColumnLabel());
+                distinct.add(mapPair.getMap().getColumnLabel());
             }
-            map = scan.getNextMap(mid);
+            mapPair = scan.get_next_mid();
         }
+        scan.close();
         return distinct.size();
     }
 
-    public int getCountWithIndex(boolean countType)  throws Exception{
-        MapIndexScan mapIndexScan = new MapIndexScan(new IndexType(IndexType.B_Index), name, indexName1, attrType, res_str_sizes, 4, 4, projlist, null,null, 1, false);
-        Pair pair = mapIndexScan.get_next_mid();
-        HashSet<String> distinct = new HashSet<String>();
-        while(pair!=null){
-            Map map = pair.getMap();
-            map.setFldOffset(map.getMapByteArray());
-            if(countType){
-                distinct.add(map.getRowLabel());
-            }else{
-                distinct.add(map.getColumnLabel());
-            }
-            pair = mapIndexScan.get_next_mid();
+    public void createIndexUtil(){
+        try {
+            utilityIndex = new BTreeFile(indexUtil, AttrType.attrString, 3*Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.FULL_DELETE);
+        }catch(Exception ex){
+            System.err.println("Error in creating utility index");
+            ex.printStackTrace();
         }
-        return distinct.size();
     }
 
-    public MID insertMap(Map map) throws DeleteFashionException, LeafRedistributeException, RedistributeException,
-            InsertRecException, FreePageException, RecordNotFoundException, IndexFullDeleteException, Exception {
+    public void insertIndexUtil(MID mid, Map map)
+            throws KeyTooLongException, KeyNotMatchException, LeafInsertRecException, IndexInsertRecException,
+            ConstructPageException, UnpinPageException, PinPageException, NodeNotMatchException, ConvertException,
+            DeleteRecException, IndexSearchException, IteratorException, LeafDeleteException, InsertException,
+            IOException, DeleteFashionException, LeafRedistributeException, RedistributeException, InsertRecException,
+            FreePageException, RecordNotFoundException, IndexFullDeleteException {
+        utilityIndex.insert(new StringKey(map.getRowLabel() + "%" + map.getColumnLabel()), mid);
+    }
 
-        if(type==1){
-            MID mid = _hf.insertRecordMapWithoutIndex(map.getMapByteArray());
-            insertIndex(mid, map);
-            return mid;
+    public void removeIndexUtil(MID mid, Map map)
+            throws KeyTooLongException, KeyNotMatchException, LeafInsertRecException, IndexInsertRecException,
+            ConstructPageException, UnpinPageException, PinPageException, NodeNotMatchException, ConvertException,
+            DeleteRecException, IndexSearchException, IteratorException, LeafDeleteException, InsertException,
+            IOException, DeleteFashionException, LeafRedistributeException, RedistributeException, InsertRecException,
+            FreePageException, RecordNotFoundException, IndexFullDeleteException{
+        utilityIndex.Delete(new StringKey(map.getColumnLabel() + "%" + map.getRowLabel()), mid);
+    }
+
+    public MID insertMap(Map map) throws  Exception {
+        MID mid = _hf.insertRecordMap(map.getMapByteArray());
+        insertIndexUtil(mid, map);
+        return mid;
+    }
+
+    public void deleteDuplicateRecords()
+        throws IndexException,
+            InvalidTypeException,
+            InvalidTupleSizeException,
+            UnknownIndexTypeException,
+            UnknownKeyTypeException,
+            java.io.IOException,
+            InvalidSlotNumberException,
+            HFException,
+            HFBufMgrException,
+            HFDiskMgrException,
+            java.lang.Exception{
+
+        iscan = new MapIndexScan(new IndexType(IndexType.B_Index), name, indexUtil, attrType, res_str_sizes, 4, 4, projlist, null, null, 1, true);
+        Pair previousMapPair = iscan.get_next_mid();
+        Pair curMapPair = iscan.get_next_mid();
+
+        String prevKey = previousMapPair.getIndexKey();
+        String curKey = "";
+
+        List<Pair> duplicateMaps = new ArrayList<>();
+        MID mid;
+        Map map;
+        while(curMapPair!=null){
+            curKey = curMapPair.getIndexKey();
+
+            if(prevKey.equals(curKey)){
+                duplicateMaps.add(curMapPair);
+            }else{
+                duplicateMaps = new ArrayList<>();
+                duplicateMaps.add(curMapPair);
+            }
+            if(duplicateMaps.size() == 4){
+                mid = duplicateMaps.get(0).getRid();
+                _hf.deleteRecordMap(mid);
+                duplicateMaps.remove(0);
+            }
+            prevKey = curKey;
+            curMapPair = iscan.get_next_mid();
         }
-        else{
-            map.setFldOffset(map.getMapByteArray());
-            MID mid = insertWithIndex(map);
-            insertIndex(mid, map);
-//            MID mid = _hf.insertRecordMap(map.getMapByteArray());
-//            insertIndex(mid, map);
-            return mid;
+
+        if(duplicateMaps.size() == 4){
+            _hf.deleteRecordMap(duplicateMaps.get(0).getRid());
+            duplicateMaps.remove(0);
         }
     }
 
@@ -256,24 +292,10 @@ public class bigt {
         {
             expr[0].operand2.string = map.getRowLabel();
             expr[1].operand2.string = map.getColumnLabel();
-            CondExpr[] condExprForKey = Stream.getKeyFilterForIndexType(type, map.getRowLabel(), map.getColumnLabel(), "*");
             int keyFldNum = 1;
-            switch(type) {
-                case 2:
-                    keyFldNum = 1;
-                    break;
-                case 3:
-                    keyFldNum = 2;
-                    break;
-                case 4:
-                    keyFldNum = 2;
-                    break;
-                case 5:
-                    keyFldNum = 1;
-                    break;
-            }
-            iscan = new MapIndexScan(new IndexType(IndexType.B_Index), name, indexName1, attrType, res_str_sizes, 4, 4, projlist, expr, condExprForKey, keyFldNum, false);
+            CondExpr[] condExprForKey = Stream.getKeyFilterForIndexType(6, map.getRowLabel(), map.getColumnLabel(), "*");
 
+            iscan = new MapIndexScan(new IndexType(IndexType.B_Index), name, indexUtil, attrType, res_str_sizes, 4, 4, projlist, expr, condExprForKey, keyFldNum, false);
         ArrayList<Map> mapList = new ArrayList<Map>();
         HashMap<Map, MID> ridHashMap = new HashMap<Map, MID>();
         Pair t = iscan.get_next_mid();
@@ -302,21 +324,14 @@ public class bigt {
                 return 0;
             }
         });
-        // System.out.println("-----------------------");
-        // for(int i=0; i<mapList.size(); i++) {
-        //     mapList.get(i).setFldOffset(mapList.get(i).getMapByteArray());
-        //     mapList.get(i).print();
-        // }
-        // System.out.println(getMapCnt()+" "+mapList.size());
-        // System.out.println("-----------------------");
 
         if(mapList.size() < 3) {
             return _hf.insertRecordMap(map.getMapByteArray());
         } else {
             MID deleteMID = ridHashMap.get(mapList.get(0));
             _hf.deleteRecordMap(deleteMID);
-            removeIndex(deleteMID, mapList.get(0));
-
+//            removeIndex(deleteMID, mapList.get(0));
+            removeIndexUtil(deleteMID, mapList.get(0));
             return _hf.insertRecordMap(map.getMapByteArray());
         }
 
@@ -326,6 +341,22 @@ public class bigt {
         Stream stream = new Stream(this, orderType, rowFilter, columnFilter, valueFilter, numBuf);
         return stream;
     }
+
+    public void insertIntoMainIndex(){
+        try{
+            FileScanMap fscan = new FileScanMap(getName(), null, null);
+            Pair mapPair;
+            mapPair = fscan.get_next_mid();
+            while(mapPair!=null){
+                insertIndex(mapPair.getRid(), mapPair.getMap());
+                mapPair = fscan.get_next_mid();
+            }
+            fscan.close();
+        }catch(Exception ex){
+            System.err.println("Exception caused in creating BTree Index");
+        }
+    }
+
 
     public void unpinAllPages(){
         try{
