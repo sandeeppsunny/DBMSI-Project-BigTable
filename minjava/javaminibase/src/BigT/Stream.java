@@ -68,7 +68,7 @@ public class Stream {
                     attrType[3] = new AttrType(AttrType.attrString);
                     short[] res_str_sizes = new short[]{Map.DEFAULT_STRING_ATTRIBUTE_SIZE,
                             Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE};
-                    mapIterator = new MapIndexScan(new IndexType(IndexType.B_Index), bigtable.getName(), "index1",
+                    mapIterator = new MapIndexScan(new IndexType(IndexType.B_Index), bigtable.getName(), bigtable.indexName1,
                             attrType, res_str_sizes, 4, 4, null, condExprs, condExprForKey, keyFldNum, false);
             }
             sortMap = new SortMap(null, null, null, mapIterator, this.orderType, new MapOrder(MapOrder.Ascending), null, this.numBuf);
