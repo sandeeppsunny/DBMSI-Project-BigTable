@@ -40,26 +40,28 @@ public class BatchInsert {
         Map map = new Map();
         String line = "";
         String[] labels;
-        int i =0;
+        int i =1;
         int pages =0;
         while((line=br.readLine())!=null) {
             line = line.replaceAll("[^\\x00-\\x7F]", "");
             i++;
-            /*if(lines.size()>10 && i%(lines.size()/10)==0){
+            if(i%1000 == 0){
 
                 System.out.print("*");
-            }*/
+            }
             labels = line.split(",");
             map.setDefaultHdr();
             map.setRowLabel(labels[0]);
             map.setColumnLabel(labels[1]);
             map.setTimeStamp(Integer.parseInt(labels[3]));
             map.setValue(labels[2]);
-            System.out.print(i + " -> ");
-            map.print();
+//            System.out.print(i + " -> ");
+//            map.print();
             MID mid = table.insertMap(map);
             pages = mid.pageNo.pid;
         }
+        table.deleteDuplicateRecords();
+        table.insertIntoMainIndex();
         System.out.println("");
         return pages;
     }

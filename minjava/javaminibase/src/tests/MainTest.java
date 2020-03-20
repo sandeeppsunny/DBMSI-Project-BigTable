@@ -85,8 +85,8 @@ class MainTest implements GlobalConst {
                 dbpath = "/tmp/" + splits[3] + Integer.parseInt(splits[2]) + ".minibase-db";
                 if(sysdef == null || !SystemDefs.JavabaseDB.db_name().equals(dbpath)){
                     sysdef = new SystemDefs(dbpath, 100000, Integer.parseInt(splits[4]), "MRU");
-                    SystemDefs.JavabaseDB.pcounter.initialize();
                 }
+                SystemDefs.JavabaseDB.pcounter.initialize();
                 try{
                     long startTime = System.nanoTime();
                     big = new bigt(splits[3], Integer.parseInt(splits[2]));
@@ -142,19 +142,21 @@ class MainTest implements GlobalConst {
 
             }else{
                 try{
-                    Scan scan = new Scan(big.getheapfile(), true);
+                    SystemDefs.JavabaseDB.pcounter.initialize();
+                    FileScanMap fscan = new FileScanMap(big.getName(), null, null);
+//                    Scan scan = new Scan(big.getheapfile(), true);
                     MID mid = new MID();
-                    Map temp = scan.getNextMap(mid);
+                    Map temp = fscan.get_next();
                     temp.setFldOffset(temp.getMapByteArray());
                     temp.print();
                     while (temp != null) {
-                        temp = scan.getNextMap(mid);
+                        temp = fscan.get_next();
                         if(temp!=null){
                             temp.setFldOffset(temp.getMapByteArray());
                             temp.print();
                         }
                     }
-                    scan.closescan();
+                    fscan.close();
                     System.out.println("RECORD COUNT: "+big.getMapCnt());
                     System.out.println("ROW COUNT: "+big.getRowCnt());
                     System.out.println("COLUMN COUNT: "+big.getColumnCnt());
