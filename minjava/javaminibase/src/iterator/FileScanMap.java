@@ -2,6 +2,7 @@ package iterator;
 
 
 import BigT.Map;
+import BigT.Pair;
 import heap.*;
 import global.*;
 import bufmgr.*;
@@ -93,7 +94,6 @@ public class FileScanMap extends MapIterator {
             FieldNumberOutOfBoundException,
             WrongPermat {
         MID mid = new MID();
-        ;
 
         while (true) {
             if ((map1 = scan.getNextMap(mid)) == null) {
@@ -103,6 +103,30 @@ public class FileScanMap extends MapIterator {
             map1.setFldOffset(map1.getMapByteArray());
             if (PredEval.Eval(OutputFilter, map1, null, null, null) == true) {
                 return map1;
+            }
+        }
+    }
+
+    public Pair get_next_mid()
+            throws JoinsException,
+            IOException,
+            InvalidTupleSizeException,
+            InvalidTypeException,
+            PageNotReadException,
+            PredEvalException,
+            UnknowAttrType,
+            FieldNumberOutOfBoundException,
+            WrongPermat {
+        MID mid = new MID();
+
+        while (true) {
+            if ((map1 = scan.getNextMap(mid)) == null) {
+                return null;
+            }
+            map1.setDefaultHdr();
+            map1.setFldOffset(map1.getMapByteArray());
+            if (PredEval.Eval(OutputFilter, map1, null, null, null) == true) {
+                return new Pair(map1, mid);
             }
         }
     }
