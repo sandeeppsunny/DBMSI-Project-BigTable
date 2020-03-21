@@ -71,6 +71,7 @@ class MainTest implements GlobalConst {
         String option = sc.nextLine();
         bigt big = null;
         int pages = 0;
+        String replacement_policy = "Clock";
         while(option.equals("1")||option.equals("2")||option.equals("4")){
             if(option.equals("1")){
                 System.out.println("FORMAT: batchinsert DATAFILENAME TYPE BIGTABLENAME NUMBUF");
@@ -84,7 +85,14 @@ class MainTest implements GlobalConst {
                 }
                 dbpath = "/tmp/" + splits[3] + Integer.parseInt(splits[2]) + ".minibase-db";
                 if(sysdef == null || !SystemDefs.JavabaseDB.db_name().equals(dbpath)){
-                    sysdef = new SystemDefs(dbpath, 100000, Integer.parseInt(splits[4]), "MRU");
+                    sysdef = new SystemDefs(dbpath, 100000, Integer.parseInt(splits[4]), replacement_policy);
+                } else {
+                    try {
+                        sysdef.changeNumberOfBuffers(Integer.parseInt(splits[4]), replacement_policy);
+                    } catch(Exception e) {
+                        System.out.println("Changing number of buffers failed!");
+                        e.printStackTrace();
+                    }
                 }
                 SystemDefs.JavabaseDB.pcounter.initialize();
                 try{
@@ -114,9 +122,10 @@ class MainTest implements GlobalConst {
                     continue;
                 }
                 try{
+                    sysdef.changeNumberOfBuffers(Integer.parseInt(splits[7]), replacement_policy);
                     big = new bigt(splits[1], Integer.parseInt(splits[2]));
                     Stream stream = big.openStream(Integer.parseInt(splits[3]), splits[4],
-                            splits[5], splits[6], Integer.parseInt(splits[7]));
+                            splits[5], splits[6], (int)((Integer.parseInt(splits[7])*3)/4));
                     Map t = stream.getNext();
                     while(true) {
                         if (t == null) {

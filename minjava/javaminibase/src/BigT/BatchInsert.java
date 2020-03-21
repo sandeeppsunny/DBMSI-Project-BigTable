@@ -1,4 +1,4 @@
-package tests;
+package BigT;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -26,7 +26,7 @@ public class BatchInsert {
     int type;
     bigt table;
 
-    BatchInsert(bigt table, String datafile, int type, String bigTable) {
+    public BatchInsert(bigt table, String datafile, int type, String bigTable) {
         this.table = table;
         this.datafile = datafile;
         this.type = type;
