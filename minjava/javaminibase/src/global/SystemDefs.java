@@ -4,6 +4,8 @@ import bufmgr.*;
 import diskmgr.*;
 import catalog.*;
 
+import java.io.IOException;
+
 public class SystemDefs {
     public static BufMgr JavabaseBM;
     public static DB JavabaseDB;
@@ -88,5 +90,11 @@ public class SystemDefs {
                 Runtime.getRuntime().exit(1);
             }
         }
+    }
+
+    public void changeNumberOfBuffers(int num_pgs, String replacement_policy)throws PageUnpinnedException,
+            PagePinnedException, PageNotFoundException, HashOperationException, BufMgrException, IOException {
+        JavabaseBM.flushAllPagesForcibly();
+        JavabaseBM = new BufMgr(num_pgs, replacement_policy);
     }
 }
