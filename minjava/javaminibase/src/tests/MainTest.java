@@ -71,8 +71,8 @@ class MainTest implements GlobalConst {
         String option = sc.nextLine();
         bigt big = null;
         int pages = 0;
-        String replacement_policy = "Clock";
-        while(option.equals("1")||option.equals("2")||option.equals("4")){
+        String replacement_policy = "MRU";
+        while(!option.equals("3")){
             if(option.equals("1")){
                 System.out.println("FORMAT: batchinsert DATAFILENAME TYPE BIGTABLENAME NUMBUF");
                 String batch = sc.nextLine();
@@ -132,7 +132,7 @@ class MainTest implements GlobalConst {
                             break;
                         }
                         t.setFldOffset(t.getMapByteArray());
-                        t.print();
+                        // t.print();
                         t = stream.getNext();
                     }
 //                    SystemDefs.JavabaseBM.displayFrameDesc();
@@ -149,7 +149,7 @@ class MainTest implements GlobalConst {
                     continue;
                 }
 
-            }else{
+            }else if (option.equals("4")){
                 try{
                     SystemDefs.JavabaseDB.pcounter.initialize();
                     FileScanMap fscan = new FileScanMap(big.getName(), null, null);
@@ -178,11 +178,15 @@ class MainTest implements GlobalConst {
                     continue;
                 }
             }
-            int read = SystemDefs.JavabaseDB.pcounter.getRCounter()+1;
-            int write = SystemDefs.JavabaseDB.pcounter.getWCounter()+1;
-            System.out.println("READ COUNT : "+read);
-            System.out.println("WRITE COUNT : "+write);
-            System.out.println("PAGE COUNT : "+pages);
+            try {
+                int read = SystemDefs.JavabaseDB.pcounter.getRCounter()+1;
+                int write = SystemDefs.JavabaseDB.pcounter.getWCounter()+1;
+                System.out.println("READ COUNT : "+read);
+                System.out.println("WRITE COUNT : "+write);
+                System.out.println("PAGE COUNT : "+pages);
+            }catch (Exception e) {
+                System.out.println("Wrong Input!");
+            }
             display();
             option = sc.nextLine();
         }
