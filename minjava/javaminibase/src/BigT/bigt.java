@@ -248,6 +248,7 @@ public class bigt {
         String curKey = "";
 
         List<Pair> duplicateMaps = new ArrayList<>();
+        duplicateMaps.add(previousMapPair);
         MID mid;
         Map map;
         while(curMapPair!=null){
