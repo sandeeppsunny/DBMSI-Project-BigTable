@@ -42,6 +42,7 @@ public class BatchInsert {
         String[] labels;
         int i =1;
         int pages =0;
+        long startTime = System.nanoTime();
         while((line=br.readLine())!=null) {
             line = line.replaceAll("[^\\x00-\\x7F]", "");
             i++;
@@ -60,8 +61,17 @@ public class BatchInsert {
             MID mid = table.insertMap(map);
             pages = mid.pageNo.pid;
         }
+        long endTime = System.nanoTime();
+        System.out.println();
+        System.out.println("TIME TAKEN FOR INSERTING ALL RECORDS "+((endTime - startTime)/1000000000) + " s");
+        startTime = System.nanoTime();
         table.deleteDuplicateRecords();
+        endTime = System.nanoTime();
+        System.out.println("TIME TAKEN FOR DUPLICATE RECORDS REMOVAL "+((endTime - startTime)/1000000000) + " s");
+        startTime = System.nanoTime();
         table.insertIntoMainIndex();
+        endTime = System.nanoTime();
+        System.out.println("TIME TAKEN FOR CREATING ORIGINAL INDEX "+((endTime - startTime)/1000000000) + " s");
         System.out.println("");
         return pages;
     }
