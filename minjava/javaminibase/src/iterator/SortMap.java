@@ -730,7 +730,7 @@ public class SortMap extends MapIterator implements GlobalConst {
         o_buf.init(bufs, _n_pages, map_size, temp_files[0], false);
         //    output_tuple = null;
 
-        max_elems_in_heap = 5000;
+        max_elems_in_heap = 200;
         sortFldLen = str_sizes[_sort_fld-1];
 
         Q = new pnodeSplayPQMap(_sort_fld, order_type, in[_sort_fld - 1], order);
