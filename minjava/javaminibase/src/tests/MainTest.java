@@ -97,7 +97,7 @@ class MainTest implements GlobalConst {
                 SystemDefs.JavabaseDB.pcounter.initialize();
                 try{
                     long startTime = System.nanoTime();
-                    big = new bigt(splits[3], Integer.parseInt(splits[2]));
+                    big = new bigt(splits[3], Integer.parseInt(splits[2]), true);
                     BatchInsert batchInsert = new BatchInsert(big, splits[1], Integer.parseInt(splits[2]), splits[3]);
                     pages = batchInsert.run();
                     long endTime = System.nanoTime();
@@ -123,7 +123,7 @@ class MainTest implements GlobalConst {
                 }
                 try{
 //                    sysdef.changeNumberOfBuffers(Integer.parseInt(splits[7]), replacement_policy);
-                    big = new bigt(splits[1], Integer.parseInt(splits[2]));
+                    big = new bigt(splits[1], Integer.parseInt(splits[2]), false);
                     Stream stream = big.openStream(Integer.parseInt(splits[3]), splits[4],
                             splits[5], splits[6], (int)((Integer.parseInt(splits[7])*3)/4));
                     Map t = stream.getNext();
