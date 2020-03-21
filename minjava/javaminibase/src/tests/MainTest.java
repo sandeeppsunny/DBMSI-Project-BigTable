@@ -122,7 +122,7 @@ class MainTest implements GlobalConst {
                     continue;
                 }
                 try{
-//                    sysdef.changeNumberOfBuffers(Integer.parseInt(splits[7]), replacement_policy);
+                    sysdef.changeNumberOfBuffers(Integer.parseInt(splits[7]), replacement_policy);
                     big = new bigt(splits[1], Integer.parseInt(splits[2]), false);
                     Stream stream = big.openStream(Integer.parseInt(splits[3]), splits[4],
                             splits[5], splits[6], (int)((Integer.parseInt(splits[7])*3)/4));

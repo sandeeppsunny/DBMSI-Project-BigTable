@@ -450,7 +450,7 @@ public class DB implements GlobalConst {
             // Pin the newly-allocated directory page.
             hpid.pid = nexthpid.pid;
 
-            pinPage(hpid, apage, false/*no diskIO*/);
+            pinPage(hpid, apage, true/*no diskIO*/);
             dp = new DBDirectoryPage(apage);
 
             free_slot = 0;
