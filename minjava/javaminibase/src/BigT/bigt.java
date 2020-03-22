@@ -4,7 +4,6 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 
 import BigT.Map;
 import diskmgr.*;
@@ -179,29 +178,36 @@ public class bigt {
     }
 
     public int getRowCnt()  throws Exception{
-        return getCount(true);
+        return getCount(3);
     }
 
     public int getColumnCnt()  throws Exception{
-        return getCount(false);
+        return getCount(4);
     }
 
-    public int getCount(boolean countType) throws Exception{
-        FileScanMap scan = new FileScanMap(getName(), null, null);
-        MID mid = new MID();
-        Pair mapPair;
-        mapPair = scan.get_next_mid();
-        HashSet<String> distinct = new HashSet<String>();
-        while(mapPair!=null){
-            if(countType){
-                distinct.add(mapPair.getMap().getRowLabel());
+    public int getCount(int orderType) throws Exception{
+        int numBuf = (int)((SystemDefs.JavabaseBM.getNumBuffers()*3)/4);
+        Stream stream = openStream(orderType,"*","*","*",numBuf);
+        Map t = stream.getNext();
+        int count = 0;
+        String temp = "\0";
+        while(t != null) {
+            t.setFldOffset(t.getMapByteArray());
+            if(orderType==3){
+                if(!t.getRowLabel().equals(temp)){
+                    temp = t.getRowLabel();
+                    count++;
+                }
             }else{
-                distinct.add(mapPair.getMap().getColumnLabel());
+                if(!t.getColumnLabel().equals(temp)){
+                    temp = t.getColumnLabel();
+                    count++;
+                }
             }
-            mapPair = scan.get_next_mid();
+            t = stream.getNext();
         }
-        scan.close();
-        return distinct.size();
+        stream.closestream();
+        return count;
     }
 
     public void createIndexUtil(){
