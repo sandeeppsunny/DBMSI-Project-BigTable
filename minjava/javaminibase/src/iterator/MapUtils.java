@@ -44,8 +44,16 @@ public class MapUtils {
                 } else {
                     return 0;
                 }
-            } else {
-                return m1.getValue().compareTo(m2.getValue());
+            } else{
+                int m1_value_length = m1.getValue().length();
+                int m2_value_length = m2.getValue().length();
+                if(m1_value_length > m2_value_length){
+                    return 1;
+                }else if(m1_value_length < m2_value_length){
+                    return -1;
+                }else{
+                    return m1.getValue().compareTo(m2.getValue());
+                }
             }
         } else {
             throw new FieldNumberOutOfBoundException(null, "MAP:MAP_FLDNO_OUT_OF_BOUND");
