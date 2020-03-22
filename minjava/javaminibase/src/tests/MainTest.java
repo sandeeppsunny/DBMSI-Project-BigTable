@@ -144,7 +144,7 @@ class MainTest implements GlobalConst {
                             break;
                         }
                         t.setFldOffset(t.getMapByteArray());
-                        // t.print();
+                         t.print();
                         t = stream.getNext();
                     }
 //                    SystemDefs.JavabaseBM.displayFrameDesc();
