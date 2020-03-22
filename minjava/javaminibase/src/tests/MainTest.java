@@ -111,7 +111,6 @@ class MainTest implements GlobalConst {
                     continue;
                 }
             }else if (option.equals("2")){
-                SystemDefs.JavabaseDB.pcounter.initialize();
                 System.out.println("FORMAT: query BIGTABLENAME TYPE ORDERTYPE ROWFILTER COLUMNFILTER VALUEFILTER NUMBUF");
                 String query = sc.nextLine();
                 String[] splits = query.split(" ");
@@ -123,6 +122,7 @@ class MainTest implements GlobalConst {
                 }
                 try{
                     sysdef.changeNumberOfBuffers(Integer.parseInt(splits[7]), replacement_policy);
+                    SystemDefs.JavabaseDB.pcounter.initialize();
                     big = new bigt(splits[1], Integer.parseInt(splits[2]), false);
                     Stream stream = big.openStream(Integer.parseInt(splits[3]), splits[4],
                             splits[5], splits[6], (int)((Integer.parseInt(splits[7])*3)/4));
