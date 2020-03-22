@@ -21,8 +21,17 @@ class MainTest implements GlobalConst {
         System.out.println("------------------------ BigTable Tests --------------------------");
         System.out.println("Press 1 for Batch Insert");
         System.out.println("Press 2 for Query");
-        System.out.println("Press 3 to quit");
+        System.out.println("Press 3 for other options");
+        System.out.println("Press 4 to quit");
         System.out.println("------------------------ BigTable Tests --------------------------");
+    }
+
+    public static void displayOtherOptions(){
+        System.out.println("----------------------Other Utility functions----------------------");
+        System.out.println("Press 1 for Normal Scan");
+        System.out.println("Press 2 for Row label count");
+        System.out.println("Press 3 for Column label count");
+        System.out.println("Press 4 to quit this mode");
     }
 
     public static void main(String argv[]) {
@@ -72,7 +81,7 @@ class MainTest implements GlobalConst {
         bigt big = null;
         int pages = 0;
         String replacement_policy = "Clock";
-        while(!option.equals("3")){
+        while(!option.equals("4")){
             if(option.equals("1")){
                 System.out.println("FORMAT: batchinsert DATAFILENAME TYPE BIGTABLENAME NUMBUF");
                 String batch = sc.nextLine();
@@ -121,6 +130,7 @@ class MainTest implements GlobalConst {
                     continue;
                 }
                 try{
+                    long startTime = System.nanoTime();
                     sysdef.changeNumberOfBuffers(Integer.parseInt(splits[7]), replacement_policy);
                     SystemDefs.JavabaseDB.pcounter.initialize();
                     big = new bigt(splits[1], Integer.parseInt(splits[2]), false);
@@ -140,6 +150,8 @@ class MainTest implements GlobalConst {
 //                    System.out.println("Number of unpinned Buffers " + SystemDefs.JavabaseBM.getNumUnpinnedBuffers());
 //                    System.out.println("Number of buffers " + SystemDefs.JavabaseBM.getNumBuffers());
                     stream.closestream();
+                    long endTime = System.nanoTime();
+                    System.out.println("TIME TAKEN "+((endTime - startTime)/1000000000) + " s");
                 }
                 catch(Exception e){
                     System.out.println("Error Occured");
@@ -149,33 +161,66 @@ class MainTest implements GlobalConst {
                     continue;
                 }
 
-            }else if (option.equals("4")){
-                try{
-                    SystemDefs.JavabaseDB.pcounter.initialize();
-                    FileScanMap fscan = new FileScanMap(big.getName(), null, null);
-//                    Scan scan = new Scan(big.getheapfile(), true);
-                    MID mid = new MID();
-                    Map temp = fscan.get_next();
-                    temp.setFldOffset(temp.getMapByteArray());
-                    temp.print();
-                    while (temp != null) {
-                        temp = fscan.get_next();
-                        if(temp!=null){
+            }else if (option.equals("3")){
+                System.out.println("Enter BigTable name and Index Type");
+                String[] names = sc.nextLine().split(" ");
+                String bigt_name = names[0];
+                String index = names[1];
+                displayOtherOptions();
+                String otherOption = sc.nextLine();
+                while(!otherOption.equals("4")){
+                    if(otherOption.equals("1")){
+                        try{
+                            SystemDefs.JavabaseDB.pcounter.initialize();
+                            FileScanMap fscan = new FileScanMap(bigt_name+index, null, null);
+                            MID mid = new MID();
+                            Map temp = fscan.get_next();
                             temp.setFldOffset(temp.getMapByteArray());
                             temp.print();
+                            while (temp != null) {
+                                temp = fscan.get_next();
+                                if(temp!=null){
+                                    temp.setFldOffset(temp.getMapByteArray());
+                                    temp.print();
+                                }
+                            }
+                            fscan.close();
+                            System.out.println("RECORD COUNT: "+big.getMapCnt());
+                        }
+                        catch(Exception e){
+                            System.out.println("Error Occured");
+                            e.printStackTrace();
+                            displayOtherOptions();
+                            otherOption = sc.nextLine();
+                            continue;
+                        }
+                    }else if(otherOption.equals("2")){
+                        try{
+                            SystemDefs.JavabaseDB.pcounter.initialize();
+                            bigt bigtable = new bigt(bigt_name, Integer.parseInt(index), false);
+                            System.out.println("ROW COUNT: " + bigtable.getRowCnt());
+                        }catch(Exception e){
+                            System.out.println("Error Occured");
+                            e.printStackTrace();
+                            displayOtherOptions();
+                            otherOption = sc.nextLine();
+                            continue;
+                        }
+                    }else if(otherOption.equals("3")){
+                        try{
+                            SystemDefs.JavabaseDB.pcounter.initialize();
+                            bigt bigtable = new bigt(bigt_name, Integer.parseInt(index), false);
+                            System.out.println("COLUMN COUNT: " + bigtable.getColumnCnt());
+                        }catch(Exception e){
+                            System.out.println("Error Occured");
+                            e.printStackTrace();
+                            displayOtherOptions();
+                            otherOption = sc.nextLine();
+                            continue;
                         }
                     }
-                    fscan.close();
-                    System.out.println("RECORD COUNT: "+big.getMapCnt());
-                    System.out.println("ROW COUNT: "+big.getRowCnt());
-                    System.out.println("COLUMN COUNT: "+big.getColumnCnt());
-                }
-                catch(Exception e){
-                    System.out.println("Error Occured");
-                    e.printStackTrace();
-                    display();
-                    option = sc.nextLine();
-                    continue;
+                    displayOtherOptions();
+                    otherOption = sc.nextLine();
                 }
             }
             try {

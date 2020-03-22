@@ -46,20 +46,22 @@ public class bigt {
         indexName1 = file_name + "_" +"index1";
         indexName2 = file_name + "_" + "index2";
 
-        //For multiple batch insert
-        createIndex(indexName1, indexName2);
-        createIndexUtil();
-        if(index1 != null){
-            index1.destroyFile();
+        if(insert){
+            //For multiple batch insert
+            createIndex(indexName1, indexName2);
+            createIndexUtil();
+            if(index1 != null){
+                index1.destroyFile();
+            }
+            if(index2 != null){
+                index2.destroyFile();
+            }
+            if(utilityIndex != null){
+                utilityIndex.destroyFile();
+            }
+            createIndex(indexName1, indexName2);
+            createIndexUtil();
         }
-        if(index2 != null){
-            index2.destroyFile();
-        }
-        if(utilityIndex != null){
-            utilityIndex.destroyFile();
-        }
-        createIndex(indexName1, indexName2);
-        createIndexUtil();
         initCondExprs();
     }
 
