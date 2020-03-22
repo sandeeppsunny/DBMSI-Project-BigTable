@@ -26,6 +26,7 @@ public class bigt {
     public String indexName1;
     public String indexName2;
     public String indexUtil;
+    public boolean insertBatch;
     private int type;
     AttrType[] attrType;
     FldSpec[] projlist;
@@ -35,7 +36,8 @@ public class bigt {
 
 
     public bigt(java.lang.String name, int type, boolean insert) throws HFException, HFBufMgrException, HFDiskMgrException, IOException,
-            GetFileEntryException, ConstructPageException, AddFileEntryException {
+            GetFileEntryException, ConstructPageException, AddFileEntryException,btree.IteratorException,
+            btree.UnpinPageException, btree.FreePageException, btree.DeleteFileEntryException, btree.PinPageException {
         String file_name = name+type;
         _hf = new Heapfile(file_name);
         this.name = file_name;
@@ -43,8 +45,25 @@ public class bigt {
         indexUtil = file_name + "_" + "indexUtil";
         indexName1 = file_name + "_" +"index1";
         indexName2 = file_name + "_" + "index2";
+
+        //For multiple batch insert
         createIndex(indexName1, indexName2);
         createIndexUtil();
+        if(index1 != null){
+            index1.destroyFile();
+        }
+        if(index2 != null){
+            index2.destroyFile();
+        }
+        if(utilityIndex != null){
+            utilityIndex.destroyFile();
+        }
+        createIndex(indexName1, indexName2);
+        createIndexUtil();
+        initCondExprs();
+    }
+
+    public void initCondExprs(){
         attrType = new AttrType[4];
         attrType[0] = new AttrType(AttrType.attrString);
         attrType[1] = new AttrType(AttrType.attrString);
@@ -73,17 +92,6 @@ public class bigt {
         expr[1].operand2.string = "";
         expr[1].next = null;
         expr[2] = null;
-        if(insert) {
-            try {
-                if (_hf.getRecCntMap() > 0) {
-                    buildUtilityIndex();
-                }
-            } catch (Exception ex) {
-                System.err.println("Exception in building the utility index");
-                ex.printStackTrace();
-            }
-        }
-
     }
 
     public String getName(){
@@ -101,7 +109,12 @@ public class bigt {
     public void createIndex(String indexName1, String indexName2) throws GetFileEntryException,
             ConstructPageException,
             IOException,
-            AddFileEntryException {
+            AddFileEntryException,
+            btree.IteratorException,
+            btree.UnpinPageException,
+            btree.FreePageException,
+            btree.DeleteFileEntryException,
+            btree.PinPageException {
         switch(type){
             case 1:
                 break;
@@ -112,13 +125,22 @@ public class bigt {
                 index1 = new BTreeFile(indexName1, AttrType.attrString, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.FULL_DELETE);
                 break;
             case 4:
-                index1 = new BTreeFile(indexName1, AttrType.attrString, 3*Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.FULL_DELETE);
+                index1 = new BTreeFile(indexName1, AttrType.attrString, 2*Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 5, DeleteFashion.FULL_DELETE);
                 index2 = new BTreeFile(indexName2, AttrType.attrInteger, 4, DeleteFashion.FULL_DELETE);
                 break;
             case 5:
-                index1 = new BTreeFile(indexName1, AttrType.attrString, 3*Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.FULL_DELETE);
+                index1 = new BTreeFile(indexName1, AttrType.attrString, 2*Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 5, DeleteFashion.FULL_DELETE);
                 index2 = new BTreeFile(indexName2, AttrType.attrInteger, 4, DeleteFashion.FULL_DELETE);
                 break;
+        }
+    }
+
+    public void createIndexUtil(){
+        try {
+            utilityIndex = new BTreeFile(indexUtil, AttrType.attrString, 2*Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 5, DeleteFashion.FULL_DELETE);
+        }catch(Exception ex){
+            System.err.println("Error in creating utility index");
+            ex.printStackTrace();
         }
     }
 
@@ -172,6 +194,29 @@ public class bigt {
         }
     }
 
+    public void insertIndexUtil(MID mid, Map map)
+            throws KeyTooLongException, KeyNotMatchException, LeafInsertRecException, IndexInsertRecException,
+            ConstructPageException, UnpinPageException, PinPageException, NodeNotMatchException, ConvertException,
+            DeleteRecException, IndexSearchException, IteratorException, LeafDeleteException, InsertException,
+            IOException, DeleteFashionException, LeafRedistributeException, RedistributeException, InsertRecException,
+            FreePageException, RecordNotFoundException, IndexFullDeleteException {
+        /*if(insertBatch){
+
+        }*/
+//        System.out.println("Key length " + (map.getRowLabel() + map.getColumnLabel()).length());
+//        System.out.println("Index key is " + (new StringKey(map.getRowLabel() + map.getColumnLabel())));
+        utilityIndex.insert(new StringKey(map.getRowLabel() + map.getColumnLabel()), mid);
+    }
+
+    public void removeIndexUtil(MID mid, Map map)
+            throws KeyTooLongException, KeyNotMatchException, LeafInsertRecException, IndexInsertRecException,
+            ConstructPageException, UnpinPageException, PinPageException, NodeNotMatchException, ConvertException,
+            DeleteRecException, IndexSearchException, IteratorException, LeafDeleteException, InsertException,
+            IOException, DeleteFashionException, LeafRedistributeException, RedistributeException, InsertRecException,
+            FreePageException, RecordNotFoundException, IndexFullDeleteException{
+        utilityIndex.Delete(new StringKey(map.getColumnLabel() + map.getRowLabel()), mid);
+    }
+
     public int getMapCnt() throws InvalidSlotNumberException, InvalidTupleSizeException, HFDiskMgrException,
             HFBufMgrException, IOException {
         return _hf.getRecCntMap();
@@ -210,53 +255,28 @@ public class bigt {
         return count;
     }
 
-    public void createIndexUtil(){
-        try {
-            utilityIndex = new BTreeFile(indexUtil, AttrType.attrString, 3*Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.FULL_DELETE);
-        }catch(Exception ex){
-            System.err.println("Error in creating utility index");
-            ex.printStackTrace();
-        }
-    }
 
-    public void insertIndexUtil(MID mid, Map map)
-            throws KeyTooLongException, KeyNotMatchException, LeafInsertRecException, IndexInsertRecException,
-            ConstructPageException, UnpinPageException, PinPageException, NodeNotMatchException, ConvertException,
-            DeleteRecException, IndexSearchException, IteratorException, LeafDeleteException, InsertException,
-            IOException, DeleteFashionException, LeafRedistributeException, RedistributeException, InsertRecException,
-            FreePageException, RecordNotFoundException, IndexFullDeleteException {
-        utilityIndex.insert(new StringKey(map.getRowLabel() + "%" + map.getColumnLabel()), mid);
+    public MID insertMap(Map map) throws  Exception {
+        MID mid = _hf.insertRecordMap(map.getMapByteArray());
+        return mid;
     }
 
     public void buildUtilityIndex(){
         try{
+//            System.out.println("Building Utility INdex");
             FileScanMap fscan = new FileScanMap(getName(), null, null);
             Pair mapPair;
             mapPair = fscan.get_next_mid();
             while(mapPair!=null){
+                mapPair.getMap().print();
                 insertIndexUtil(mapPair.getRid(), mapPair.getMap());
                 mapPair = fscan.get_next_mid();
             }
             fscan.close();
         }catch(Exception ex){
-            System.err.println("Exception caused in creating Utility BTree Index for multiple batch insert");
+            System.err.println("Exception caused in creating BTree Index");
             ex.printStackTrace();
         }
-    }
-
-    public void removeIndexUtil(MID mid, Map map)
-            throws KeyTooLongException, KeyNotMatchException, LeafInsertRecException, IndexInsertRecException,
-            ConstructPageException, UnpinPageException, PinPageException, NodeNotMatchException, ConvertException,
-            DeleteRecException, IndexSearchException, IteratorException, LeafDeleteException, InsertException,
-            IOException, DeleteFashionException, LeafRedistributeException, RedistributeException, InsertRecException,
-            FreePageException, RecordNotFoundException, IndexFullDeleteException{
-        utilityIndex.Delete(new StringKey(map.getColumnLabel() + "%" + map.getRowLabel()), mid);
-    }
-
-    public MID insertMap(Map map) throws  Exception {
-        MID mid = _hf.insertRecordMap(map.getMapByteArray());
-        insertIndexUtil(mid, map);
-        return mid;
     }
 
     public void deleteDuplicateRecords()
@@ -306,7 +326,26 @@ public class bigt {
             _hf.deleteRecordMap(duplicateMaps.get(0).getRid());
             duplicateMaps.remove(0);
         }
-        deleteIndexTree(utilityIndex);
+    }
+
+    public Stream openStream(int orderType, String rowFilter, String columnFilter, String valueFilter, int numBuf) {
+        Stream stream = new Stream(this, orderType, rowFilter, columnFilter, valueFilter, numBuf);
+        return stream;
+    }
+
+    public void insertIntoMainIndex(){
+        try{
+            FileScanMap fscan = new FileScanMap(getName(), null, null);
+            Pair mapPair;
+            mapPair = fscan.get_next_mid();
+            while(mapPair!=null){
+                insertIndex(mapPair.getRid(), mapPair.getMap());
+                mapPair = fscan.get_next_mid();
+            }
+            fscan.close();
+        }catch(Exception ex){
+            System.err.println("Exception caused in creating BTree Index");
+        }
     }
 
 
@@ -371,27 +410,6 @@ public class bigt {
         }
 
     }
-
-    public Stream openStream(int orderType, String rowFilter, String columnFilter, String valueFilter, int numBuf) {
-        Stream stream = new Stream(this, orderType, rowFilter, columnFilter, valueFilter, numBuf);
-        return stream;
-    }
-
-    public void insertIntoMainIndex(){
-        try{
-            FileScanMap fscan = new FileScanMap(getName(), null, null);
-            Pair mapPair;
-            mapPair = fscan.get_next_mid();
-            while(mapPair!=null){
-                insertIndex(mapPair.getRid(), mapPair.getMap());
-                mapPair = fscan.get_next_mid();
-            }
-            fscan.close();
-        }catch(Exception ex){
-            System.err.println("Exception caused in creating BTree Index");
-        }
-    }
-
 
     public void unpinAllPages(){
         try{

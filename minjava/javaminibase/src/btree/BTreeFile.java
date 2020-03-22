@@ -364,10 +364,13 @@ public class BTreeFile extends IndexFile
             IOException {
         KeyDataEntry newRootEntry;
 
+//        System.out.println("BT Key length : " + BT.getKeyLength(key));
+//        System.out.println("header page max key size " + headerPage.get_maxKeySize());
         if (BT.getKeyLength(key) > headerPage.get_maxKeySize())
             throw new KeyTooLongException(null, "");
 
         if (key instanceof StringKey) {
+//            System.out.println("Header Page type : " + headerPage.get_keyType());
             if (headerPage.get_keyType() != AttrType.attrString) {
                 throw new KeyNotMatchException(null, "");
             }
