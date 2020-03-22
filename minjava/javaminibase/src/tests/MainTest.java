@@ -71,7 +71,7 @@ class MainTest implements GlobalConst {
         String option = sc.nextLine();
         bigt big = null;
         int pages = 0;
-        String replacement_policy = "MRU";
+        String replacement_policy = "Clock";
         while(!option.equals("3")){
             if(option.equals("1")){
                 System.out.println("FORMAT: batchinsert DATAFILENAME TYPE BIGTABLENAME NUMBUF");
