@@ -268,7 +268,7 @@ public class bigt {
             Pair mapPair;
             mapPair = fscan.get_next_mid();
             while(mapPair!=null){
-                mapPair.getMap().print();
+//                mapPair.getMap().print();
                 insertIndexUtil(mapPair.getRid(), mapPair.getMap());
                 mapPair = fscan.get_next_mid();
             }
