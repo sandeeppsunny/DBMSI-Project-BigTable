@@ -34,7 +34,7 @@ public class bigt {
     short[] res_str_sizes = new short[]{Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE};
 
 
-    public bigt(java.lang.String name, int type) throws HFException, HFBufMgrException, HFDiskMgrException, IOException,
+    public bigt(java.lang.String name, int type, boolean insert) throws HFException, HFBufMgrException, HFDiskMgrException, IOException,
             GetFileEntryException, ConstructPageException, AddFileEntryException {
         String file_name = name+type;
         _hf = new Heapfile(file_name);
@@ -73,6 +73,16 @@ public class bigt {
         expr[1].operand2.string = "";
         expr[1].next = null;
         expr[2] = null;
+        if(insert) {
+            try {
+                if (_hf.getRecCntMap() > 0) {
+                    buildUtilityIndex();
+                }
+            } catch (Exception ex) {
+                System.err.println("Exception in building the utility index");
+                ex.printStackTrace();
+            }
+        }
 
     }
 
@@ -218,6 +228,22 @@ public class bigt {
         utilityIndex.insert(new StringKey(map.getRowLabel() + "%" + map.getColumnLabel()), mid);
     }
 
+    public void buildUtilityIndex(){
+        try{
+            FileScanMap fscan = new FileScanMap(getName(), null, null);
+            Pair mapPair;
+            mapPair = fscan.get_next_mid();
+            while(mapPair!=null){
+                insertIndexUtil(mapPair.getRid(), mapPair.getMap());
+                mapPair = fscan.get_next_mid();
+            }
+            fscan.close();
+        }catch(Exception ex){
+            System.err.println("Exception caused in creating Utility BTree Index for multiple batch insert");
+            ex.printStackTrace();
+        }
+    }
+
     public void removeIndexUtil(MID mid, Map map)
             throws KeyTooLongException, KeyNotMatchException, LeafInsertRecException, IndexInsertRecException,
             ConstructPageException, UnpinPageException, PinPageException, NodeNotMatchException, ConvertException,
@@ -254,6 +280,7 @@ public class bigt {
         String curKey = "";
 
         List<Pair> duplicateMaps = new ArrayList<>();
+        duplicateMaps.add(previousMapPair);
         MID mid;
         Map map;
         while(curMapPair!=null){
@@ -279,6 +306,7 @@ public class bigt {
             _hf.deleteRecordMap(duplicateMaps.get(0).getRid());
             duplicateMaps.remove(0);
         }
+        deleteIndexTree(utilityIndex);
     }
 
 
@@ -382,5 +410,16 @@ public class bigt {
             ex.printStackTrace();
         }
 
+    }
+
+    public void deleteIndexTree(BTreeFile bTreeFile)
+    throws java.io.IOException,
+            btree.IteratorException,
+            btree.UnpinPageException,
+            btree.FreePageException,
+            btree.DeleteFileEntryException,
+            btree.ConstructPageException,
+            btree.PinPageException{
+        bTreeFile.destroyFile();
     }
 }
