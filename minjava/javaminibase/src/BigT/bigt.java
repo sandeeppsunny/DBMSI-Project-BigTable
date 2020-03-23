@@ -315,6 +315,11 @@ public class bigt {
                 duplicateMaps.add(curMapPair);
             }
             if(duplicateMaps.size() == 4){
+                /*System.out.println("Key" + curKey);
+                for(int i =0; i < duplicateMaps.size(); i++){
+                    System.out.println(duplicateMaps.get(i).getRid().pageNo + "->" +duplicateMaps.get(i).getRid().slotNo);
+                }
+                System.out.println();*/
                 mid = duplicateMaps.get(0).getRid();
                 _hf.deleteRecordMap(mid);
                 duplicateMaps.remove(0);
@@ -347,6 +352,7 @@ public class bigt {
             fscan.close();
         }catch(Exception ex){
             System.err.println("Exception caused in creating BTree Index");
+            ex.printStackTrace();
         }
     }
 

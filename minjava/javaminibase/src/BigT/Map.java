@@ -263,7 +263,8 @@ public class Map implements GlobalConst {
         String columnLabel = getColumnLabel();
         int timeStamp = getTimeStamp();
         String value = getValue();
-        System.out.println("[" + rowLabel + " " + columnLabel + " " + timeStamp + " ] -> " + value);
+        Long convertedVal = Long.valueOf(value);
+        System.out.println("[" + rowLabel + " " + columnLabel + " " + timeStamp + " ] -> " + convertedVal);
     }
 
     /**

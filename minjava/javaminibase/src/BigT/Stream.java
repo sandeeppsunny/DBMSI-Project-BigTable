@@ -204,7 +204,7 @@ public class Stream {
                     expr.type1 = new AttrType(AttrType.attrSymbol);
                     expr.type2 = new AttrType(AttrType.attrString);
                     expr.operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 1);
-                    expr.operand2.string = rowKeyFilter_2.get(0).operand2.string + "%" + valueKeyFilter.get(0).operand2.string;
+                    expr.operand2.string = rowKeyFilter_2.get(0).operand2.string + "%" + padValue(valueKeyFilter.get(0).operand2.string);
                     expr.next = null;
                     exprForKey.add(expr);
                     break;
@@ -214,14 +214,14 @@ public class Stream {
                     expr1.type1 = new AttrType(AttrType.attrSymbol);
                     expr1.type2 = new AttrType(AttrType.attrString);
                     expr1.operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 1);
-                    expr1.operand2.string = rowKeyFilter_2.get(0).operand2.string + "%" + valueKeyFilter.get(0).operand2.string;;
+                    expr1.operand2.string = rowKeyFilter_2.get(0).operand2.string + "%" + padValue(valueKeyFilter.get(0).operand2.string);
                     expr1.next = null;
                     CondExpr expr2 = new CondExpr();
                     expr2.op = new AttrOperator(AttrOperator.aopLE);
                     expr2.type1 = new AttrType(AttrType.attrSymbol);
                     expr2.type2 = new AttrType(AttrType.attrString);
                     expr2.operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 1);
-                    expr2.operand2.string = rowKeyFilter_2.get(0).operand2.string + "%" + valueKeyFilter.get(1).operand2.string;;
+                    expr2.operand2.string = rowKeyFilter_2.get(0).operand2.string + "%" + padValue(valueKeyFilter.get(1).operand2.string);
                     expr2.next = null;
                     exprForKey.add(expr1);
                     exprForKey.add(expr2);
@@ -231,14 +231,14 @@ public class Stream {
                     expr1.type1 = new AttrType(AttrType.attrSymbol);
                     expr1.type2 = new AttrType(AttrType.attrString);
                     expr1.operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 1);
-                    expr1.operand2.string = rowKeyFilter_2.get(0).operand2.string + "%" + valueKeyFilter.get(0).operand2.string;;
+                    expr1.operand2.string = rowKeyFilter_2.get(0).operand2.string + "%" + padValue(valueKeyFilter.get(0).operand2.string);
                     expr1.next = null;
                     CondExpr expr2 = new CondExpr();
                     expr2.op = new AttrOperator(AttrOperator.aopLE);
                     expr2.type1 = new AttrType(AttrType.attrSymbol);
                     expr2.type2 = new AttrType(AttrType.attrString);
                     expr2.operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 1);
-                    expr2.operand2.string = rowKeyFilter_2.get(1).operand2.string + "%" + valueKeyFilter.get(0).operand2.string;;
+                    expr2.operand2.string = rowKeyFilter_2.get(1).operand2.string + "%" + padValue(valueKeyFilter.get(0).operand2.string);
                     expr2.next = null;
                     exprForKey.add(expr1);
                     exprForKey.add(expr2);
@@ -248,14 +248,14 @@ public class Stream {
                     expr1.type1 = new AttrType(AttrType.attrSymbol);
                     expr1.type2 = new AttrType(AttrType.attrString);
                     expr1.operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 1);
-                    expr1.operand2.string = rowKeyFilter_2.get(0).operand2.string + "%" + valueKeyFilter.get(0).operand2.string;;
+                    expr1.operand2.string = rowKeyFilter_2.get(0).operand2.string + "%" + padValue(valueKeyFilter.get(0).operand2.string);
                     expr1.next = null;
                     CondExpr expr2 = new CondExpr();
                     expr2.op = new AttrOperator(AttrOperator.aopLE);
                     expr2.type1 = new AttrType(AttrType.attrSymbol);
                     expr2.type2 = new AttrType(AttrType.attrString);
                     expr2.operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 1);
-                    expr2.operand2.string = rowKeyFilter_2.get(1).operand2.string + "%" + valueKeyFilter.get(1).operand2.string;;
+                    expr2.operand2.string = rowKeyFilter_2.get(1).operand2.string + "%" + padValue(valueKeyFilter.get(1).operand2.string);
                     expr2.next = null;
                     exprForKey.add(expr1);
                     exprForKey.add(expr2);
@@ -282,14 +282,22 @@ public class Stream {
             expr1.type1 = new AttrType(AttrType.attrSymbol);
             expr1.type2 = new AttrType(AttrType.attrString);
             expr1.operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), fldNum);
-            expr1.operand2.string = filterSplit[0];
+            if(fldNum == 4){
+                expr1.operand2.string = padValue(filterSplit[0]);
+            }else{
+                expr1.operand2.string = filterSplit[0];
+            }
             expr1.next = null;
             CondExpr expr2 = new CondExpr();
             expr2.op = new AttrOperator(AttrOperator.aopLE);
             expr2.type1 = new AttrType(AttrType.attrSymbol);
             expr2.type2 = new AttrType(AttrType.attrString);
             expr2.operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), fldNum);
-            expr2.operand2.string = filterSplit[1];
+            if(fldNum == 4){
+                expr2.operand2.string = padValue(filterSplit[1]);
+            }else{
+                expr2.operand2.string = filterSplit[1];
+            }
             expr2.next = null;
             result.add(expr1);
             result.add(expr2);
@@ -299,7 +307,11 @@ public class Stream {
             expr.type1 = new AttrType(AttrType.attrSymbol);
             expr.type2 = new AttrType(AttrType.attrString);
             expr.operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), fldNum);
-            expr.operand2.string = filter;
+            if(fldNum == 4){
+                expr.operand2.string = padValue(filter);
+            }else{
+                expr.operand2.string = filter;
+            }
             expr.next = null;
             result.add(expr);
         }
@@ -314,6 +326,14 @@ public class Stream {
             System.out.println("Exception occurred while iterating through stream!");
             return null;
         }
+    }
+
+    public static String padValue(String valueFilterString){
+        int length = valueFilterString.length();
+        for(int i = length; i < Map.DEFAULT_STRING_ATTRIBUTE_SIZE; i++){
+            valueFilterString = "0"+valueFilterString;
+        }
+        return valueFilterString;
     }
 
     public void closestream() {

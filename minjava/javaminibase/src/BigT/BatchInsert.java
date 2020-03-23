@@ -55,7 +55,11 @@ public class BatchInsert {
             map.setRowLabel(labels[0]);
             map.setColumnLabel(labels[1]);
             map.setTimeStamp(Integer.parseInt(labels[3]));
-            map.setValue(labels[2]);
+            String valueLabel = labels[2];
+            for(int j=labels[2].length(); j < Map.DEFAULT_STRING_ATTRIBUTE_SIZE; j++){
+                valueLabel = "0"+valueLabel;
+            }
+            map.setValue(valueLabel);
 //            System.out.print(i + " -> ");
 //            map.print();
             MID mid = table.insertMap(map);
