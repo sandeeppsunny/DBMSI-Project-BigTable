@@ -7,7 +7,7 @@ import java.io.*;
 import bufmgr.*;
 import global.*;
 
-public class DB implements GlobalConst {
+public class bigDB implements GlobalConst {
 
 
     private static final int bits_per_page = MAX_SPACE * 8;
@@ -23,7 +23,7 @@ public class DB implements GlobalConst {
      * @throws InvalidPageNumberException invalid page number
      * @throws DiskMgrException           error caused by other layers
      */
-    public void openDB(String fname)
+    public void openBigDB(String fname)
             throws IOException,
             InvalidPageNumberException,
             FileIOException,
@@ -53,7 +53,7 @@ public class DB implements GlobalConst {
     /**
      * default constructor.
      */
-    public DB() {
+    public bigDB() {
         pcounter = new PCounter();
     }
 
@@ -70,7 +70,7 @@ public class DB implements GlobalConst {
      * @throws FileIOException            file I/O error
      * @throws DiskMgrException           error caused by other layers
      */
-    public void openDB(String fname, int num_pgs)
+    public void openBigDB(String fname, int num_pgs)
             throws IOException,
             InvalidPageNumberException,
             FileIOException,
@@ -116,7 +116,7 @@ public class DB implements GlobalConst {
      *
      * @throws IOException I/O errors.
      */
-    public void closeDB() throws IOException {
+    public void closeBigDB() throws IOException {
         fp.close();
     }
 
@@ -126,7 +126,7 @@ public class DB implements GlobalConst {
      *
      * @throws IOException I/O errors.
      */
-    public void DBDestroy()
+    public void BigDBDestroy()
             throws IOException {
 
         fp.close();
