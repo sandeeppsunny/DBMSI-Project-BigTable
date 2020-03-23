@@ -139,10 +139,10 @@ class MainTest implements GlobalConst {
                     int count =0;
                     Map t = stream.getNext();
                     while(true) {
-                        count++;
                         if (t == null) {
                             break;
                         }
+                        count++;
                         t.setFldOffset(t.getMapByteArray());
                          t.print();
                         t = stream.getNext();
