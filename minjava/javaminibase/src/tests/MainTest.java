@@ -227,8 +227,8 @@ class MainTest implements GlobalConst {
                 }
             }
             try {
-                int read = SystemDefs.JavabaseDB.pcounter.getRCounter()+1;
-                int write = SystemDefs.JavabaseDB.pcounter.getWCounter()+1;
+                int read = SystemDefs.JavabaseDB.pcounter.getRCounter();
+                int write = SystemDefs.JavabaseDB.pcounter.getWCounter();
                 System.out.println("READ COUNT : "+read);
                 System.out.println("WRITE COUNT : "+write);
                 System.out.println("PAGE COUNT : "+pages);
