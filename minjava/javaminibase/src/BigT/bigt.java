@@ -139,7 +139,7 @@ public class bigt {
 
     public void createIndexUtil(){
         try {
-            utilityIndex = new BTreeFile(indexUtil, AttrType.attrString, 2*Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 5, DeleteFashion.FULL_DELETE);
+            utilityIndex = new BTreeFile(indexUtil, AttrType.attrString, 2*Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 15, DeleteFashion.FULL_DELETE);
         }catch(Exception ex){
             System.err.println("Error in creating utility index");
             ex.printStackTrace();
@@ -207,7 +207,7 @@ public class bigt {
         }*/
 //        System.out.println("Key length " + (map.getRowLabel() + map.getColumnLabel()).length());
 //        System.out.println("Index key is " + (new StringKey(map.getRowLabel() + map.getColumnLabel())));
-        utilityIndex.insert(new StringKey(map.getRowLabel() + map.getColumnLabel()), mid);
+        utilityIndex.insert(new StringKey(map.getRowLabel() + map.getColumnLabel() + "%" + map.getTimeStamp()), mid);
     }
 
     public void removeIndexUtil(MID mid, Map map)
@@ -307,19 +307,32 @@ public class bigt {
         Map map;
         while(curMapPair!=null){
             curKey = curMapPair.getIndexKey();
+            String curKeyString = curKey.substring(0, curKey.indexOf('%'));
+            String prevKeyString = prevKey.substring(0, prevKey.indexOf('%'));
 
-            if(prevKey.equals(curKey)){
+            if(prevKeyString.equals(curKeyString)){
                 duplicateMaps.add(curMapPair);
             }else{
                 duplicateMaps = new ArrayList<>();
                 duplicateMaps.add(curMapPair);
             }
             if(duplicateMaps.size() == 4){
-                /*System.out.println("Key" + curKey);
-                for(int i =0; i < duplicateMaps.size(); i++){
-                    System.out.println(duplicateMaps.get(i).getRid().pageNo + "->" +duplicateMaps.get(i).getRid().slotNo);
-                }
-                System.out.println();*/
+//                System.out.println("Key" + curKeyString);
+//                for(int i =0; i < duplicateMaps.size(); i++){
+//                    System.out.println(duplicateMaps.get(i).getIndexKey()
+//                            .substring(duplicateMaps.get(i).getIndexKey().indexOf('%')+1));
+//                }
+//                System.out.println();
+                duplicateMaps.sort(new Comparator<Pair>() {
+                    @Override
+                    public int compare(Pair o1, Pair o2) {
+                        String o1String = o1.getIndexKey();
+                        String o2String = o2.getIndexKey();
+                        Integer o1Timestamp = Integer.parseInt(o1.getIndexKey().substring(o1String.indexOf('%')+1, o1String.length()));
+                        Integer o2Timestamp = Integer.parseInt(o2.getIndexKey().substring(o2String.indexOf('%')+1, o2String.length()));
+                        return o1Timestamp.compareTo(o2Timestamp);
+                    }
+                });
                 mid = duplicateMaps.get(0).getRid();
                 _hf.deleteRecordMap(mid);
                 duplicateMaps.remove(0);
