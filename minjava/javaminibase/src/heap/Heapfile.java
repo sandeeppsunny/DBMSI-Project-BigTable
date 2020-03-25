@@ -239,17 +239,6 @@ public class Heapfile implements Filetype, GlobalConst {
                 }
 
                 DataPageInfo dpinfo = new DataPageInfo(amap);
-                try {
-                    pinPage(dpinfo.pageId, currentDataPage, false/*Rddisk*/);
-
-
-                    //check error;need unpin currentDirPage
-                } catch (Exception e) {
-                    unpinPage(currentDirPageId, false/*undirty*/);
-                    dirpage = null;
-                    datapage = null;
-                    throw e;
-                }
 
 
                 // ASSERTIONS:
@@ -257,6 +246,17 @@ public class Heapfile implements Filetype, GlobalConst {
                 // - currentDataPage pinned
 
                 if (dpinfo.pageId.pid == mid.pageNo.pid) {
+                    try {
+                        pinPage(dpinfo.pageId, currentDataPage, false/*Rddisk*/);
+
+
+                        //check error;need unpin currentDirPage
+                    } catch (Exception e) {
+                        unpinPage(currentDirPageId, false/*undirty*/);
+                        dirpage = null;
+                        datapage = null;
+                        throw e;
+                    }
                     amap = currentDataPage.returnMapRecord(mid);
                     // found user's record on the current datapage which itself
                     // is indexed on the current dirpage.  Return both of these.
@@ -270,12 +270,12 @@ public class Heapfile implements Filetype, GlobalConst {
                     rpDataPageRid.pageNo.pid = currentDataPageRid.pageNo.pid;
                     rpDataPageRid.slotNo = currentDataPageRid.slotNo;
                     return true;
-                } else {
+                } /*else {
                     // user record not found on this datapage; unpin it
                     // and try the next one
-                    unpinPage(dpinfo.pageId, false /*undirty*/);
+                    unpinPage(dpinfo.pageId, false *//*undirty*//*);
 
-                }
+                }*/
 
             }
 
