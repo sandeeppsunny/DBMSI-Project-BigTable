@@ -142,13 +142,13 @@ public class IoBuf implements GlobalConst {
         flushed = true;
         if (dirty) {
             for (count = 0; count <= curr_page; count++) {
-                RID rid;
+                MID mid;
 
                 // Will have to go thru entire buffer writing tuples to disk
                 for (int i = 0; i < t_wr_to_pg; i++) {
                     System.arraycopy(_bufs[count], t_size * i, tempbuf, 0, t_size);
                     try {
-                        rid = _temp_fd.insertRecord(tempbuf);
+                        mid = _temp_fd.insertRecordTuple(tempbuf);
                     } catch (Exception e) {
                         throw e;
                     }

@@ -157,11 +157,11 @@ public class BT implements GlobalConst {
                 data = new IndexData(Convert.getIntValue(offset + length - 4, from));
             } else if (nodeType == NodeType.LEAF) {
                 n = 8;
-                RID rid = new RID();
-                rid.slotNo = Convert.getIntValue(offset + length - 8, from);
-                rid.pageNo = new PageId();
-                rid.pageNo.pid = Convert.getIntValue(offset + length - 4, from);
-                data = new LeafData(rid);
+                MID mid = new MID();
+                mid.slotNo = Convert.getIntValue(offset + length - 8, from);
+                mid.pageNo = new PageId();
+                mid.pageNo.pid = Convert.getIntValue(offset + length - 4, from);
+                data = new LeafData(mid);
             } else throw new NodeNotMatchException(null, "node types do not match");
 
             if (keyType == AttrType.attrInteger) {

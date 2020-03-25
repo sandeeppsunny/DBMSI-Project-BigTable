@@ -7,6 +7,7 @@ import bufmgr.*;
 import index.*;
 
 import java.io.*;
+import BigT.*;
 
 /**
  * All the relational operators and access methods are iterators.

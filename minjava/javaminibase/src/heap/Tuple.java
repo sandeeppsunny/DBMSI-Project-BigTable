@@ -126,9 +126,9 @@ public class Tuple implements GlobalConst {
     /**
      * Set a tuple with the given tuple length and offset
      *
-     * @param    record    a byte array contains the tuple
-     * @param    offset the offset of the tuple ( =0 by default)
-     * @param    length    the length of the tuple
+     * @param record a byte array contains the tuple
+     * @param offset the offset of the tuple ( =0 by default)
+     * @param length the length of the tuple
      */
     public void tupleSet(byte[] record, int offset, int length) {
         System.arraycopy(record, offset, data, 0, length);
@@ -191,10 +191,10 @@ public class Tuple implements GlobalConst {
     /**
      * Convert this field into integer
      *
+     * @param fldNo the field number
+     * @return the converted integer if success
      * @throws IOException                    I/O errors
      * @throws FieldNumberOutOfBoundException Tuple field number out of bound
-     * @param    fldNo    the field number
-     * @return the converted integer if success
      */
 
     public int getIntFld(int fldNo)
@@ -270,10 +270,10 @@ public class Tuple implements GlobalConst {
     /**
      * Set this field to integer value
      *
+     * @param fldNo the field number
+     * @param val   the integer value
      * @throws IOException                    I/O errors
      * @throws FieldNumberOutOfBoundException Tuple field number out of bound
-     * @param    fldNo    the field number
-     * @param    val    the integer value
      */
 
     public Tuple setIntFld(int fldNo, int val)
@@ -326,12 +326,12 @@ public class Tuple implements GlobalConst {
     /**
      * setHdr will set the header of this tuple.
      *
+     * @param numFlds    number of fields
+     * @param types[]    contains the types that will be in this tuple
+     * @param strSizes[] contains the sizes of the string
      * @throws IOException               I/O errors
      * @throws InvalidTypeException      Invalid tupe type
      * @throws InvalidTupleSizeException Tuple size too big
-     * @param    numFlds     number of fields
-     * @param    types[]     contains the types that will be in this tuple
-     * @param    strSizes[] contains the sizes of the string
      */
 
     public void setHdr(short numFlds, AttrType types[], short strSizes[])
@@ -498,9 +498,9 @@ public class Tuple implements GlobalConst {
      * private method
      * Padding must be used when storing different types.
      *
-     * @param type the type of tuple
+     * @param type   the type of tuple
+     * @param offset
      * @return short typle
-     * @param    offset
      */
 
     private short pad(short offset, AttrType type) {

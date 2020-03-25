@@ -213,7 +213,7 @@ class JoinsDriver implements GlobalConst {
             }
 
             try {
-                rid = f.insertRecord(t.returnTupleByteArray());
+                rid = f.insertRecordTuple(t.returnTupleByteArray());
             } catch (Exception e) {
                 System.err.println("*** error in Heapfile.insertRecord() ***");
                 status = FAIL;
@@ -279,7 +279,7 @@ class JoinsDriver implements GlobalConst {
             }
 
             try {
-                rid = f.insertRecord(t.returnTupleByteArray());
+                rid = f.insertRecordTuple(t.returnTupleByteArray());
             } catch (Exception e) {
                 System.err.println("*** error in Heapfile.insertRecord() ***");
                 status = FAIL;
@@ -344,7 +344,7 @@ class JoinsDriver implements GlobalConst {
             }
 
             try {
-                rid = f.insertRecord(t.returnTupleByteArray());
+                rid = f.insertRecordTuple(t.returnTupleByteArray());
             } catch (Exception e) {
                 System.err.println("*** error in Heapfile.insertRecord() ***");
                 status = FAIL;
@@ -817,7 +817,7 @@ class JoinsDriver implements GlobalConst {
         Scan scan = null;
 
         try {
-            scan = new Scan(f);
+            scan = new Scan(f, true);
         } catch (Exception e) {
             status = FAIL;
             e.printStackTrace();
@@ -839,7 +839,7 @@ class JoinsDriver implements GlobalConst {
         Tuple temp = null;
 
         try {
-            temp = scan.getNext(rid);
+            temp = scan.getNextTuple(rid);
         } catch (Exception e) {
             status = FAIL;
             e.printStackTrace();
@@ -862,7 +862,7 @@ class JoinsDriver implements GlobalConst {
             }
 
             try {
-                temp = scan.getNext(rid);
+                temp = scan.getNextTuple(rid);
             } catch (Exception e) {
                 status = FAIL;
                 e.printStackTrace();

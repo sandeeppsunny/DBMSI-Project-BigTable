@@ -84,7 +84,7 @@ public class FileScan extends Iterator {
         }
 
         try {
-            scan = f.openScan();
+            scan = f.openScanTuple();
         } catch (Exception e) {
             throw new FileScanException(e, "openScan() failed");
         }
@@ -119,11 +119,11 @@ public class FileScan extends Iterator {
             UnknowAttrType,
             FieldNumberOutOfBoundException,
             WrongPermat {
-        RID rid = new RID();
+        MID mid = new MID();
         ;
 
         while (true) {
-            if ((tuple1 = scan.getNext(rid)) == null) {
+            if ((tuple1 = scan.getNextTuple(mid)) == null) {
                 return null;
             }
 

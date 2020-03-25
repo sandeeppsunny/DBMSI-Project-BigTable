@@ -167,7 +167,7 @@ public class Utility implements Catalogglobal {
         }
 
 
-// CREATE TUPLE
+// CREATE TUPLE  
 
         tuple = new Tuple(Tuple.max_size);
 

@@ -22,8 +22,8 @@ public class BTFileScan extends IndexFileScan
     BTreeFile bfile;
     String treeFilename;     // B+ tree we're scanning
     BTLeafPage leafPage;   // leaf page containing current record
-    RID curRid;       // position in current leaf; note: this is
-    // the RID of the key/RID pair within the
+    MID curRid;       // position in current leaf; note: this is
+    // the MID of the key/MID pair within the
     // leaf page.
     boolean didfirst;        // false only before getNext is called
     boolean deletedcurrent;  // true after deleteCurrent is called (read

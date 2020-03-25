@@ -260,7 +260,7 @@ public class Catalog
     void listRelations()
             throws CatalogException {
         try {
-            Scan relscan = new Scan(relCat);
+            Scan relscan = new Scan(relCat, true);
         } catch (Exception e1) {
             throw new CatalogException(e1, "scan failed");
         }

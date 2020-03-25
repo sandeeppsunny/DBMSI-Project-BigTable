@@ -4,6 +4,7 @@ import heap.*;
 import global.*;
 
 import java.io.*;
+import BigT.Map;
 
 public class PredEval {
     /**
@@ -123,6 +124,128 @@ public class PredEval {
                     comp_res = TupleUtils.CompareTupleWithTuple(comparison_type, tuple1, fld1, tuple2, fld2);
                 } catch (TupleUtilsException e) {
                     throw new PredEvalException(e, "TupleUtilsException is caught by PredEval.java");
+                }
+                op_res = false;
+
+                switch (temp_ptr.op.attrOperator) {
+                    case AttrOperator.aopEQ:
+                        if (comp_res == 0) op_res = true;
+                        break;
+                    case AttrOperator.aopLT:
+                        if (comp_res < 0) op_res = true;
+                        break;
+                    case AttrOperator.aopGT:
+                        if (comp_res > 0) op_res = true;
+                        break;
+                    case AttrOperator.aopNE:
+                        if (comp_res != 0) op_res = true;
+                        break;
+                    case AttrOperator.aopLE:
+                        if (comp_res <= 0) op_res = true;
+                        break;
+                    case AttrOperator.aopGE:
+                        if (comp_res >= 0) op_res = true;
+                        break;
+                    case AttrOperator.aopNOT:
+                        if (comp_res != 0) op_res = true;
+                        break;
+                    default:
+                        break;
+                }
+
+                row_res = row_res || op_res;
+                if (row_res == true)
+                    break;                        // OR predicates satisfied.
+                temp_ptr = temp_ptr.next;
+            }
+            i++;
+
+            col_res = col_res && row_res;
+            if (col_res == false) {
+
+                return false;
+            }
+            row_res = false;                        // Starting next row.
+        }
+
+
+        return true;
+    }
+    /**
+     * predicate evaluate, according to the condition ConExpr, judge if
+     * the two maps can join. if so, return true, otherwise false
+     *
+     * @param p[]   single select condition array
+     * @param t1    compared map1
+     * @param t2    compared map2
+     * @param in1[] the attribute type corespond to the t1
+     * @param in2[] the attribute type corespond to the t2
+     * @return true or false
+     * @throws IOException                    some I/O error
+     * @throws UnknowAttrType                 don't know the attribute type
+     * @throws InvalidTupleSizeException      size of tuple not valid
+     * @throws InvalidTypeException           type of tuple not valid
+     * @throws FieldNumberOutOfBoundException field number exceeds limit
+     * @throws PredEvalException              exception from this method
+     */
+    public static boolean Eval(CondExpr p[], Map t1, Map t2, AttrType in1[],
+                               AttrType in2[])
+            throws IOException,
+            UnknowAttrType,
+            InvalidTupleSizeException,
+            InvalidTypeException,
+            FieldNumberOutOfBoundException,
+            PredEvalException {
+        CondExpr temp_ptr;
+        int i = 0;
+
+        int fld1, fld2;
+
+
+        Map value = new Map();
+        short[] str_size = new short[1];
+        AttrType[] val_type = new AttrType[1];
+
+        AttrType comparison_type = new AttrType(AttrType.attrInteger);
+        int comp_res;
+        boolean op_res = false, row_res = false, col_res = true;
+
+        if (p == null) {
+            return true;
+        }
+
+        while (p[i] != null) {
+            temp_ptr = p[i];
+            while (temp_ptr != null) {
+                val_type[0] = new AttrType(temp_ptr.type1.attrType);
+
+                int fldNum = temp_ptr.operand1.symbol.offset;
+
+                byte[] m_data = new byte[(int)t1.getLength()];
+                value.mapInit(m_data, 0, t1.getLength());
+                value.setDefaultHdr();
+                switch(fldNum) {
+                    case 1:
+                        value.setRowLabel(temp_ptr.operand2.string);
+                        break;
+                    case 2:
+                        value.setColumnLabel(temp_ptr.operand2.string);
+                        break;
+                    case 4:
+                        value.setValue(temp_ptr.operand2.string);
+                        break;
+                    default:
+                        value = null;
+                }
+                if(value != null) {
+                    // Got the arguments, now perform a comparison.
+                    try {
+                        comp_res = MapUtils.CompareMapWithMap(t1, value, fldNum);
+                    } catch (Exception e) {
+                        throw new PredEvalException(e, "TupleUtilsException is caught by PredEval.java");
+                    }
+                } else {
+                    comp_res = 0;
                 }
                 op_res = false;
 

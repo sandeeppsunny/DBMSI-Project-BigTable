@@ -7,10 +7,11 @@ import java.io.*;
 import bufmgr.*;
 import global.*;
 
-public class DB implements GlobalConst {
+public class bigDB implements GlobalConst {
 
 
     private static final int bits_per_page = MAX_SPACE * 8;
+    public static PCounter pcounter;
 
 
     /**
@@ -22,7 +23,7 @@ public class DB implements GlobalConst {
      * @throws InvalidPageNumberException invalid page number
      * @throws DiskMgrException           error caused by other layers
      */
-    public void openDB(String fname)
+    public void openBigDB(String fname)
             throws IOException,
             InvalidPageNumberException,
             FileIOException,
@@ -52,7 +53,8 @@ public class DB implements GlobalConst {
     /**
      * default constructor.
      */
-    public DB() {
+    public bigDB() {
+        pcounter = new PCounter();
     }
 
 
@@ -68,7 +70,7 @@ public class DB implements GlobalConst {
      * @throws FileIOException            file I/O error
      * @throws DiskMgrException           error caused by other layers
      */
-    public void openDB(String fname, int num_pgs)
+    public void openBigDB(String fname, int num_pgs)
             throws IOException,
             InvalidPageNumberException,
             FileIOException,
@@ -114,7 +116,7 @@ public class DB implements GlobalConst {
      *
      * @throws IOException I/O errors.
      */
-    public void closeDB() throws IOException {
+    public void closeBigDB() throws IOException {
         fp.close();
     }
 
@@ -124,7 +126,7 @@ public class DB implements GlobalConst {
      *
      * @throws IOException I/O errors.
      */
-    public void DBDestroy()
+    public void BigDBDestroy()
             throws IOException {
 
         fp.close();
@@ -156,6 +158,7 @@ public class DB implements GlobalConst {
         byte[] buffer = apage.getpage();  //new byte[MINIBASE_PAGESIZE];
         try {
             fp.read(buffer);
+            pcounter.readIncrement();
         } catch (IOException e) {
             throw new FileIOException(e, "DB file I/O error");
         }
@@ -185,6 +188,7 @@ public class DB implements GlobalConst {
         // Write the appropriate number of bytes.
         try {
             fp.write(apage.getpage());
+            pcounter.writeIncrement();
         } catch (IOException e) {
             throw new FileIOException(e, "DB file I/O error");
         }
@@ -446,7 +450,7 @@ public class DB implements GlobalConst {
             // Pin the newly-allocated directory page.
             hpid.pid = nexthpid.pid;
 
-            pinPage(hpid, apage, true/*no diskIO*/);
+            pinPage(hpid, apage, false/*no diskIO*/);
             dp = new DBDirectoryPage(apage);
 
             free_slot = 0;
