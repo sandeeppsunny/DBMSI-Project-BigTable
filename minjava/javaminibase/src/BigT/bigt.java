@@ -370,7 +370,7 @@ public class bigt {
         String[] indexKeyTokens;
 
         String prevKey = previousMapPair.getIndexKey();
-        System.out.println("Index Key is: " + prevKey);
+//        System.out.println("Index Key is: " + prevKey);
         String curKey = "";
 
         List<Pair> duplicateMaps = new ArrayList<>();
@@ -382,12 +382,12 @@ public class bigt {
         Map map;
         while(curMapPair!=null){
             curKey = curMapPair.getIndexKey();
-            System.out.println("Index Key is: " + curKey);
+//            System.out.println("Index Key is: " + curKey);
             indexKeyTokens = curKey.split("%");
             String curKeyString = curKey.substring(0, curKey.indexOf('%'));
             String prevKeyString = prevKey.substring(0, prevKey.indexOf('%'));
-            System.out.println("Previous Key: " + prevKeyString);
-            System.out.println("Current Key: " + curKeyString);
+//            System.out.println("Previous Key: " + prevKeyString);
+//            System.out.println("Current Key: " + curKeyString);
             curMapPair = new Pair(curMapPair.getMap(), curMapPair.getMid(), curMapPair.getIndexKey(),
                     Integer.parseInt(indexKeyTokens[indexKeyTokens.length-1]));
 
@@ -398,18 +398,18 @@ public class bigt {
                 duplicateMaps.add(curMapPair);
             }
             if(duplicateMaps.size() == 4){
-//                System.out.println("Key" + curKeyString);
+/*                System.out.println("Key" + curKeyString);
                 System.out.println();
                 System.out.println("Printing Pairs in duplicateMaps list");
                 for(int i =0; i < duplicateMaps.size(); i++){
-//                    System.out.println(duplicateMaps.get(i).getIndexKey()
-//                            .substring(duplicateMaps.get(i).getIndexKey().indexOf('%')+1));
+                    System.out.println(duplicateMaps.get(i).getIndexKey()
+                            .substring(duplicateMaps.get(i).getIndexKey().indexOf('%')+1));
                     System.out.println("MID: pageNo:" + duplicateMaps.get(i).getMid().pageNo + " slotNo: " +
                             duplicateMaps.get(i).getMid().slotNo + " ; IndexKey: " +
                             duplicateMaps.get(i).getIndexKey() + " ; HeapFileIndex: " +
                             duplicateMaps.get(i).getHeapFileIndex());
                 }
-                System.out.println();
+                System.out.println();*/
                 duplicateMaps.sort(new Comparator<Pair>() {
                     @Override
                     public int compare(Pair o1, Pair o2) {
@@ -422,7 +422,7 @@ public class bigt {
                     }
                 });
                 mid = duplicateMaps.get(0).getMid();
-                System.out.println("Heap File index: " + duplicateMaps.get(0).getHeapFileIndex());
+//                System.out.println("Heap File index: " + duplicateMaps.get(0).getHeapFileIndex());
                 heapFiles.get(duplicateMaps.get(0).getHeapFileIndex()).deleteRecordMap(mid);
 //                _hf.deleteRecordMap(mid);
                 duplicateMaps.remove(0);
@@ -433,7 +433,9 @@ public class bigt {
         iscan.close();
 
         if(duplicateMaps.size() == 4){
-            _hf.deleteRecordMap(duplicateMaps.get(0).getMid());
+            mid = duplicateMaps.get(0).getMid();
+            heapFiles.get(duplicateMaps.get(0).getHeapFileIndex()).deleteRecordMap(mid);
+//            _hf.deleteRecordMap(duplicateMaps.get(0).getMid());
             duplicateMaps.remove(0);
         }
     }
