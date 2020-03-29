@@ -71,7 +71,7 @@ public class BatchInsert {
 
         System.out.println("TIME TAKEN FOR INSERTING ALL RECORDS "+((endTime - startTime)/1000000000) + " s");
 
-        /*startTime = System.nanoTime();
+        startTime = System.nanoTime();
         table.buildUtilityIndex();
         endTime = System.nanoTime();
         System.out.println("TIME TAKEN TO BUILD UTILITY INDEX " + ((endTime - startTime)/1000000000) + " s");
@@ -83,7 +83,7 @@ public class BatchInsert {
         System.out.println("TIME TAKEN FOR DUPLICATE RECORDS REMOVAL "+((endTime - startTime)/1000000000) + " s");
 
 
-        startTime = System.nanoTime();
+        /*startTime = System.nanoTime();
         table.insertIntoMainIndex();
         endTime = System.nanoTime();
         System.out.println("TIME TAKEN FOR CREATING ORIGINAL INDEX "+((endTime - startTime)/1000000000) + " s");*/

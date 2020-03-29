@@ -63,7 +63,7 @@ public class bigt {
             createIndexUtil();
 
             if(utilityIndex != null){
-                utilityIndex.close();
+//                utilityIndex.close();
                 utilityIndex.destroyFile();
             }
             indexDestroyUtil();
@@ -200,7 +200,7 @@ public class bigt {
 
     public void createIndexUtil(){
         try {
-            utilityIndex = new BTreeFile(indexUtil, AttrType.attrString, 2*Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 15, DeleteFashion.FULL_DELETE);
+            utilityIndex = new BTreeFile(indexUtil, AttrType.attrString, 2*Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 20, DeleteFashion.FULL_DELETE);
         }catch(Exception ex){
             System.err.println("Error in creating utility index");
             ex.printStackTrace();
@@ -253,27 +253,23 @@ public class bigt {
         }
     }
 
-    public void insertIndexUtil(MID mid, Map map)
+    public void insertIndexUtil(MID mid, Map map, int heapFileIndex)
             throws KeyTooLongException, KeyNotMatchException, LeafInsertRecException, IndexInsertRecException,
             ConstructPageException, UnpinPageException, PinPageException, NodeNotMatchException, ConvertException,
             DeleteRecException, IndexSearchException, IteratorException, LeafDeleteException, InsertException,
-            IOException, DeleteFashionException, LeafRedistributeException, RedistributeException, InsertRecException,
-            FreePageException, RecordNotFoundException, IndexFullDeleteException {
-        /*if(insertBatch){
-
-        }*/
+            IOException{
 //        System.out.println("Key length " + (map.getRowLabel() + map.getColumnLabel()).length());
 //        System.out.println("Index key is " + (new StringKey(map.getRowLabel() + map.getColumnLabel())));
-        utilityIndex.insert(new StringKey(map.getRowLabel() + map.getColumnLabel() + "%" + map.getTimeStamp()), mid);
+        utilityIndex.insert(new StringKey(map.getRowLabel() + map.getColumnLabel() + "%" + map.getTimeStamp() + "%" + heapFileIndex), mid);
     }
 
-    public void removeIndexUtil(MID mid, Map map)
-            throws KeyTooLongException, KeyNotMatchException, LeafInsertRecException, IndexInsertRecException,
-            ConstructPageException, UnpinPageException, PinPageException, NodeNotMatchException, ConvertException,
-            DeleteRecException, IndexSearchException, IteratorException, LeafDeleteException, InsertException,
+    public void removeIndexUtil(MID mid, Map map, int heapFileIndex)
+            throws KeyNotMatchException, IndexInsertRecException,
+            ConstructPageException, UnpinPageException, PinPageException,
+            DeleteRecException, IndexSearchException, IteratorException, LeafDeleteException,
             IOException, DeleteFashionException, LeafRedistributeException, RedistributeException, InsertRecException,
             FreePageException, RecordNotFoundException, IndexFullDeleteException{
-        utilityIndex.Delete(new StringKey(map.getColumnLabel() + map.getRowLabel()), mid);
+        utilityIndex.Delete(new StringKey(map.getColumnLabel() + map.getRowLabel() + "%" + map.getTimeStamp() + "%" + heapFileIndex), mid);
     }
 
     public int getMapCnt() throws InvalidSlotNumberException, InvalidTupleSizeException, HFDiskMgrException,
@@ -328,15 +324,26 @@ public class bigt {
     public void buildUtilityIndex(){
         try{
 //            System.out.println("Building Utility INdex");
-            FileScanMap fscan = new FileScanMap(getName(), null, null);
-            Pair mapPair;
-            mapPair = fscan.get_next_mid();
-            while(mapPair!=null){
-//                mapPair.getMap().print();
-                insertIndexUtil(mapPair.getRid(), mapPair.getMap());
+
+            /*
+            For phase3, the key for the utility index will be
+            (row+columnLabel % timestamp % i)
+            Where i corresponds to the i-th heap file
+            */
+            FileScanMap fscan;
+            String heapFileName;
+            for(int i = 1; i<= 5; i++){
+                heapFileName = getHeapFileName(i);
+                fscan = new FileScanMap(heapFileName, null, null);
+                Pair mapPair;
                 mapPair = fscan.get_next_mid();
+                while(mapPair!=null){
+//                mapPair.getMap().print();
+                    insertIndexUtil(mapPair.getMid(), mapPair.getMap(), i);
+                    mapPair = fscan.get_next_mid();
+                }
+                fscan.close();
             }
-            fscan.close();
         }catch(Exception ex){
             System.err.println("Exception caused in creating BTree Index");
             ex.printStackTrace();
@@ -360,17 +367,29 @@ public class bigt {
         Pair previousMapPair = iscan.get_next_mid();
         Pair curMapPair = iscan.get_next_mid();
 
+        String[] indexKeyTokens;
+
         String prevKey = previousMapPair.getIndexKey();
+        System.out.println("Index Key is: " + prevKey);
         String curKey = "";
 
         List<Pair> duplicateMaps = new ArrayList<>();
+        indexKeyTokens = prevKey.split("%");
+        previousMapPair  = new Pair(previousMapPair.getMap(), previousMapPair.getMid(), previousMapPair.getIndexKey(),
+                Integer.parseInt(indexKeyTokens[indexKeyTokens.length-1]));
         duplicateMaps.add(previousMapPair);
         MID mid;
         Map map;
         while(curMapPair!=null){
             curKey = curMapPair.getIndexKey();
+            System.out.println("Index Key is: " + curKey);
+            indexKeyTokens = curKey.split("%");
             String curKeyString = curKey.substring(0, curKey.indexOf('%'));
             String prevKeyString = prevKey.substring(0, prevKey.indexOf('%'));
+            System.out.println("Previous Key: " + prevKeyString);
+            System.out.println("Current Key: " + curKeyString);
+            curMapPair = new Pair(curMapPair.getMap(), curMapPair.getMid(), curMapPair.getIndexKey(),
+                    Integer.parseInt(indexKeyTokens[indexKeyTokens.length-1]));
 
             if(prevKeyString.equals(curKeyString)){
                 duplicateMaps.add(curMapPair);
@@ -380,23 +399,32 @@ public class bigt {
             }
             if(duplicateMaps.size() == 4){
 //                System.out.println("Key" + curKeyString);
-//                for(int i =0; i < duplicateMaps.size(); i++){
+                System.out.println();
+                System.out.println("Printing Pairs in duplicateMaps list");
+                for(int i =0; i < duplicateMaps.size(); i++){
 //                    System.out.println(duplicateMaps.get(i).getIndexKey()
 //                            .substring(duplicateMaps.get(i).getIndexKey().indexOf('%')+1));
-//                }
-//                System.out.println();
+                    System.out.println("MID: pageNo:" + duplicateMaps.get(i).getMid().pageNo + " slotNo: " +
+                            duplicateMaps.get(i).getMid().slotNo + " ; IndexKey: " +
+                            duplicateMaps.get(i).getIndexKey() + " ; HeapFileIndex: " +
+                            duplicateMaps.get(i).getHeapFileIndex());
+                }
+                System.out.println();
                 duplicateMaps.sort(new Comparator<Pair>() {
                     @Override
                     public int compare(Pair o1, Pair o2) {
                         String o1String = o1.getIndexKey();
                         String o2String = o2.getIndexKey();
-                        Integer o1Timestamp = Integer.parseInt(o1.getIndexKey().substring(o1String.indexOf('%')+1, o1String.length()));
-                        Integer o2Timestamp = Integer.parseInt(o2.getIndexKey().substring(o2String.indexOf('%')+1, o2String.length()));
+
+                        Integer o1Timestamp = Integer.parseInt(o1.getIndexKey().split("%")[1]);
+                        Integer o2Timestamp = Integer.parseInt(o2.getIndexKey().split("%")[1]);
                         return o1Timestamp.compareTo(o2Timestamp);
                     }
                 });
-                mid = duplicateMaps.get(0).getRid();
-                _hf.deleteRecordMap(mid);
+                mid = duplicateMaps.get(0).getMid();
+                System.out.println("Heap File index: " + duplicateMaps.get(0).getHeapFileIndex());
+                heapFiles.get(duplicateMaps.get(0).getHeapFileIndex()).deleteRecordMap(mid);
+//                _hf.deleteRecordMap(mid);
                 duplicateMaps.remove(0);
             }
             prevKey = curKey;
@@ -405,7 +433,7 @@ public class bigt {
         iscan.close();
 
         if(duplicateMaps.size() == 4){
-            _hf.deleteRecordMap(duplicateMaps.get(0).getRid());
+            _hf.deleteRecordMap(duplicateMaps.get(0).getMid());
             duplicateMaps.remove(0);
         }
     }
@@ -421,7 +449,7 @@ public class bigt {
             Pair mapPair;
             mapPair = fscan.get_next_mid();
             while(mapPair!=null){
-                insertIndex(mapPair.getRid(), mapPair.getMap(), storageType);
+                insertIndex(mapPair.getMid(), mapPair.getMap(), storageType);
                 mapPair = fscan.get_next_mid();
             }
             fscan.close();
@@ -462,7 +490,7 @@ public class bigt {
             temp.setFldOffset(temp.getMapByteArray());
             if(temp.getRowLabel().equals(map.getRowLabel())&&temp.getColumnLabel().equals(map.getColumnLabel())){
                 mapList.add(temp);
-                ridHashMap.put(temp, t.getRid());
+                ridHashMap.put(temp, t.getMid());
                 if(mapList.size() == 3) {
                     break;
                 }
@@ -488,7 +516,7 @@ public class bigt {
             MID deleteMID = ridHashMap.get(mapList.get(0));
             _hf.deleteRecordMap(deleteMID);
 //            removeIndex(deleteMID, mapList.get(0));
-            removeIndexUtil(deleteMID, mapList.get(0));
+            removeIndexUtil(deleteMID, mapList.get(0), 0);
             return _hf.insertRecordMap(map.getMapByteArray());
         }
 

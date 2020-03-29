@@ -6,8 +6,9 @@ public class Pair {
     Map map;
     MID mid;
     String indexKey;
+    int heapFileIndex;
 
-    public MID getRid() {
+    public MID getMid() {
         return mid;
     }
 
@@ -19,6 +20,8 @@ public class Pair {
         return indexKey;
     }
 
+    public int getHeapFileIndex() { return heapFileIndex; }
+
 
     public Pair(Map map, MID mid) {
         this.map = map;
@@ -28,5 +31,11 @@ public class Pair {
         this.map = map;
         this.mid = mid;
         this.indexKey = indexKey;
+    }
+    public Pair(Map map, MID mid, String indexKey, int heapFileIndex){
+        this.map = map;
+        this.mid = mid;
+        this.indexKey = indexKey;
+        this.heapFileIndex = heapFileIndex;
     }
 }
