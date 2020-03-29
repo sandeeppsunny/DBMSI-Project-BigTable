@@ -1282,7 +1282,7 @@ class HFDriver extends TestDriver implements GlobalConst {
             m.setRowLabel(ROW_LABEL);
             m.setColumnLabel(COL_LABEL);
             m.setTimeStamp(TIME_STAMP + i);
-            m.setValue(VALUE + "-" + Integer.toString(i));
+            m.setValue(Integer.toString(i));
             mapArr[i] = m;
         }
         return mapArr;
@@ -1308,10 +1308,10 @@ class HFDriver extends TestDriver implements GlobalConst {
             m.setColumnLabel(COL_LABEL);
             if(i == 0) {
                 m.setTimeStamp(TIME_STAMP + i+3);
-                m.setValue(VALUE + "-" + Integer.toString(i+3));
+                m.setValue(Integer.toString(i+3));
             } else {
                 m.setTimeStamp(TIME_STAMP + i);
-                m.setValue(VALUE + "-" + Integer.toString(i));
+                m.setValue(Integer.toString(i));
             }
 
             mapArr[i] = m;

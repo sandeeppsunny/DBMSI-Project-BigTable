@@ -32,20 +32,20 @@ import iterator.MapUtils;
  */
 
 
-/**
- * DataPageInfo class : the type of records stored on a directory page.
- * <p>
- * April 9, 1998
- */
+///**
+// * DataPageInfo class : the type of records stored on a directory page.
+// * <p>
+// * April 9, 1998
+// */
+//
+//
+//interface Filetype {
+//    int TEMP = 0;
+//    int ORDINARY = 1;
+//
+//} // end of Filetype
 
-
-interface Filetype {
-    int TEMP = 0;
-    int ORDINARY = 1;
-
-} // end of Filetype
-
-public class Heapfile implements Filetype, GlobalConst, HeapfileInterface {
+public class SortedHeapfile implements Filetype, GlobalConst, HeapfileInterface {
 
 
     public PageId _firstDirPageId;   // page number of header page
@@ -89,9 +89,9 @@ public class Heapfile implements Filetype, GlobalConst, HeapfileInterface {
        If the user record cannot be found, return false.
     */
     public boolean _findDataPageTuple(MID mid,
-                                  PageId dirPageId, HFPage dirpage,
-                                  PageId dataPageId, HFPage datapage,
-                                  MID rpDataPageRid)
+                                      PageId dirPageId, HFPage dirpage,
+                                      PageId dataPageId, HFPage datapage,
+                                      MID rpDataPageRid)
             throws InvalidSlotNumberException,
             InvalidTupleSizeException,
             HFException,
@@ -202,9 +202,9 @@ public class Heapfile implements Filetype, GlobalConst, HeapfileInterface {
    If the user record cannot be found, return false.
 */
     public boolean _findDataPageMap(MID mid,
-                                       PageId dirPageId, HFPage dirpage,
-                                       PageId dataPageId, HFPage datapage,
-                                       MID rpDataPageRid)
+                                    PageId dirPageId, HFPage dirpage,
+                                    PageId dataPageId, HFPage datapage,
+                                    MID rpDataPageRid)
             throws InvalidSlotNumberException,
             InvalidTupleSizeException,
             HFException,
@@ -319,7 +319,7 @@ public class Heapfile implements Filetype, GlobalConst, HeapfileInterface {
      * @throws HFDiskMgrException exception thrown from diskmgr layer
      * @throws IOException        I/O errors
      */
-    public Heapfile(String name)
+    public SortedHeapfile(String name)
             throws HFException,
             HFBufMgrException,
             HFDiskMgrException,

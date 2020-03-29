@@ -906,7 +906,7 @@ class SORTDriver extends TestDriver
                     s.setRowLabel(data2[i]);
                     s.setColumnLabel(data1[i]);
                     s.setTimeStamp(i);
-                    s.setValue("Val-" + i);
+                    s.setValue(Integer.toString(i));
                 } catch (Exception e) {
                     status = FAIL;
                     e.printStackTrace();
@@ -1014,7 +1014,7 @@ class SORTDriver extends TestDriver
                     s.setRowLabel(data1[i]);
                     s.setColumnLabel(data2[i]);
                     s.setTimeStamp(i);
-                    s.setValue("Val-" + i);
+                    s.setValue(Integer.toString(i));
                     try {
                         mid = f.insertRecordMap(s.returnMapByteArray());
                     } catch (Exception e) {
@@ -1234,7 +1234,7 @@ class SORTDriver extends TestDriver
         s.setRowLabel(data2[i]);
         s.setColumnLabel(data2[i]);
         s.setTimeStamp(i);
-        s.setValue("Val-" + i);
+        s.setValue(Integer.toString(i));
         try {
             f.insertRecordMap(s.returnMapByteArray());
         } catch (Exception e) {
@@ -1581,7 +1581,7 @@ class SORTDriver extends TestDriver
                     s.setRowLabel(data2[i]);
                     s.setColumnLabel(data2[i]);
                     s.setTimeStamp(i);
-                    s.setValue("Val-" + i);
+                    s.setValue(Integer.toString(i));
                     try {
                         mid = f.insertRecordMap(s.returnMapByteArray());
                     } catch (Exception e) {

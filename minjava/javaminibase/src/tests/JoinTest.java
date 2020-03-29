@@ -181,7 +181,7 @@ class JoinsDriver implements GlobalConst {
         int size = t.size();
 
         // inserting the tuple into file "sailors"
-        RID rid;
+        MID rid;
         Heapfile f = null;
         try {
             f = new Heapfile("sailors.in");
@@ -834,7 +834,7 @@ class JoinsDriver implements GlobalConst {
             Runtime.getRuntime().exit(1);
         }
 
-        RID rid = new RID();
+        MID rid = new MID();
         int key = 0;
         Tuple temp = null;
 

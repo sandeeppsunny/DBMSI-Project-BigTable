@@ -36,7 +36,7 @@ public class Scan implements GlobalConst {
      */
 
     /** The heapfile we are using. */
-    private Heapfile _hf;
+    private HeapfileInterface _hf;
 
     /** PageId of current directory page (which is itself an HFPage) */
     private PageId dirpageId = new PageId();
@@ -70,7 +70,7 @@ public class Scan implements GlobalConst {
      *
      * @param hf A HeapFile object
      */
-    public Scan(Heapfile hf, boolean isTuple)
+    public Scan(HeapfileInterface hf, boolean isTuple)
             throws InvalidTupleSizeException,
             IOException {
         if(isTuple) {
@@ -291,7 +291,7 @@ public class Scan implements GlobalConst {
      *
      * @param hf A HeapFile object
      */
-    private void initTuple(Heapfile hf)
+    private void initTuple(HeapfileInterface hf)
             throws InvalidTupleSizeException,
             IOException {
         _hf = hf;
@@ -306,7 +306,7 @@ public class Scan implements GlobalConst {
      *
      * @param hf A HeapFile object
      */
-    private void initMap(Heapfile hf)
+    private void initMap(HeapfileInterface hf)
             throws InvalidTupleSizeException,
             IOException {
         _hf = hf;
@@ -366,7 +366,7 @@ public class Scan implements GlobalConst {
 
         /** copy data about first directory page */
 
-        dirpageId.pid = _hf._firstDirPageId.pid;
+        dirpageId.pid = _hf.getFirstDirPageId().pid;
         nextUserStatus = true;
 
         /** get first directory page and pin it */
@@ -500,7 +500,7 @@ public class Scan implements GlobalConst {
 
         /** copy data about first directory page */
 
-        dirpageId.pid = _hf._firstDirPageId.pid;
+        dirpageId.pid = _hf.getFirstDirPageId().pid;
         nextUserStatus = true;
 
         /** get first directory page and pin it */
