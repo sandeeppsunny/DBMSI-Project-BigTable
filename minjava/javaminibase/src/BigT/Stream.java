@@ -88,7 +88,7 @@ public class Stream {
                     }
 
                     if(flag){
-                        mapIterator = new MapIndexScan(new IndexType(IndexType.B_Index), bigtable.getName(), bigtable.indexName1,
+                        mapIterator = new MapIndexScan(new IndexType(IndexType.B_Index), bigtable.getName(), bigtable.indexName(),
                                 attrType, res_str_sizes, 4, 4, null, condExprs, condExprForKey, keyFldNum, false);
                     }else {
                         mapIterator = new FileScanMap(bigtable.getName(), null, condExprs);

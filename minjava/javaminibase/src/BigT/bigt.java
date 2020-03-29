@@ -20,46 +20,46 @@ public class bigt {
     private String name;
 
     private Heapfile _hf;
-    private BTreeFile index1 = null;
-    private BTreeFile index2 = null;
+    private BTreeFile _index;
+    private ArrayList<Heapfile> heapFiles;
+    private ArrayList<BTreeFile> indexFiles;
     private BTreeFile utilityIndex = null;
-    public String indexName1;
-    public String indexName2;
     public String indexUtil;
-    public boolean insertBatch;
-    private int type;
-    AttrType[] attrType;
-    FldSpec[] projlist;
-    CondExpr[] expr;
+    private AttrType[] attrType;
+    private FldSpec[] projlist;
+    private CondExpr[] expr;
     MapIndexScan iscan;
+
+    private int storageType;
     short[] res_str_sizes = new short[]{Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE};
 
 
-    public bigt(java.lang.String name, int type, boolean insert) throws HFException, HFBufMgrException, HFDiskMgrException, IOException,
+    public bigt(java.lang.String name, boolean insert) throws HFException, HFBufMgrException, HFDiskMgrException, IOException,
             GetFileEntryException, ConstructPageException, AddFileEntryException,btree.IteratorException,
             btree.UnpinPageException, btree.FreePageException, btree.DeleteFileEntryException, btree.PinPageException {
-        String file_name = name+type;
-        _hf = new Heapfile(file_name);
-        this.name = file_name;
-        this.type = type;
-        indexUtil = file_name + "_" + "indexUtil";
-        indexName1 = file_name + "_" +"index1";
-        indexName2 = file_name + "_" + "index2";
+        String fileName = "";
+        heapFiles = new ArrayList<>(6);
+        indexFiles = new ArrayList<>(6);
+        this.name = name;
+        heapFiles.add(null);
+        for(int i = 1; i <= 5; i++){
+            _hf = new Heapfile(name + "_" + i);
+            heapFiles.add(_hf);
+        }
+
+        indexUtil = name + "_" + "indexUtil";
 
         if(insert){
             //For multiple batch insert
-            createIndex(indexName1, indexName2);
+            indexCreateUtil();
             createIndexUtil();
-            if(index1 != null){
-                index1.destroyFile();
-            }
-            if(index2 != null){
-                index2.destroyFile();
-            }
+
             if(utilityIndex != null){
                 utilityIndex.destroyFile();
             }
-            createIndex(indexName1, indexName2);
+            indexDestroyUtil();
+
+            indexCreateUtil();
             createIndexUtil();
         }
         initCondExprs();
@@ -100,15 +100,51 @@ public class bigt {
         return name;
     }
 
-    public int getType() {
-        return type;
+    public Heapfile getHeapFile(int i) {
+        return heapFiles.get(i);
     }
 
-    public Heapfile getheapfile() {
-        return _hf;
+    public int getType(){
+        return this.storageType;
     }
 
-    public void createIndex(String indexName1, String indexName2) throws GetFileEntryException,
+    public String indexName(){
+        return name + "_index_" + storageType;
+    }
+
+    public void indexCreateUtil() throws IOException,
+            ConstructPageException,
+            PinPageException,
+            UnpinPageException,
+            IteratorException,
+            GetFileEntryException,
+            DeleteFileEntryException,
+            AddFileEntryException,
+            FreePageException {
+        indexFiles.add(null);
+        for(int i = 1; i <= 5; i++){
+            _index = createIndex(name + "_index_" + i, i);
+            indexFiles.add(_index);
+        }
+    }
+
+    public void indexDestroyUtil() throws DeleteFileEntryException,
+            IteratorException,
+            PinPageException,
+            IOException,
+            ConstructPageException,
+            FreePageException,
+            UnpinPageException {
+        BTreeFile tempIndex;
+        for(int i=1; i<=5; i++){
+            tempIndex = indexFiles.get(i);
+            if(tempIndex!=null){
+                tempIndex.destroyFile();
+            }
+        }
+    }
+
+    public BTreeFile createIndex(String indexName1, int type) throws GetFileEntryException,
             ConstructPageException,
             IOException,
             AddFileEntryException,
@@ -117,24 +153,24 @@ public class bigt {
             btree.FreePageException,
             btree.DeleteFileEntryException,
             btree.PinPageException {
+        BTreeFile tempIndex=null;
         switch(type){
             case 1:
                 break;
             case 2:
-                index1 = new BTreeFile(indexName1, AttrType.attrString, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.FULL_DELETE);
+                tempIndex = new BTreeFile(indexName1, AttrType.attrString, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.FULL_DELETE);
                 break;
             case 3:
-                index1 = new BTreeFile(indexName1, AttrType.attrString, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.FULL_DELETE);
+                tempIndex = new BTreeFile(indexName1, AttrType.attrString, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.FULL_DELETE);
                 break;
             case 4:
-                index1 = new BTreeFile(indexName1, AttrType.attrString, 2*Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 5, DeleteFashion.FULL_DELETE);
-                index2 = new BTreeFile(indexName2, AttrType.attrInteger, 4, DeleteFashion.FULL_DELETE);
+                tempIndex = new BTreeFile(indexName1, AttrType.attrString, 2*Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 5, DeleteFashion.FULL_DELETE);
                 break;
             case 5:
-                index1 = new BTreeFile(indexName1, AttrType.attrString, 2*Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 5, DeleteFashion.FULL_DELETE);
-                index2 = new BTreeFile(indexName2, AttrType.attrInteger, 4, DeleteFashion.FULL_DELETE);
+                tempIndex = new BTreeFile(indexName1, AttrType.attrString, 2*Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 5, DeleteFashion.FULL_DELETE);
                 break;
         }
+        return tempIndex;
     }
 
     public void createIndexUtil(){
@@ -146,7 +182,7 @@ public class bigt {
         }
     }
 
-    public void insertIndex(MID mid, Map map) throws KeyTooLongException, KeyNotMatchException, LeafInsertRecException,
+    public void insertIndex(MID mid, Map map, int type) throws KeyTooLongException, KeyNotMatchException, LeafInsertRecException,
             IndexInsertRecException, ConstructPageException, UnpinPageException, PinPageException,
             NodeNotMatchException, ConvertException, DeleteRecException, IndexSearchException, IteratorException,
             LeafDeleteException, InsertException, IOException {
@@ -154,23 +190,21 @@ public class bigt {
             case 1:
                 break;
             case 2:
-                index1.insert(new StringKey(map.getRowLabel()), mid);
+                indexFiles.get(2).insert(new StringKey(map.getRowLabel()), mid);
                 break;
             case 3:
-                index1.insert(new StringKey(map.getColumnLabel()), mid);
+                indexFiles.get(3).insert(new StringKey(map.getColumnLabel()), mid);
                 break;
             case 4:
-                index1.insert(new StringKey(map.getColumnLabel() + "%" + map.getRowLabel()), mid);
-                index2.insert(new IntegerKey(map.getTimeStamp()), mid);
+                indexFiles.get(4).insert(new StringKey(map.getColumnLabel() + "%" + map.getRowLabel()), mid);
                 break;
             case 5:
-                index1.insert(new StringKey(map.getRowLabel() + "%" + map.getValue()), mid);
-                index2.insert(new IntegerKey(map.getTimeStamp()), mid);
+                indexFiles.get(5).insert(new StringKey(map.getRowLabel() + "%" + map.getValue()), mid);
                 break;
         }
     }
 
-    public void removeIndex(MID mid, Map map)
+    public void removeIndex(MID mid, Map map, int type)
             throws KeyTooLongException, KeyNotMatchException, LeafInsertRecException, IndexInsertRecException,
             ConstructPageException, UnpinPageException, PinPageException, NodeNotMatchException, ConvertException,
             DeleteRecException, IndexSearchException, IteratorException, LeafDeleteException, InsertException,
@@ -180,18 +214,16 @@ public class bigt {
             case 1:
                 break;
             case 2:
-                index1.Delete(new StringKey(map.getRowLabel()), mid);
+                indexFiles.get(2).Delete(new StringKey(map.getRowLabel()), mid);
                 break;
             case 3:
-                index1.Delete(new StringKey(map.getColumnLabel()), mid);
+                indexFiles.get(3).Delete(new StringKey(map.getColumnLabel()), mid);
                 break;
             case 4:
-                index1.Delete(new StringKey(map.getColumnLabel() + "%" + map.getRowLabel()), mid);
-                index2.Delete(new IntegerKey(map.getTimeStamp()), mid);
+                indexFiles.get(4).Delete(new StringKey(map.getColumnLabel() + "%" + map.getRowLabel()), mid);
                 break;
             case 5:
-                index1.Delete(new StringKey(map.getRowLabel() + "%" + map.getValue()), mid);
-                index2.Delete(new IntegerKey(map.getTimeStamp()), mid);
+                indexFiles.get(5).Delete(new StringKey(map.getRowLabel() + "%" + map.getValue()), mid);
                 break;
         }
     }
@@ -258,8 +290,9 @@ public class bigt {
     }
 
 
-    public MID insertMap(Map map) throws  Exception {
-        MID mid = _hf.insertRecordMap(map.getMapByteArray());
+    public MID insertMap(Map map, int type) throws  Exception {
+
+        MID mid = heapFiles.get(type).insertRecordMap(map.getMapByteArray());
         return mid;
     }
 
@@ -359,7 +392,7 @@ public class bigt {
             Pair mapPair;
             mapPair = fscan.get_next_mid();
             while(mapPair!=null){
-                insertIndex(mapPair.getRid(), mapPair.getMap());
+                insertIndex(mapPair.getRid(), mapPair.getMap(), storageType);
                 mapPair = fscan.get_next_mid();
             }
             fscan.close();

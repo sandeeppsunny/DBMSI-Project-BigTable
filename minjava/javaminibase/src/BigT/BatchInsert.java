@@ -23,13 +23,13 @@ import global.*;
 public class BatchInsert {
     String datafile;
     String bigTable;
-    int type;
+    int storageType;
     bigt table;
 
     public BatchInsert(bigt table, String datafile, int type, String bigTable) {
         this.table = table;
         this.datafile = datafile;
-        this.type = type;
+        this.storageType = type;
         this.bigTable = bigTable;
     }
 
@@ -62,7 +62,7 @@ public class BatchInsert {
             map.setValue(valueLabel);
 //            System.out.print(i + " -> ");
 //            map.print();
-            MID mid = table.insertMap(map);
+            MID mid = table.insertMap(map, storageType);
             pages = mid.pageNo.pid;
         }
         long endTime = System.nanoTime();
@@ -71,7 +71,7 @@ public class BatchInsert {
 
         System.out.println("TIME TAKEN FOR INSERTING ALL RECORDS "+((endTime - startTime)/1000000000) + " s");
 
-        startTime = System.nanoTime();
+        /*startTime = System.nanoTime();
         table.buildUtilityIndex();
         endTime = System.nanoTime();
         System.out.println("TIME TAKEN TO BUILD UTILITY INDEX " + ((endTime - startTime)/1000000000) + " s");
@@ -86,7 +86,7 @@ public class BatchInsert {
         startTime = System.nanoTime();
         table.insertIntoMainIndex();
         endTime = System.nanoTime();
-        System.out.println("TIME TAKEN FOR CREATING ORIGINAL INDEX "+((endTime - startTime)/1000000000) + " s");
+        System.out.println("TIME TAKEN FOR CREATING ORIGINAL INDEX "+((endTime - startTime)/1000000000) + " s");*/
 
         System.out.println();
         return pages;

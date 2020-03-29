@@ -92,7 +92,7 @@ class MainTest implements GlobalConst {
                     option = sc.nextLine();
                     continue;
                 }
-                dbpath = "/tmp/" + splits[3] + Integer.parseInt(splits[2]) + ".minibase-db";
+                dbpath = "/tmp/" + splits[3] + ".minibase-db";
                 if(sysdef == null || !SystemDefs.JavabaseDB.db_name().equals(dbpath)){
                     sysdef = new SystemDefs(dbpath, 100000, Integer.parseInt(splits[4]), replacement_policy);
                 } else {
@@ -106,7 +106,7 @@ class MainTest implements GlobalConst {
                 SystemDefs.JavabaseDB.pcounter.initialize();
                 try{
                     long startTime = System.nanoTime();
-                    big = new bigt(splits[3], Integer.parseInt(splits[2]), true);
+                    big = new bigt(splits[3], true);
                     BatchInsert batchInsert = new BatchInsert(big, splits[1], Integer.parseInt(splits[2]), splits[3]);
                     pages = batchInsert.run();
                     long endTime = System.nanoTime();
@@ -133,7 +133,7 @@ class MainTest implements GlobalConst {
                     long startTime = System.nanoTime();
                     sysdef.changeNumberOfBuffers(Integer.parseInt(splits[7]), replacement_policy);
                     SystemDefs.JavabaseDB.pcounter.initialize();
-                    big = new bigt(splits[1], Integer.parseInt(splits[2]), false);
+                    big = new bigt(splits[1], false);
                     Stream stream = big.openStream(Integer.parseInt(splits[3]), splits[4],
                             splits[5], splits[6], (int)((Integer.parseInt(splits[7])*3)/4));
                     int count =0;
@@ -168,14 +168,14 @@ class MainTest implements GlobalConst {
                 System.out.println("Enter BigTable name and Index Type");
                 String[] names = sc.nextLine().split(" ");
                 String bigt_name = names[0];
-                String index = names[1];
+                String storage_type = names[1];
                 displayOtherOptions();
                 String otherOption = sc.nextLine();
                 while(!otherOption.equals("4")){
                     if(otherOption.equals("1")){
                         try{
                             SystemDefs.JavabaseDB.pcounter.initialize();
-                            FileScanMap fscan = new FileScanMap(bigt_name+index, null, null);
+                            FileScanMap fscan = new FileScanMap(bigt_name + storage_type, null, null);
                             MID mid = new MID();
                             Map temp = fscan.get_next();
                             temp.setFldOffset(temp.getMapByteArray());
@@ -188,7 +188,7 @@ class MainTest implements GlobalConst {
                                 }
                             }
                             fscan.close();
-                            System.out.println("RECORD COUNT: "+big.getMapCnt());
+                            System.out.println("RECORD COUNT: " + big.getMapCnt());
                         }
                         catch(Exception e){
                             System.out.println("Error Occured");
@@ -200,7 +200,7 @@ class MainTest implements GlobalConst {
                     }else if(otherOption.equals("2")){
                         try{
                             SystemDefs.JavabaseDB.pcounter.initialize();
-                            bigt bigtable = new bigt(bigt_name, Integer.parseInt(index), false);
+                            bigt bigtable = new bigt(bigt_name, false);
                             System.out.println("ROW COUNT: " + bigtable.getRowCnt());
                         }catch(Exception e){
                             System.out.println("Error Occured");
@@ -212,7 +212,7 @@ class MainTest implements GlobalConst {
                     }else if(otherOption.equals("3")){
                         try{
                             SystemDefs.JavabaseDB.pcounter.initialize();
-                            bigt bigtable = new bigt(bigt_name, Integer.parseInt(index), false);
+                            bigt bigtable = new bigt(bigt_name, false);
                             System.out.println("COLUMN COUNT: " + bigtable.getColumnCnt());
                         }catch(Exception e){
                             System.out.println("Error Occured");
