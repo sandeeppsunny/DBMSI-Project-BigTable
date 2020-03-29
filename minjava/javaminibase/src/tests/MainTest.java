@@ -175,19 +175,21 @@ class MainTest implements GlobalConst {
                     if(otherOption.equals("1")){
                         try{
                             SystemDefs.JavabaseDB.pcounter.initialize();
-                            FileScanMap fscan = new FileScanMap(bigt_name + storage_type, null, null);
-                            MID mid = new MID();
-                            Map temp = fscan.get_next();
-                            temp.setFldOffset(temp.getMapByteArray());
-                            temp.print();
-                            while (temp != null) {
-                                temp = fscan.get_next();
-                                if(temp!=null){
+                            big = new bigt(bigt_name, false);
+                            for(int i = 1; i<= 5; i++){
+                                System.out.println("----------------------------");
+                                System.out.println("Storage Type " + i);
+                                System.out.println("****************************");
+                                FileScanMap fscan = new FileScanMap(big.getHeapFileName(i), null, null);
+                                MID mid = new MID();
+                                Map temp = fscan.get_next();
+                                while (temp != null) {
                                     temp.setFldOffset(temp.getMapByteArray());
                                     temp.print();
+                                    temp = fscan.get_next();
                                 }
+                                fscan.close();
                             }
-                            fscan.close();
                             System.out.println("RECORD COUNT: " + big.getMapCnt());
                         }
                         catch(Exception e){

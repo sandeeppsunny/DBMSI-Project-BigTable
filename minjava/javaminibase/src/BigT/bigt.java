@@ -22,6 +22,8 @@ public class bigt {
     private Heapfile _hf;
     private BTreeFile _index;
     private ArrayList<Heapfile> heapFiles;
+    private ArrayList<String> heapFileNames;
+    private ArrayList<String> indexFileNames;
     private ArrayList<BTreeFile> indexFiles;
     private BTreeFile utilityIndex = null;
     public String indexUtil;
@@ -35,16 +37,22 @@ public class bigt {
 
 
     public bigt(java.lang.String name, boolean insert) throws HFException, HFBufMgrException, HFDiskMgrException, IOException,
-            GetFileEntryException, ConstructPageException, AddFileEntryException,btree.IteratorException,
-            btree.UnpinPageException, btree.FreePageException, btree.DeleteFileEntryException, btree.PinPageException {
+            GetFileEntryException, ConstructPageException, AddFileEntryException, btree.IteratorException,
+            btree.UnpinPageException, btree.FreePageException, btree.DeleteFileEntryException, btree.PinPageException,
+            PageUnpinnedException, InvalidFrameNumberException, HashEntryNotFoundException, ReplacerException {
         String fileName = "";
         heapFiles = new ArrayList<>(6);
         indexFiles = new ArrayList<>(6);
+        heapFileNames = new ArrayList<>(6);
+        indexFileNames = new ArrayList<>(6);
         this.name = name;
         heapFiles.add(null);
+        heapFileNames.add("");
+        indexFileNames.add("");
         for(int i = 1; i <= 5; i++){
-            _hf = new Heapfile(name + "_" + i);
-            heapFiles.add(_hf);
+            heapFileNames.add(name + "_" + i);
+            indexFileNames.add(name + "_index_" + i);
+            heapFiles.add(new Heapfile(name + "_" + i));
         }
 
         indexUtil = name + "_" + "indexUtil";
@@ -55,10 +63,12 @@ public class bigt {
             createIndexUtil();
 
             if(utilityIndex != null){
+                utilityIndex.close();
                 utilityIndex.destroyFile();
             }
             indexDestroyUtil();
 
+            indexFiles = new ArrayList<>();
             indexCreateUtil();
             createIndexUtil();
         }
@@ -108,6 +118,14 @@ public class bigt {
         return this.storageType;
     }
 
+    public String getIndexFileName(int i){
+        return indexFileNames.get(i);
+    }
+
+    public String getHeapFileName(int i){
+        return heapFileNames.get(i);
+    }
+
     public String indexName(){
         return name + "_index_" + storageType;
     }
@@ -120,11 +138,18 @@ public class bigt {
             GetFileEntryException,
             DeleteFileEntryException,
             AddFileEntryException,
-            FreePageException {
+            FreePageException,
+            PageUnpinnedException,
+            InvalidFrameNumberException,
+            HashEntryNotFoundException,
+            ReplacerException {
         indexFiles.add(null);
         for(int i = 1; i <= 5; i++){
             _index = createIndex(name + "_index_" + i, i);
             indexFiles.add(_index);
+            if (_index!=null) {
+                _index.close();
+            }
         }
     }
 
@@ -253,7 +278,11 @@ public class bigt {
 
     public int getMapCnt() throws InvalidSlotNumberException, InvalidTupleSizeException, HFDiskMgrException,
             HFBufMgrException, IOException {
-        return _hf.getRecCntMap();
+        int totalMapCount = 0;
+        for(int i = 1; i <= 5; i++){
+            totalMapCount += heapFiles.get(i).getRecCntMap();
+        }
+        return totalMapCount;
     }
 
     public int getRowCnt()  throws Exception{
