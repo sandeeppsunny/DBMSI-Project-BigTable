@@ -87,10 +87,10 @@ public class BatchInsert {
         endTime = System.nanoTime();
         System.out.println("TIME TAKEN TO CREATE SORTED HEAPFILES "+((endTime - startTime)/1000000000) + " s");
 
-        /*startTime = System.nanoTime();
+        startTime = System.nanoTime();
         table.insertIntoMainIndex();
         endTime = System.nanoTime();
-        System.out.println("TIME TAKEN FOR CREATING ORIGINAL INDEX "+((endTime - startTime)/1000000000) + " s");*/
+        System.out.println("TIME TAKEN FOR CREATING MAIN INDICES "+((endTime - startTime)/1000000000) + " s");
 
         System.out.println();
         return pages;

@@ -20,7 +20,6 @@ public class bigt {
     private String name;
 
     private Heapfile _hf;
-    private BTreeFile _index;
     private ArrayList<HeapfileInterface> heapFiles;
     private ArrayList<String> heapFileNames;
     private ArrayList<String> indexFileNames;
@@ -148,6 +147,7 @@ public class bigt {
             HashEntryNotFoundException,
             ReplacerException {
         indexFiles.add(null);
+        BTreeFile _index = null;
         for(int i = 1; i <= 5; i++){
             _index = createIndex(name + "_index_" + i, i);
             indexFiles.add(_index);
@@ -508,18 +508,23 @@ public class bigt {
     }
 
     public void insertIntoMainIndex(){
-        try{
-            FileScanMap fscan = new FileScanMap(getName(), null, null);
-            Pair mapPair;
-            mapPair = fscan.get_next_mid();
-            while(mapPair!=null){
-                insertIndex(mapPair.getMid(), mapPair.getMap(), storageType);
+        FileScanMap fscan;
+        for(int i = 2; i <= 5; i++){
+            try{
+                indexFiles.set(i, createIndex(indexFileNames.get(i), i));
+                fscan = new FileScanMap(heapFileNames.get(i), null, null);
+                Pair mapPair;
                 mapPair = fscan.get_next_mid();
+                while(mapPair!=null){
+                    insertIndex(mapPair.getMid(), mapPair.getMap(), i);
+                    mapPair = fscan.get_next_mid();
+                }
+                fscan.close();
+            }catch(Exception ex){
+                System.err.println("Exception caused in creating BTree Index for storage index type: " + i);
+                ex.printStackTrace();
             }
-            fscan.close();
-        }catch(Exception ex){
-            System.err.println("Exception caused in creating BTree Index");
-            ex.printStackTrace();
+
         }
     }
 
