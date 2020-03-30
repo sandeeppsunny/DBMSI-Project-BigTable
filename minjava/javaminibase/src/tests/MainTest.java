@@ -165,10 +165,8 @@ class MainTest implements GlobalConst {
                 }
 
             }else if (option.equals("3")){
-                System.out.println("Enter BigTable name and Index Type");
-                String[] names = sc.nextLine().split(" ");
-                String bigt_name = names[0];
-                String storage_type = names[1];
+                System.out.println("Enter BigTable name");
+                String bigt_name = sc.nextLine();
                 displayOtherOptions();
                 String otherOption = sc.nextLine();
                 while(!otherOption.equals("4")){

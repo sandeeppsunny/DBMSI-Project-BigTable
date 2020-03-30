@@ -1673,7 +1673,7 @@ public class Heapfile implements Filetype, GlobalConst, HeapfileInterface {
             nextDirPageId = currentDirPage.getNextPage();
             unpinPage(currentDirPageId, true);
             freePage(currentDirPageId);
-//            freePageForcibly(currentDirPageId);
+            // freePageForcibly(currentDirPageId);
 
             currentDirPageId.pid = nextDirPageId.pid;
             if (nextDirPageId.pid != INVALID_PAGE) {

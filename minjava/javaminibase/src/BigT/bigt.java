@@ -353,6 +353,65 @@ public class bigt {
         }
     }
 
+
+    public void sortHeapFiles() {
+        try{
+            FileScanMap fscan;
+            String heapFileName;
+            for(int i = 2; i<= 5; i++){
+                heapFileName = getHeapFileName(i);
+                fscan = new FileScanMap(heapFileName, null, null);
+                int sortType = 1;
+                switch (i) {
+                    case 3:
+                        sortType = 2;
+                        break;
+                    default:
+                        sortType = 1;
+                        break;
+                }
+                SortMap sortMap = new SortMap(null, null, null,
+                        fscan, sortType, new MapOrder(MapOrder.Ascending), null,
+                        (int)((SystemDefs.JavabaseBM.getNumBuffers()*3)/4));
+
+                HeapfileInterface fileToDestroy = new Heapfile(getHeapFileName(i) + "_temp");
+                boolean isScanComplete = false;
+                MID resultMID = new MID();
+                while (!isScanComplete) {
+                    Map map = sortMap.get_next();
+                    if (map == null) {
+                        isScanComplete = true;
+                        break;
+                    }
+                    map.setFldOffset(map.getMapByteArray());
+                    fileToDestroy.insertRecordMap(map.getMapByteArray());
+                }
+                sortMap.close();
+
+                getHeapFile(i).deleteFileMap();
+                heapFiles.set(i, new SortedHeapfile(getHeapFileName(i), i));
+
+                fscan = new FileScanMap(getHeapFileName(i) + "_temp", null, null);
+                isScanComplete = false;
+                resultMID = new MID();
+                while (!isScanComplete) {
+                    Map map = fscan.get_next();
+                    if (map == null) {
+                        isScanComplete = true;
+                        break;
+                    }
+                    map.setFldOffset(map.getMapByteArray());
+                    getHeapFile(i).insertRecordMap(map.getMapByteArray());
+                }
+                fscan.close();
+                fileToDestroy.deleteFileMap();
+            }
+        } catch(Exception ex) {
+            System.err.println("Exception caused while creating sorted heapfiles.");
+            ex.printStackTrace();
+        }
+    }
+
     public void deleteDuplicateRecords()
         throws IndexException,
             InvalidTypeException,

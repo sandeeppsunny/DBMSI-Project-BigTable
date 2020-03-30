@@ -82,6 +82,10 @@ public class BatchInsert {
         endTime = System.nanoTime();
         System.out.println("TIME TAKEN FOR DUPLICATE RECORDS REMOVAL "+((endTime - startTime)/1000000000) + " s");
 
+        startTime = System.nanoTime();
+        table.sortHeapFiles();
+        endTime = System.nanoTime();
+        System.out.println("TIME TAKEN TO CREATE SORTED HEAPFILES "+((endTime - startTime)/1000000000) + " s");
 
         /*startTime = System.nanoTime();
         table.insertIntoMainIndex();

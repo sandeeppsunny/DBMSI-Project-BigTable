@@ -739,91 +739,91 @@ public class SortedHeapfile implements Filetype, GlobalConst, HeapfileInterface 
 
     }
 
-    // Insert map into sorted heap file based on type
-    public MID insertRecordMap(byte[] recPtr) throws InvalidSlotNumberException,
-            InvalidTupleSizeException,
-            SpaceNotAvailableException,
-            HFException,
-            HFBufMgrException,
-            HFDiskMgrException,
-            IOException, FieldNumberOutOfBoundException, Exception {
-        Map newMap = new Map();
-        newMap.setDefaultHdr();
-        newMap.mapSet(recPtr, 0, newMap.getLength());
-        newMap.setFldOffset(newMap.getMapByteArray());
-
-        MID mid = new MID();
-        Scan scan = openScanMap();
-
-        boolean isScanComplete = false;
-
-        byte[] prev = recPtr;
-        boolean foundPos = false;
-        MID resultMID = null;
-        while (!isScanComplete) {
-            Map map = scan.getNextMap(mid);
-            if (map == null) {
-                isScanComplete = true;
-                break;
-            }
-            map.setFldOffset(map.getMapByteArray());
-            switch(_sort_type) {
-                case 3:
-                    if (MapUtils.CompareMapWithMap(map, newMap, 2) > 0) {
-                        MID tempMid = new MID();
-                        tempMid.pageNo = new PageId();
-                        tempMid.slotNo = mid.slotNo;
-                        tempMid.pageNo.pid = mid.pageNo.pid;
-                        deleteRecordMap(tempMid);
-                        _insertRecordMap(prev);
-                        if (foundPos == false) {
-                            resultMID = tempMid;
-                            foundPos = true;
-                        }
-                        prev = map.getMapByteArray();
-                    }
-                    break;
-                case 4:
-                case 5:
-                    if (MapUtils.CompareMapWithMapFirstType(map, newMap) > 0) {
-                        MID tempMid = new MID();
-                        tempMid.pageNo = new PageId();
-                        tempMid.slotNo = mid.slotNo;
-                        tempMid.pageNo.pid = mid.pageNo.pid;
-                        deleteRecordMap(tempMid);
-                        _insertRecordMap(prev);
-                        if (foundPos == false) {
-                            resultMID = tempMid;
-                            foundPos = true;
-                        }
-                        prev = map.getMapByteArray();
-                    }
-                    break;
-                default:
-                    if (MapUtils.CompareMapWithMap(map, newMap, 1) > 0) {
-                        MID tempMid = new MID();
-                        tempMid.pageNo = new PageId();
-                        tempMid.slotNo = mid.slotNo;
-                        tempMid.pageNo.pid = mid.pageNo.pid;
-                        deleteRecordMap(tempMid);
-                        _insertRecordMap(prev);
-                        if (foundPos == false) {
-                            resultMID = tempMid;
-                            foundPos = true;
-                        }
-                        prev = map.getMapByteArray();
-                    }
-                    break;
-            }
-
-        }
-        if (foundPos == false) {
-            return _insertRecordMap(prev);
-        } else {
-            _insertRecordMap(prev);
-            return resultMID;
-        }
-    }
+//    // Insert map into sorted heap file based on type
+//    public MID insertRecordMap(byte[] recPtr) throws InvalidSlotNumberException,
+//            InvalidTupleSizeException,
+//            SpaceNotAvailableException,
+//            HFException,
+//            HFBufMgrException,
+//            HFDiskMgrException,
+//            IOException, FieldNumberOutOfBoundException, Exception {
+//        Map newMap = new Map();
+//        newMap.setDefaultHdr();
+//        newMap.mapSet(recPtr, 0, newMap.getLength());
+//        newMap.setFldOffset(newMap.getMapByteArray());
+//
+//        MID mid = new MID();
+//        Scan scan = openScanMap();
+//
+//        boolean isScanComplete = false;
+//
+//        byte[] prev = recPtr;
+//        boolean foundPos = false;
+//        MID resultMID = null;
+//        while (!isScanComplete) {
+//            Map map = scan.getNextMap(mid);
+//            if (map == null) {
+//                isScanComplete = true;
+//                break;
+//            }
+//            map.setFldOffset(map.getMapByteArray());
+//            switch(_sort_type) {
+//                case 3:
+//                    if (MapUtils.CompareMapWithMap(map, newMap, 2) > 0) {
+//                        MID tempMid = new MID();
+//                        tempMid.pageNo = new PageId();
+//                        tempMid.slotNo = mid.slotNo;
+//                        tempMid.pageNo.pid = mid.pageNo.pid;
+//                        deleteRecordMap(tempMid);
+//                        _insertRecordMap(prev);
+//                        if (foundPos == false) {
+//                            resultMID = tempMid;
+//                            foundPos = true;
+//                        }
+//                        prev = map.getMapByteArray();
+//                    }
+//                    break;
+//                case 4:
+//                case 5:
+//                    if (MapUtils.CompareMapWithMapFirstType(map, newMap) > 0) {
+//                        MID tempMid = new MID();
+//                        tempMid.pageNo = new PageId();
+//                        tempMid.slotNo = mid.slotNo;
+//                        tempMid.pageNo.pid = mid.pageNo.pid;
+//                        deleteRecordMap(tempMid);
+//                        _insertRecordMap(prev);
+//                        if (foundPos == false) {
+//                            resultMID = tempMid;
+//                            foundPos = true;
+//                        }
+//                        prev = map.getMapByteArray();
+//                    }
+//                    break;
+//                default:
+//                    if (MapUtils.CompareMapWithMap(map, newMap, 1) > 0) {
+//                        MID tempMid = new MID();
+//                        tempMid.pageNo = new PageId();
+//                        tempMid.slotNo = mid.slotNo;
+//                        tempMid.pageNo.pid = mid.pageNo.pid;
+//                        deleteRecordMap(tempMid);
+//                        _insertRecordMap(prev);
+//                        if (foundPos == false) {
+//                            resultMID = tempMid;
+//                            foundPos = true;
+//                        }
+//                        prev = map.getMapByteArray();
+//                    }
+//                    break;
+//            }
+//
+//        }
+//        if (foundPos == false) {
+//            return _insertRecordMap(prev);
+//        } else {
+//            _insertRecordMap(prev);
+//            return resultMID;
+//        }
+//    }
 
     /**
      * Insert record into file, return its Rid.
@@ -839,7 +839,7 @@ public class SortedHeapfile implements Filetype, GlobalConst, HeapfileInterface 
      * @throws HFDiskMgrException         exception thrown from diskmgr layer
      * @throws IOException                I/O errors
      */
-    public MID _insertRecordMap(byte[] recPtr)
+    public MID insertRecordMap(byte[] recPtr)
             throws InvalidSlotNumberException,
             InvalidTupleSizeException,
             SpaceNotAvailableException,
