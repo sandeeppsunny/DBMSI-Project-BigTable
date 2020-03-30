@@ -21,7 +21,7 @@ public class bigt {
 
     private Heapfile _hf;
     private BTreeFile _index;
-    private ArrayList<Heapfile> heapFiles;
+    private ArrayList<HeapfileInterface> heapFiles;
     private ArrayList<String> heapFileNames;
     private ArrayList<String> indexFileNames;
     private ArrayList<BTreeFile> indexFiles;
@@ -52,7 +52,11 @@ public class bigt {
         for(int i = 1; i <= 5; i++){
             heapFileNames.add(name + "_" + i);
             indexFileNames.add(name + "_index_" + i);
-            heapFiles.add(new Heapfile(name + "_" + i));
+            if(i == 1) {
+                heapFiles.add(new Heapfile(name + "_" + i));
+            } else {
+                heapFiles.add(new SortedHeapfile(name + "_" + i, i));
+            }
         }
 
         indexUtil = name + "_" + "indexUtil";
@@ -110,7 +114,7 @@ public class bigt {
         return name;
     }
 
-    public Heapfile getHeapFile(int i) {
+    public HeapfileInterface getHeapFile(int i) {
         return heapFiles.get(i);
     }
 
@@ -316,7 +320,6 @@ public class bigt {
 
 
     public MID insertMap(Map map, int type) throws  Exception {
-
         MID mid = heapFiles.get(type).insertRecordMap(map.getMapByteArray());
         return mid;
     }

@@ -53,6 +53,7 @@ public class SortedHeapfile implements Filetype, GlobalConst, HeapfileInterface 
     public boolean _file_deleted;
     public String _fileName;
     public static int tempfilecount = 0;
+    int _sort_type;
 
 
     /* get a new datapage from the buffer manager and initialize dpinfo
@@ -200,7 +201,7 @@ public class SortedHeapfile implements Filetype, GlobalConst, HeapfileInterface 
    returns pinned directory page and pinned data page of the specified
    user record(mid) and true if record is found.
    If the user record cannot be found, return false.
-*/
+   */
     public boolean _findDataPageMap(MID mid,
                                     PageId dirPageId, HFPage dirpage,
                                     PageId dataPageId, HFPage datapage,
@@ -319,7 +320,7 @@ public class SortedHeapfile implements Filetype, GlobalConst, HeapfileInterface 
      * @throws HFDiskMgrException exception thrown from diskmgr layer
      * @throws IOException        I/O errors
      */
-    public SortedHeapfile(String name)
+    public SortedHeapfile(String name, int type)
             throws HFException,
             HFBufMgrException,
             HFDiskMgrException,
@@ -346,7 +347,7 @@ public class SortedHeapfile implements Filetype, GlobalConst, HeapfileInterface 
             _fileName = name;
             _ftype = ORDINARY;
         }
-
+        _sort_type = type;
         // The constructor gets run in two different cases.
         // In the first case, the file is new and the header page
         // must be initialized.  This case is detected via a failure
@@ -738,6 +739,92 @@ public class SortedHeapfile implements Filetype, GlobalConst, HeapfileInterface 
 
     }
 
+    // Insert map into sorted heap file based on type
+    public MID insertRecordMap(byte[] recPtr) throws InvalidSlotNumberException,
+            InvalidTupleSizeException,
+            SpaceNotAvailableException,
+            HFException,
+            HFBufMgrException,
+            HFDiskMgrException,
+            IOException, FieldNumberOutOfBoundException, Exception {
+        Map newMap = new Map();
+        newMap.setDefaultHdr();
+        newMap.mapSet(recPtr, 0, newMap.getLength());
+        newMap.setFldOffset(newMap.getMapByteArray());
+
+        MID mid = new MID();
+        Scan scan = openScanMap();
+
+        boolean isScanComplete = false;
+
+        byte[] prev = recPtr;
+        boolean foundPos = false;
+        MID resultMID = null;
+        while (!isScanComplete) {
+            Map map = scan.getNextMap(mid);
+            if (map == null) {
+                isScanComplete = true;
+                break;
+            }
+            map.setFldOffset(map.getMapByteArray());
+            switch(_sort_type) {
+                case 3:
+                    if (MapUtils.CompareMapWithMap(map, newMap, 2) > 0) {
+                        MID tempMid = new MID();
+                        tempMid.pageNo = new PageId();
+                        tempMid.slotNo = mid.slotNo;
+                        tempMid.pageNo.pid = mid.pageNo.pid;
+                        deleteRecordMap(tempMid);
+                        _insertRecordMap(prev);
+                        if (foundPos == false) {
+                            resultMID = tempMid;
+                            foundPos = true;
+                        }
+                        prev = map.getMapByteArray();
+                    }
+                    break;
+                case 4:
+                case 5:
+                    if (MapUtils.CompareMapWithMapFirstType(map, newMap) > 0) {
+                        MID tempMid = new MID();
+                        tempMid.pageNo = new PageId();
+                        tempMid.slotNo = mid.slotNo;
+                        tempMid.pageNo.pid = mid.pageNo.pid;
+                        deleteRecordMap(tempMid);
+                        _insertRecordMap(prev);
+                        if (foundPos == false) {
+                            resultMID = tempMid;
+                            foundPos = true;
+                        }
+                        prev = map.getMapByteArray();
+                    }
+                    break;
+                default:
+                    if (MapUtils.CompareMapWithMap(map, newMap, 1) > 0) {
+                        MID tempMid = new MID();
+                        tempMid.pageNo = new PageId();
+                        tempMid.slotNo = mid.slotNo;
+                        tempMid.pageNo.pid = mid.pageNo.pid;
+                        deleteRecordMap(tempMid);
+                        _insertRecordMap(prev);
+                        if (foundPos == false) {
+                            resultMID = tempMid;
+                            foundPos = true;
+                        }
+                        prev = map.getMapByteArray();
+                    }
+                    break;
+            }
+
+        }
+        if (foundPos == false) {
+            return _insertRecordMap(prev);
+        } else {
+            _insertRecordMap(prev);
+            return resultMID;
+        }
+    }
+
     /**
      * Insert record into file, return its Rid.
      *
@@ -752,7 +839,7 @@ public class SortedHeapfile implements Filetype, GlobalConst, HeapfileInterface 
      * @throws HFDiskMgrException         exception thrown from diskmgr layer
      * @throws IOException                I/O errors
      */
-    public MID insertRecordMap(byte[] recPtr)
+    public MID _insertRecordMap(byte[] recPtr)
             throws InvalidSlotNumberException,
             InvalidTupleSizeException,
             SpaceNotAvailableException,
