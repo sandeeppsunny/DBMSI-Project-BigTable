@@ -114,10 +114,10 @@ class MainTest implements GlobalConst {
                     continue;
                 }
             }else if (option.equals("2")){
-                System.out.println("FORMAT: query BIGTABLENAME TYPE ORDERTYPE ROWFILTER COLUMNFILTER VALUEFILTER NUMBUF");
+                System.out.println("FORMAT: query BIGTABLENAME ORDERTYPE ROWFILTER COLUMNFILTER VALUEFILTER NUMBUF");
                 String query = sc.nextLine();
                 String[] splits = query.split(" ");
-                if(splits.length!=8){
+                if(splits.length!=7){
                     System.out.println("Wrong format, try again!");
                     display();
                     option = sc.nextLine();
@@ -125,11 +125,11 @@ class MainTest implements GlobalConst {
                 }
                 try{
                     long startTime = System.nanoTime();
-                    sysdef.changeNumberOfBuffers(Integer.parseInt(splits[7]), replacement_policy);
+                    sysdef.changeNumberOfBuffers(Integer.parseInt(splits[6]), replacement_policy);
                     SystemDefs.JavabaseDB.pcounter.initialize();
                     big = new bigt(splits[1], false);
-                    CombinedStream stream = big.openStream(splits[1], Integer.parseInt(splits[3]), splits[4],
-                            splits[5], splits[6], (int)((Integer.parseInt(splits[7])*3)/4));
+                    CombinedStream stream = big.openStream(splits[1], Integer.parseInt(splits[2]), splits[3],
+                            splits[4], splits[5], (int)((Integer.parseInt(splits[6])*3)/4));
                     int count =0;
                     Map t = stream.getNext();
                     while(true) {
