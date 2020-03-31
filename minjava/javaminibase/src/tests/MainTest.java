@@ -3,15 +3,9 @@ package tests;
 import java.io.*;
 
 import global.*;
-import bufmgr.*;
-import diskmgr.*;
-import heap.*;
 import iterator.*;
-import index.*;
-import btree.*;
 import BigT.*;
 
-import java.util.Random;
 import java.util.Scanner;
 
 class MainTest implements GlobalConst {
@@ -134,7 +128,7 @@ class MainTest implements GlobalConst {
                     sysdef.changeNumberOfBuffers(Integer.parseInt(splits[7]), replacement_policy);
                     SystemDefs.JavabaseDB.pcounter.initialize();
                     big = new bigt(splits[1], false);
-                    Stream stream = big.openStream(Integer.parseInt(splits[3]), splits[4],
+                    CombinedStream stream = big.openStream(splits[1], Integer.parseInt(splits[3]), splits[4],
                             splits[5], splits[6], (int)((Integer.parseInt(splits[7])*3)/4));
                     int count =0;
                     Map t = stream.getNext();
@@ -151,7 +145,7 @@ class MainTest implements GlobalConst {
 //                    big.unpinAllPages();
 //                    System.out.println("Number of unpinned Buffers " + SystemDefs.JavabaseBM.getNumUnpinnedBuffers());
 //                    System.out.println("Number of buffers " + SystemDefs.JavabaseBM.getNumBuffers());
-                    stream.closestream();
+                    stream.closeCombinedStream();
                     long endTime = System.nanoTime();
                     System.out.println("TIME TAKEN "+((endTime - startTime)/1000000000) + " s");
                     System.out.println("RECORD COUNT : "+count);

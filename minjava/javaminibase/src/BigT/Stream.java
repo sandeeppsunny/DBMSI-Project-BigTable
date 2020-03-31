@@ -22,8 +22,8 @@ public class Stream {
     CondExpr[] condExprs;
     CondExpr[] condExprForKey;
 
-    public Stream(bigt bigtable, int orderType, String rowFilter, String columnFilter, String valueFilter, int numBuf) {
-        this.indexType = bigtable.getType();
+    public Stream(String heapFilename, String indexFilename, int indexType, int orderType, String rowFilter, String columnFilter, String valueFilter, int numBuf) {
+        this.indexType = indexType;
         this.orderType = orderType;
         this.numBuf = numBuf;
         List<CondExpr> exprs = new ArrayList<CondExpr>();
@@ -58,7 +58,7 @@ public class Stream {
         try {
             switch (indexType) {
                 case 1:
-                    mapIterator = new FileScanMap(bigtable.getName(), null, condExprs);
+                    mapIterator = new FileScanMap(heapFilename, null, condExprs);
                     break;
                 default:
                     AttrType[] attrType = new AttrType[4];
@@ -88,10 +88,10 @@ public class Stream {
                     }
 
                     if(flag){
-                        mapIterator = new MapIndexScan(new IndexType(IndexType.B_Index), bigtable.getName(), bigtable.indexName(),
+                        mapIterator = new MapIndexScan(new IndexType(IndexType.B_Index), heapFilename, indexFilename,
                                 attrType, res_str_sizes, 4, 4, null, condExprs, condExprForKey, keyFldNum, false);
                     }else {
-                        mapIterator = new FileScanMap(bigtable.getName(), null, condExprs);
+                        mapIterator = new FileScanMap(heapFilename, null, condExprs);
                     }
                     break;
             }

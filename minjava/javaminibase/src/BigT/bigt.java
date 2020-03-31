@@ -2,11 +2,8 @@ package BigT;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
-import BigT.Map;
-import diskmgr.*;
 import bufmgr.*;
 import global.*;
 import btree.*;
@@ -295,7 +292,7 @@ public class bigt {
 
     public int getCount(int orderType) throws Exception{
         int numBuf = (int)((SystemDefs.JavabaseBM.getNumBuffers()*3)/4);
-        Stream stream = openStream(orderType,"*","*","*",numBuf);
+        CombinedStream stream = new CombinedStream(this, orderType,"*","*","*",numBuf);
         Map t = stream.getNext();
         int count = 0;
         String temp = "\0";
@@ -314,7 +311,7 @@ public class bigt {
             }
             t = stream.getNext();
         }
-        stream.closestream();
+        stream.closeCombinedStream();
         return count;
     }
 
@@ -370,6 +367,9 @@ public class bigt {
                         sortType = 1;
                         break;
                 }
+//                System.out.println("Number of unpinned Buffers " + SystemDefs.JavabaseBM.getNumUnpinnedBuffers());
+//                System.out.println("Number of buffers " + SystemDefs.JavabaseBM.getNumBuffers());
+//                SystemDefs.JavabaseBM.flushAllPagesForcibly();
                 SortMap sortMap = new SortMap(null, null, null,
                         fscan, sortType, new MapOrder(MapOrder.Ascending), null,
                         (int)((SystemDefs.JavabaseBM.getNumBuffers()*3)/4));
@@ -502,8 +502,8 @@ public class bigt {
         }
     }
 
-    public Stream openStream(int orderType, String rowFilter, String columnFilter, String valueFilter, int numBuf) {
-        Stream stream = new Stream(this, orderType, rowFilter, columnFilter, valueFilter, numBuf);
+    public CombinedStream openStream(String bigTableName, int orderType, String rowFilter, String columnFilter, String valueFilter, int numBuf) {
+        CombinedStream stream = new CombinedStream(this, orderType, rowFilter, columnFilter, valueFilter, numBuf);
         return stream;
     }
 
