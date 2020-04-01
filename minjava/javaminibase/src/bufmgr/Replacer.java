@@ -144,20 +144,20 @@ abstract class Replacer implements GlobalConst {
 
         for (int i = 0; i < numBuffers; ++i) {
             if (((i + 1) % 9) == 0)
-                System.out.println("\n");
-            System.out.println("(" + i + ") ");
+                System.out.print("\n");
+            System.out.print(" (" + i + ") ");
             switch (state_bit[i].state) {
                 case Referenced:
-                    System.out.println("R\t");
+                    System.out.print("R\t");
                     break;
                 case Available:
-                    System.out.println("A\t");
+                    System.out.print("A\t");
                     break;
                 case Pinned:
-                    System.out.println("P\t");
+                    System.out.print("P\t");
                     break;
                 default:
-                    System.err.println("ERROR from Replacer.info()");
+                    System.err.print("ERROR from Replacer.info()");
                     break;
             }
         }
