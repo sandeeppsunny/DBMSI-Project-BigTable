@@ -108,6 +108,22 @@ abstract class Replacer implements GlobalConst {
     }
 
     /**
+     * Frees and unpins a page in the buffer pool.
+     *
+     * @param frameNo frame number of the page.
+     * @throws PagePinnedException if the page is pinned.
+     */
+    public void freeAllPagesForcibly() throws PageUnpinnedException, InvalidFrameNumberException {
+        for (int i = 0; i < (mgr.frameTable()).length; i++) {
+            while ((mgr.frameTable())[i].pin_count() > 1) {
+                unpin(i);
+            }
+            (mgr.frameTable())[i].unpin();
+            state_bit[i].state = Available;
+        }
+    }
+
+    /**
      * Must pin the returned frame.
      */
     public abstract int pick_victim() throws BufferPoolExceededException, PagePinnedException;

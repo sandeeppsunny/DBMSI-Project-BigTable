@@ -457,7 +457,7 @@ public class BufMgr implements GlobalConst {
      * @throws FileIOException            File I/O  error
      * @throws IOException                Other I/O errors
      */
-    private void privFlushPagesyForcibly(PageId pageid, int all_pages)
+    private void privFlushPagesForcibly(PageId pageid, int all_pages)
             throws HashOperationException,
             PageUnpinnedException,
             PagePinnedException,
@@ -472,14 +472,12 @@ public class BufMgr implements GlobalConst {
 
                 while (frmeTable[i].pin_count() != 0)
                     frmeTable[i].unpin();
-
                 if (frmeTable[i].dirty != false) {
 
                     if (frmeTable[i].pageNo.pid == INVALID_PAGE)
 
                         throw new PageNotFoundException(null, "BUFMGR: INVALID_PAGE_NO");
                     pageid.pid = frmeTable[i].pageNo.pid;
-
 
                     Page apage = new Page(bufPool[i]);
 
@@ -494,7 +492,6 @@ public class BufMgr implements GlobalConst {
                     frmeTable[i].pageNo.pid = INVALID_PAGE; // frame is empty
                     frmeTable[i].dirty = false;
                 }
-
                 if (all_pages == 0) {
 
                     if (unpinned != 0)
@@ -508,11 +505,20 @@ public class BufMgr implements GlobalConst {
         }
     }
 
+    public void freeAllPagesFromReplacerForcibly() throws PageUnpinnedException, InvalidFrameNumberException {
+        replacer.freeAllPagesForcibly();
+        return;
+    }
+
     public void displayFrameDesc(){
         for(int i = 0; i < frmeTable.length; i++){
             System.out.println("Frame Number " + i + " isDirty: " +frmeTable[i].dirty + " PinCount " + frmeTable[i].pin_cnt);
         }
         System.out.println();
+    }
+
+    public void printReplacerInfo(){
+        replacer.info();
     }
 
     /**
@@ -974,7 +980,7 @@ public class BufMgr implements GlobalConst {
             BufMgrException,
             IOException {
         PageId pageId = new PageId(INVALID_PAGE);
-        privFlushPagesyForcibly(pageId, 1);
+        privFlushPagesForcibly(pageId, 1);
     }
 
     /**
