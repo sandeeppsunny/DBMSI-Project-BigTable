@@ -72,23 +72,39 @@ public class BatchInsert {
         System.out.println("TIME TAKEN FOR INSERTING ALL RECORDS "+((endTime - startTime)/1000000000) + " s");
 
         startTime = System.nanoTime();
+        System.out.println("before building utility");
+        SystemDefs.JavabaseBM.printReplacerInfo();
         table.buildUtilityIndex();
+        System.out.println("after building utility");
+        SystemDefs.JavabaseBM.printReplacerInfo();
         endTime = System.nanoTime();
         System.out.println("TIME TAKEN TO BUILD UTILITY INDEX " + ((endTime - startTime)/1000000000) + " s");
 
 
         startTime = System.nanoTime();
+        System.out.println("before deleting duplicate");
+        SystemDefs.JavabaseBM.printReplacerInfo();
         table.deleteDuplicateRecords();
+        System.out.println("after deleting duplicate");
+        SystemDefs.JavabaseBM.printReplacerInfo();
         endTime = System.nanoTime();
         System.out.println("TIME TAKEN FOR DUPLICATE RECORDS REMOVAL "+((endTime - startTime)/1000000000) + " s");
 
         startTime = System.nanoTime();
+        System.out.println("before sorting");
+        SystemDefs.JavabaseBM.printReplacerInfo();
         table.sortHeapFiles();
+        System.out.println("after sorting");
+        SystemDefs.JavabaseBM.printReplacerInfo();
         endTime = System.nanoTime();
         System.out.println("TIME TAKEN TO CREATE SORTED HEAPFILES "+((endTime - startTime)/1000000000) + " s");
 
         startTime = System.nanoTime();
+        System.out.println("before inserting to main index");
+        SystemDefs.JavabaseBM.printReplacerInfo();
         table.insertIntoMainIndex();
+        System.out.println("after inserting to main index");
+        SystemDefs.JavabaseBM.printReplacerInfo();
         endTime = System.nanoTime();
         System.out.println("TIME TAKEN FOR CREATING MAIN INDICES "+((endTime - startTime)/1000000000) + " s");
 

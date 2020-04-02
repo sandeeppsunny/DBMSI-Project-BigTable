@@ -93,7 +93,9 @@ public class SystemDefs {
     }
 
     public void changeNumberOfBuffers(int num_pgs, String replacement_policy)throws PageUnpinnedException,
-            PagePinnedException, PageNotFoundException, HashOperationException, BufMgrException, IOException {
+            PagePinnedException, PageNotFoundException, HashOperationException, BufMgrException, IOException,
+            InvalidBufferException, ReplacerException, InvalidFrameNumberException, PageNotReadException,
+            BufferPoolExceededException, HashEntryNotFoundException, DiskMgrException {
         JavabaseBM.flushAllPagesForcibly();
         JavabaseBM = new BufMgr(num_pgs, replacement_policy);
     }

@@ -78,40 +78,53 @@ class MainTest implements GlobalConst {
         while(!option.equals("4")){
             if(option.equals("1")){
                 System.out.println("FORMAT: batchinsert DATAFILENAME TYPE BIGTABLENAME NUMBUF");
-                String batch = sc.nextLine();
-                String[] splits = batch.split(" ");
-                if(splits.length!=5){
-                    System.out.println("Wrong format, try again!");
-                    display();
-                    option = sc.nextLine();
-                    continue;
-                }
-                dbpath = "/tmp/" + splits[3] + ".minibase-db";
-                if(sysdef == null || !SystemDefs.JavabaseDB.db_name().equals(dbpath)){
-                    sysdef = new SystemDefs(dbpath, 100000, Integer.parseInt(splits[4]), replacement_policy);
-                } else {
-                    try {
-                        sysdef.changeNumberOfBuffers(Integer.parseInt(splits[4]), replacement_policy);
-                    } catch(Exception e) {
-                        System.out.println("Changing number of buffers failed!");
-                        e.printStackTrace();
+                String input = sc.nextLine();
+                String[] batches = new String[5];
+                batches[0] = "batchinsert ../part1.csv 1 big_t 100";
+                batches[1] = "batchinsert ../part2.csv 2 big_t 100";
+                batches[2] = "batchinsert ../part3.csv 3 big_t 100";
+                batches[3] = "batchinsert ../part4.csv 4 big_t 100";
+                batches[4] = "batchinsert ../part5.csv 5 big_t 100";
+                for(int i=0; i<5; i++) {
+                    String batch = batches[i];
+                    String[] splits = batch.split(" ");
+//                if(splits.length!=5){
+//                    System.out.println("Wrong format, try again!");
+//                    display();
+//                    option = sc.nextLine();
+//                    continue;
+//                }
+                    dbpath = "/tmp/" + splits[3] + ".minibase-db";
+                    if(sysdef == null || !SystemDefs.JavabaseDB.db_name().equals(dbpath)){
+                        sysdef = new SystemDefs(dbpath, 100000, Integer.parseInt(splits[4]), replacement_policy);
+                    } else {
+                        try {
+                            sysdef.changeNumberOfBuffers(Integer.parseInt(splits[4]), replacement_policy);
+                        } catch(Exception e) {
+                            System.out.println("Changing number of buffers failed!");
+                            e.printStackTrace();
+                        }
                     }
-                }
-                SystemDefs.JavabaseDB.pcounter.initialize();
-                try{
-                    long startTime = System.nanoTime();
-                    big = new bigt(splits[3], true);
-                    BatchInsert batchInsert = new BatchInsert(big, splits[1], Integer.parseInt(splits[2]), splits[3]);
-                    pages = batchInsert.run();
-                    long endTime = System.nanoTime();
-                    System.out.println("TIME TAKEN "+((endTime - startTime)/1000000000) + " s");
-                }
-                catch(Exception e){
-                    System.out.println("Error Occured");
-                    e.printStackTrace();
-                    display();
-                    option = sc.nextLine();
-                    continue;
+                    SystemDefs.JavabaseDB.pcounter.initialize();
+                    try{
+                        long startTime = System.nanoTime();
+//                        System.out.println("before creating new bigt");
+//                        SystemDefs.JavabaseBM.printReplacerInfo();
+                        big = new bigt(splits[3], true);
+//                        System.out.println("after creating new bigt");
+//                        SystemDefs.JavabaseBM.printReplacerInfo();
+                        BatchInsert batchInsert = new BatchInsert(big, splits[1], Integer.parseInt(splits[2]), splits[3]);
+                        pages = batchInsert.run();
+                        long endTime = System.nanoTime();
+                        System.out.println("TIME TAKEN "+((endTime - startTime)/1000000000) + " s");
+                    }
+                    catch(Exception e){
+                        System.out.println("Error Occured");
+                        e.printStackTrace();
+                        display();
+                        option = sc.nextLine();
+                        continue;
+                    }
                 }
             }else if (option.equals("2")){
                 System.out.println("FORMAT: query BIGTABLENAME ORDERTYPE ROWFILTER COLUMNFILTER VALUEFILTER NUMBUF");

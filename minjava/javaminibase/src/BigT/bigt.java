@@ -27,6 +27,7 @@ public class bigt {
     private FldSpec[] projlist;
     private CondExpr[] expr;
     MapIndexScan iscan;
+    private static int val = 0;
 
     private int storageType;
     short[] res_str_sizes = new short[]{Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE};
@@ -47,7 +48,7 @@ public class bigt {
         indexFileNames.add("");
         for(int i = 1; i <= 5; i++){
             heapFileNames.add(name + "_" + i);
-            indexFileNames.add(name + "_index_" + i);
+            indexFileNames.add(name + "_index_" + i + "_" + val);
             if(i == 1) {
                 heapFiles.add(new Heapfile(name + "_" + i));
             } else {
@@ -55,24 +56,34 @@ public class bigt {
             }
         }
 
-        indexUtil = name + "_" + "indexUtil";
+        indexUtil = name + "_" + "indexUtil" + val;
 
         if(insert){
+            if(val > 0) {
+                indexFiles.add(null);
+                for(int i = 1; i <= 5; i++){
+                    indexFiles.add(i, (createIndex(name + "_index_" + i + "_" + (val-1), i, true)));
+                }
+                indexDestroyUtil();
+            }
             //For multiple batch insert
             indexCreateUtil();
             createIndexUtil();
 
-            if(utilityIndex != null){
-//                utilityIndex.close();
-                utilityIndex.destroyFile();
-            }
-            indexDestroyUtil();
-
-            indexFiles = new ArrayList<>();
-            indexCreateUtil();
-            createIndexUtil();
+//            if(utilityIndex != null){
+//                //utilityIndex.close();
+//                utilityIndex.destroyFile();
+//            }
+//            indexDestroyUtil();
+            System.out.println("after creating indexes");
+            SystemDefs.JavabaseBM.printReplacerInfo();
+//
+//            indexFiles = new ArrayList<>();
+//            indexCreateUtil();
+//            createIndexUtil();
         }
         initCondExprs();
+        val++;
     }
 
     public void initCondExprs(){
@@ -146,7 +157,7 @@ public class bigt {
         indexFiles.add(null);
         BTreeFile _index = null;
         for(int i = 1; i <= 5; i++){
-            _index = createIndex(name + "_index_" + i, i);
+            _index = createIndex(name + "_index_" + i + "_" + val, i, true);
             indexFiles.add(_index);
             if (_index!=null) {
                 _index.close();
@@ -170,7 +181,7 @@ public class bigt {
         }
     }
 
-    public BTreeFile createIndex(String indexName1, int type) throws GetFileEntryException,
+    public BTreeFile createIndex(String indexName1, int type, boolean shouldClose) throws GetFileEntryException,
             ConstructPageException,
             IOException,
             AddFileEntryException,
@@ -178,7 +189,7 @@ public class bigt {
             btree.UnpinPageException,
             btree.FreePageException,
             btree.DeleteFileEntryException,
-            btree.PinPageException {
+            btree.PinPageException, PageUnpinnedException, InvalidFrameNumberException, HashEntryNotFoundException, ReplacerException {
         BTreeFile tempIndex=null;
         switch(type){
             case 1:
@@ -196,12 +207,21 @@ public class bigt {
                 tempIndex = new BTreeFile(indexName1, AttrType.attrString, 2*Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 5, DeleteFashion.FULL_DELETE);
                 break;
         }
+        if(shouldClose) {
+            if(type != 1) {
+                tempIndex.close();
+            }
+        }
+
         return tempIndex;
     }
 
     public void createIndexUtil(){
         try {
             utilityIndex = new BTreeFile(indexUtil, AttrType.attrString, 2*Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 20, DeleteFashion.FULL_DELETE);
+            if (utilityIndex!=null) {
+                utilityIndex.close();
+            }
         }catch(Exception ex){
             System.err.println("Error in creating utility index");
             ex.printStackTrace();
@@ -258,10 +278,12 @@ public class bigt {
             throws KeyTooLongException, KeyNotMatchException, LeafInsertRecException, IndexInsertRecException,
             ConstructPageException, UnpinPageException, PinPageException, NodeNotMatchException, ConvertException,
             DeleteRecException, IndexSearchException, IteratorException, LeafDeleteException, InsertException,
-            IOException{
+            IOException, GetFileEntryException, AddFileEntryException, PageUnpinnedException, InvalidFrameNumberException, HashEntryNotFoundException, ReplacerException {
 //        System.out.println("Key length " + (map.getRowLabel() + map.getColumnLabel()).length());
 //        System.out.println("Index key is " + (new StringKey(map.getRowLabel() + map.getColumnLabel())));
+        utilityIndex = new BTreeFile(indexUtil, AttrType.attrString, 4*Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.FULL_DELETE);
         utilityIndex.insert(new StringKey(map.getRowLabel() + map.getColumnLabel() + "%" + map.getTimeStamp() + "%" + heapFileIndex), mid);
+        utilityIndex.close();
     }
 
     public void removeIndexUtil(MID mid, Map map, int heapFileIndex)
@@ -372,7 +394,10 @@ public class bigt {
 //                SystemDefs.JavabaseBM.flushAllPagesForcibly();
                 SortMap sortMap = new SortMap(null, null, null,
                         fscan, sortType, new MapOrder(MapOrder.Ascending), null,
-                        (int)((SystemDefs.JavabaseBM.getNumBuffers()*3)/4));
+                        (int)((SystemDefs.JavabaseBM.getNumBuffers()*1)/2));
+//                SortMap sortMap = new SortMap(null, null, null,
+//                        fscan, sortType, new MapOrder(MapOrder.Ascending), null,
+//                        19);
 
                 HeapfileInterface fileToDestroy = new Heapfile(getHeapFileName(i) + "_temp");
                 boolean isScanComplete = false;
@@ -493,6 +518,8 @@ public class bigt {
             curMapPair = iscan.get_next_mid();
         }
         iscan.close();
+        utilityIndex.close();
+        utilityIndex.destroyFile();
 
         if(duplicateMaps.size() == 4){
             mid = duplicateMaps.get(0).getMid();
@@ -511,7 +538,7 @@ public class bigt {
         FileScanMap fscan;
         for(int i = 2; i <= 5; i++){
             try{
-                indexFiles.set(i, createIndex(indexFileNames.get(i), i));
+                indexFiles.set(i, createIndex(indexFileNames.get(i), i, false));
                 fscan = new FileScanMap(heapFileNames.get(i), null, null);
                 Pair mapPair;
                 mapPair = fscan.get_next_mid();
@@ -520,11 +547,11 @@ public class bigt {
                     mapPair = fscan.get_next_mid();
                 }
                 fscan.close();
+                indexFiles.get(i).close();
             }catch(Exception ex){
                 System.err.println("Exception caused in creating BTree Index for storage index type: " + i);
                 ex.printStackTrace();
             }
-
         }
     }
 

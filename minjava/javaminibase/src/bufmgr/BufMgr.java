@@ -920,6 +920,44 @@ public class BufMgr implements GlobalConst {
     }
 
     /**
+     * User should call this method if she needs to delete a page.
+     * this routine will call DB to deallocate the page.
+     *
+     * @throws InvalidBufferException      if buffer pool corrupted.
+     * @throws ReplacerException           if there is a replacer error.
+     * @throws HashOperationException      if there is a hash table error.
+     * @throws InvalidFrameNumberException if there is an invalid frame number.
+     * @throws PageNotReadException        if a page cannot be read.
+     * @throws BufferPoolExceededException if the buffer pool is already full.
+     * @throws PagePinnedException         if a page is left pinned.
+     * @throws PageUnpinnedException       if there is a page that is already unpinned.
+     * @throws HashEntryNotFoundException  if there is no entry
+     *                                     of page in the hash table.
+     * @throws IOException                 if there is other kinds of I/O error.
+     * @throws BufMgrException             other error occured in bufmgr layer
+     * @throws DiskMgrException            other error occured in diskmgr layer
+     */
+    public void freeAllPagesForcibly()
+            throws InvalidBufferException,
+            ReplacerException,
+            HashOperationException,
+            InvalidFrameNumberException,
+            PageNotReadException,
+            BufferPoolExceededException,
+            PagePinnedException,
+            PageUnpinnedException,
+            HashEntryNotFoundException,
+            BufMgrException,
+            DiskMgrException,
+            IOException {
+        for (int i = 0; i < numBuffers; i++) {
+            if(frmeTable[i].pin_count() > 0) {
+                freePageForcibly(frmeTable[i].pageNo);
+            }
+        }
+    }
+
+    /**
      * Added to flush a particular page of the buffer pool to disk
      *
      * @param pageid the page number in the database.
