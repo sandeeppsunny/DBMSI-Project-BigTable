@@ -29,7 +29,7 @@ public class CombinedStream {
         scanHeapFiles = new Scan[5];
         for (int i = 0; i < 5; i++) {
             openStreams[i] = new Stream(bigtable.getHeapFileName(i + 1),
-                    bigtable.getIndexFileName(i + 1), 1,
+                    bigtable.getIndexFileName(i + 1), i+1,
                     orderType, rowFilter, columnFilter, valueFilter, numBuf);
             try {
                 heapFiles[i] = new Heapfile(bigtable.getHeapFileName(i + 1) + "_stream");
