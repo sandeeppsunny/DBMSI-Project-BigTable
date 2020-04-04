@@ -15,8 +15,9 @@ class MainTest implements GlobalConst {
         System.out.println("------------------------ BigTable Tests --------------------------");
         System.out.println("Press 1 for Batch Insert");
         System.out.println("Press 2 for Query");
-        System.out.println("Press 3 for other options");
-        System.out.println("Press 4 to quit");
+        System.out.println("Press 3 for MapInsert");
+        System.out.println("Press 4 for other options");
+        System.out.println("Press 5 to quit");
         System.out.println("------------------------ BigTable Tests --------------------------");
     }
 
@@ -75,7 +76,7 @@ class MainTest implements GlobalConst {
         bigt big = null;
         int pages = 0;
         String replacement_policy = "Clock";
-        while(!option.equals("4")){
+        while(!option.equals("5")){
             if(option.equals("1")){
                 System.out.println("FORMAT: batchinsert DATAFILENAME TYPE BIGTABLENAME NUMBUF");
                 String batch = sc.nextLine();
@@ -157,8 +158,33 @@ class MainTest implements GlobalConst {
                     option = sc.nextLine();
                     continue;
                 }
-
-            }else if (option.equals("3")){
+            }else if(option.equals("3")){
+                System.out.println("FORMAT: mapinsert ROWLABEL COLUMNLABEL VALUE TIMESTAMP TYPE BIGTABLENAME NUMBUF");
+                String[] splits = sc.nextLine().split(" ");
+                if(splits.length!=8){
+                    System.out.println("Wrong format, try again!");
+                    display();
+                    option = sc.nextLine();
+                    continue;
+                }
+                try{
+                    sysdef.changeNumberOfBuffers(Integer.parseInt(splits[7]), replacement_policy);
+                }catch(Exception e){
+                    System.err.println("MainTest.java: Exception in setting the NUMBUF");
+                    e.printStackTrace();
+                }
+                try{
+                    MapInsert mapinsert = new MapInsert(splits[1], splits[2], splits[3],
+                            Integer.parseInt(splits[4]), Integer.parseInt(splits[5]), splits[6]);
+                    mapinsert.run();
+                }catch(Exception e){
+                    System.err.println("MainTest.java: Exception caused in executing MapInsert");
+                    e.printStackTrace();
+                    display();
+                    option = sc.nextLine();
+                    continue;
+                }
+            }else if (option.equals("4")){
                 System.out.println("Enter BigTable name");
                 String bigt_name = sc.nextLine();
                 displayOtherOptions();
