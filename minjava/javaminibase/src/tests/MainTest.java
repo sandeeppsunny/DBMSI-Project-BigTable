@@ -76,6 +76,7 @@ class MainTest implements GlobalConst {
         bigt big = null;
         int pages = 0;
         String replacement_policy = "Clock";
+        sysdef = new SystemDefs(dbpath, 100000, 1000, "Clock");
         while(!option.equals("5")){
             if(option.equals("1")){
                 System.out.println("FORMAT: batchinsert DATAFILENAME TYPE BIGTABLENAME NUMBUF");
@@ -87,17 +88,15 @@ class MainTest implements GlobalConst {
                     option = sc.nextLine();
                     continue;
                 }
-                dbpath = "/tmp/" + splits[3] + ".minibase-db";
-                if(sysdef == null || !SystemDefs.JavabaseDB.db_name().equals(dbpath)){
-                    sysdef = new SystemDefs(dbpath, 100000, Integer.parseInt(splits[4]), replacement_policy);
-                } else {
-                    try {
-                        sysdef.changeNumberOfBuffers(Integer.parseInt(splits[4]), replacement_policy);
-                    } catch(Exception e) {
-                        System.out.println("Changing number of buffers failed!");
-                        e.printStackTrace();
-                    }
+//                dbpath = "/tmp/" + splits[3] + ".minibase-db";
+
+                try {
+                    sysdef.changeNumberOfBuffers(Integer.parseInt(splits[4]), replacement_policy);
+                } catch(Exception e) {
+                    System.out.println("Changing number of buffers failed!");
+                    e.printStackTrace();
                 }
+
                 SystemDefs.JavabaseDB.pcounter.initialize();
                 try{
                     long startTime = System.nanoTime();
