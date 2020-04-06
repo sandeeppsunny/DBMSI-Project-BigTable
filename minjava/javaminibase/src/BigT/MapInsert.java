@@ -5,10 +5,7 @@ import bufmgr.HashEntryNotFoundException;
 import bufmgr.InvalidFrameNumberException;
 import bufmgr.PageUnpinnedException;
 import bufmgr.ReplacerException;
-import heap.HFBufMgrException;
-import heap.HFDiskMgrException;
-import heap.HFException;
-import heap.InvalidTupleSizeException;
+import heap.*;
 
 import java.io.IOException;
 
@@ -35,7 +32,7 @@ public class MapInsert{
             HFBufMgrException, ReplacerException, HFException, PageUnpinnedException,
             HashEntryNotFoundException, HFDiskMgrException, PinPageException, FreePageException,
             GetFileEntryException, DeleteFileEntryException, AddFileEntryException, ConstructPageException,
-            IteratorException, InvalidFrameNumberException {
+            IteratorException, InvalidFrameNumberException, InvalidSlotNumberException {
         long startTime, endTime;
         startTime = System.nanoTime();
         map = new Map();
@@ -84,6 +81,8 @@ public class MapInsert{
         System.out.println("TIME TAKEN FOR CREATING MAIN INDICES "+((endTime - startTime)/1000000000) + " s");
         this.Table.unpinAllPages();
         System.out.println();
+
+        System.out.println("NUMBER OF MAPS IN THE CURRENT BIGTABLE: " + this.Table.getMapCnt());
 
     }
 }

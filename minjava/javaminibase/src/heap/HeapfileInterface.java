@@ -14,7 +14,7 @@ public interface HeapfileInterface {
             HFException,
             HFBufMgrException,
             HFDiskMgrException,
-            IOException, FieldNumberOutOfBoundException, Exception;
+            IOException, FieldNumberOutOfBoundException;
     public boolean updateRecordMap(MID mid, Map newmap)
                 throws InvalidSlotNumberException,
                 InvalidUpdateException,
@@ -22,14 +22,14 @@ public interface HeapfileInterface {
                 HFException,
                 HFDiskMgrException,
                 HFBufMgrException,
-                Exception;
+            IOException;
     public boolean deleteRecordMap(MID mid)
                         throws InvalidSlotNumberException,
                         InvalidTupleSizeException,
                         HFException,
                         HFBufMgrException,
                         HFDiskMgrException,
-                        Exception;
+                        IOException;
     public int getRecCntMap()
                 throws InvalidSlotNumberException,
                 InvalidTupleSizeException,

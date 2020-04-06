@@ -322,7 +322,10 @@ public class bigt {
     }
 
 
-    public MID insertMap(Map map, int type) throws  Exception {
+    public MID insertMap(Map map, int type) throws HFDiskMgrException,
+            InvalidTupleSizeException, HFException, IOException, FieldNumberOutOfBoundException,
+            InvalidSlotNumberException, SpaceNotAvailableException, HFBufMgrException {
+        this.insertType = type;
         MID mid = heapFiles.get(type).insertRecordMap(map.getMapByteArray());
         return mid;
     }
@@ -419,7 +422,7 @@ public class bigt {
     }
 
     public void deleteDuplicateRecords()
-        throws IndexException,
+            throws IndexException,
             InvalidTypeException,
             InvalidTupleSizeException,
             UnknownIndexTypeException,
@@ -428,8 +431,7 @@ public class bigt {
             InvalidSlotNumberException,
             HFException,
             HFBufMgrException,
-            HFDiskMgrException,
-            java.lang.Exception{
+            HFDiskMgrException, PageUnpinnedException, InvalidFrameNumberException, HashEntryNotFoundException, ReplacerException {
 
         iscan = new MapIndexScan(new IndexType(IndexType.B_Index), name, indexUtil, attrType, res_str_sizes, 4, 4, projlist, null, null, 1, true);
         Pair previousMapPair = iscan.get_next_mid();

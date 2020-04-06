@@ -209,8 +209,7 @@ public class Heapfile implements Filetype, GlobalConst, HeapfileInterface {
             InvalidTupleSizeException,
             HFException,
             HFBufMgrException,
-            HFDiskMgrException,
-            Exception {
+            HFDiskMgrException, IOException {
         PageId currentDirPageId = new PageId(_firstDirPageId.pid);
 
         HFPage currentDirPage = new HFPage();
@@ -1183,8 +1182,7 @@ public class Heapfile implements Filetype, GlobalConst, HeapfileInterface {
             InvalidTupleSizeException,
             HFException,
             HFBufMgrException,
-            HFDiskMgrException,
-            Exception {
+            HFDiskMgrException, IOException {
         boolean status;
         HFPage currentDirPage = new HFPage();
         PageId currentDirPageId = new PageId();
@@ -1382,8 +1380,7 @@ public class Heapfile implements Filetype, GlobalConst, HeapfileInterface {
             InvalidTupleSizeException,
             HFException,
             HFDiskMgrException,
-            HFBufMgrException,
-            Exception {
+            HFBufMgrException, IOException{
         boolean status;
         HFPage dirPage = new HFPage();
         PageId currentDirPageId = new PageId();
