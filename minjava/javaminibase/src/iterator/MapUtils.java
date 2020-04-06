@@ -190,6 +190,10 @@ public class MapUtils {
             return 0;
         }
     }
+
+    public static int CompareMapWithMapValues(Map m1, Map m2) throws IOException{
+        return m1.getValue().compareTo(m2.getValue());
+    }
     /**
      * This function Compares two maps in all fields
      *

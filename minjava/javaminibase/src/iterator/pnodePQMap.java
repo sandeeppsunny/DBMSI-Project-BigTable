@@ -118,6 +118,9 @@ public abstract class pnodePQMap {
             case 5:
                 ans = MapUtils.CompareMapWithMapFifthType(a.map, b.map);
                 break;
+            case 6:
+                ans = MapUtils.CompareMapWithMapValues(a.map, b.map);
+                break;
         }
         return ans;
     }
