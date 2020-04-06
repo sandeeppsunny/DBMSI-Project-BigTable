@@ -16,8 +16,9 @@ class MainTest implements GlobalConst {
         System.out.println("Press 1 for Batch Insert");
         System.out.println("Press 2 for Query");
         System.out.println("Press 3 for MapInsert");
-        System.out.println("Press 4 for other options");
-        System.out.println("Press 5 to quit");
+        System.out.println("Press 4 for RowJoin");
+        System.out.println("Press 5 for other options");
+        System.out.println("Press 6 to quit");
         System.out.println("------------------------ BigTable Tests --------------------------");
     }
 
@@ -70,14 +71,14 @@ class MainTest implements GlobalConst {
         } catch (IOException e) {
             System.err.println("" + e);
         }
+        sysdef = new SystemDefs(dbpath, 100000, 1000, "Clock");
         display();
         Scanner sc = new Scanner(System.in);
         String option = sc.nextLine();
         bigt big = null;
         int pages = 0;
         String replacement_policy = "Clock";
-        sysdef = new SystemDefs(dbpath, 100000, 1000, "Clock");
-        while(!option.equals("5")){
+        while(!option.equals("6")){
             if(option.equals("1")){
                 System.out.println("FORMAT: batchinsert DATAFILENAME TYPE BIGTABLENAME NUMBUF");
                 String batch = sc.nextLine();
@@ -90,16 +91,10 @@ class MainTest implements GlobalConst {
                 }
 //                dbpath = "/tmp/" + splits[3] + ".minibase-db";
 
-                try {
-                    sysdef.changeNumberOfBuffers(Integer.parseInt(splits[4]), replacement_policy);
-                } catch(Exception e) {
-                    System.out.println("Changing number of buffers failed!");
-                    e.printStackTrace();
-                }
-
                 SystemDefs.JavabaseDB.pcounter.initialize();
                 try{
                     long startTime = System.nanoTime();
+                    sysdef.changeNumberOfBuffers(Integer.parseInt(splits[4]), replacement_policy);
                     big = new bigt(splits[3], true);
                     BatchInsert batchInsert = new BatchInsert(big, splits[1], Integer.parseInt(splits[2]), splits[3]);
                     pages = batchInsert.run();
@@ -183,7 +178,33 @@ class MainTest implements GlobalConst {
                     option = sc.nextLine();
                     continue;
                 }
-            }else if (option.equals("4")){
+            }else if(option.equals("4")){
+                System.out.println("FORMAT: rowjoin BTNAME1 BTNAME2 OUTBTNAME COLUMNFILTER NUMBUF");
+                String[] splits = sc.nextLine().split(" ");
+                if(splits.length!=6){
+                    System.out.println("Wrong format, try again!");
+                    display();
+                    option = sc.nextLine();
+                    continue;
+                }
+                try{
+                    sysdef.changeNumberOfBuffers(Integer.parseInt(splits[5]), replacement_policy);
+                }catch(Exception e){
+                    System.err.println("MainTest.java: Exception in setting the NUMBUF");
+                    e.printStackTrace();
+                }
+                try{
+                    RowJoin rowJoin = new RowJoin(splits[1], splits[2], splits[3], splits[4]);
+                    rowJoin.run();
+                }catch(Exception e){
+                    System.err.println("MainTest.java: Exception caused in executing RowJoin");
+                    e.printStackTrace();
+                    /*display();
+                    option = sc.nextLine();
+                    continue;*/
+                }
+
+            }else if (option.equals("5")){
                 System.out.println("Enter BigTable name");
                 String bigt_name = sc.nextLine();
                 displayOtherOptions();
