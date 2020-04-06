@@ -29,6 +29,7 @@ public class bigt {
     MapIndexScan iscan;
 
     private int storageType;
+    private int insertType;
     short[] res_str_sizes = new short[]{Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE};
 
 
@@ -48,12 +49,7 @@ public class bigt {
         for(int i = 1; i <= 5; i++){
             heapFileNames.add(name + "_" + i);
             indexFileNames.add(name + "_index_" + i);
-
-            if(i == 1) {
-                heapFiles.add(new Heapfile(name + "_" + i));
-            } else {
-                heapFiles.add(new Heapfile(name + "_" + i));
-            }
+            heapFiles.add(new Heapfile(heapFileNames.get(i)));
         }
 
         indexUtil = name + "_" + "indexUtil";
@@ -361,14 +357,15 @@ public class bigt {
 
 
     public void sortHeapFiles() {
+        String tempFileName;
         try{
-            FileScanMap fscan;
-            String heapFileName;
-            for(int i = 2; i<= 5; i++){
-                heapFileName = getHeapFileName(i);
+            if(this.insertType != 1){
+                FileScanMap fscan;
+                String heapFileName;
+                heapFileName = heapFileNames.get(this.insertType);
                 fscan = new FileScanMap(heapFileName, null, null);
                 int sortType = 1;
-                switch (i) {
+                switch (this.insertType) {
                     case 3:
                         sortType = 2;
                         break;
@@ -383,7 +380,8 @@ public class bigt {
                         fscan, sortType, new MapOrder(MapOrder.Ascending), null,
                         (int)((SystemDefs.JavabaseBM.getNumBuffers()*3)/4));
 
-                HeapfileInterface fileToDestroy = new Heapfile(getHeapFileName(i) + "_temp");
+                Heapfile fileToDestroy = new Heapfile(null);
+                tempFileName = fileToDestroy._fileName;
                 boolean isScanComplete = false;
                 MID resultMID = new MID();
                 while (!isScanComplete) {
@@ -397,10 +395,10 @@ public class bigt {
                 }
                 sortMap.close();
 
-                getHeapFile(i).deleteFileMap();
-                heapFiles.set(i, new SortedHeapfile(getHeapFileName(i), i));
+                getHeapFile(this.insertType).deleteFileMap();
+                heapFiles.set(this.insertType, new Heapfile(heapFileName));
 
-                fscan = new FileScanMap(getHeapFileName(i) + "_temp", null, null);
+                fscan = new FileScanMap(tempFileName, null, null);
                 isScanComplete = false;
                 resultMID = new MID();
                 while (!isScanComplete) {
@@ -410,7 +408,7 @@ public class bigt {
                         break;
                     }
                     map.setFldOffset(map.getMapByteArray());
-                    getHeapFile(i).insertRecordMap(map.getMapByteArray());
+                    getHeapFile(this.insertType).insertRecordMap(map.getMapByteArray());
                 }
                 fscan.close();
                 fileToDestroy.deleteFileMap();
