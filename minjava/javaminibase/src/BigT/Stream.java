@@ -22,7 +22,7 @@ public class Stream {
     CondExpr[] condExprs;
     CondExpr[] condExprForKey;
 
-    public Stream(String heapFilename, String indexFilename, int indexType, int orderType, String rowFilter, String columnFilter, String valueFilter, int numBuf) {
+    public Stream(String bigtName, String indexFilename, int indexType, int orderType, String rowFilter, String columnFilter, String valueFilter, int numBuf) {
         this.indexType = indexType;
         this.orderType = orderType;
         this.numBuf = numBuf;
@@ -58,7 +58,7 @@ public class Stream {
         try {
             switch (indexType) {
                 case 1:
-                    mapIterator = new FileScanMap(heapFilename, null, condExprs);
+                    mapIterator = new FileScanMap(bigtName, null, condExprs, true);
                     break;
                 default:
                     AttrType[] attrType = new AttrType[4];
@@ -87,12 +87,12 @@ public class Stream {
                         }
                     }
 
-                    if(flag){
-                        mapIterator = new MapIndexScan(new IndexType(IndexType.B_Index), heapFilename, indexFilename,
-                                attrType, res_str_sizes, 4, 4, null, condExprs, condExprForKey, keyFldNum, false);
-                    }else {
-                        mapIterator = new FileScanMap(heapFilename, null, condExprs);
-                    }
+//                    if(flag){
+//                        mapIterator = new MapIndexScan(new IndexType(IndexType.B_Index), bigtName, indexFilename,
+//                                attrType, res_str_sizes, 4, 4, null, condExprs, condExprForKey, keyFldNum, false);
+//                    }else {
+                        mapIterator = new FileScanMap(bigtName, null, condExprs, true);
+//                    }
                     break;
             }
             sortMap = new SortMap(null, null, null, mapIterator, this.orderType, new MapOrder(MapOrder.Ascending), null, this.numBuf);

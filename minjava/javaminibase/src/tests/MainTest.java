@@ -123,7 +123,7 @@ class MainTest implements GlobalConst {
                     sysdef.changeNumberOfBuffers(Integer.parseInt(splits[6]), replacement_policy);
                     SystemDefs.JavabaseDB.pcounter.initialize();
                     big = new bigt(splits[1], false);
-                    CombinedStream stream = big.openStream(splits[1], Integer.parseInt(splits[2]), splits[3],
+                    Stream stream = big.openStream(splits[1], Integer.parseInt(splits[2]), splits[3],
                             splits[4], splits[5], (int)((Integer.parseInt(splits[6])*3)/4));
                     int count =0;
                     Map t = stream.getNext();
@@ -140,7 +140,7 @@ class MainTest implements GlobalConst {
 //                    big.unpinAllPages();
 //                    System.out.println("Number of unpinned Buffers " + SystemDefs.JavabaseBM.getNumUnpinnedBuffers());
 //                    System.out.println("Number of buffers " + SystemDefs.JavabaseBM.getNumBuffers());
-                    stream.closeCombinedStream();
+                    stream.closestream();
                     long endTime = System.nanoTime();
                     System.out.println("TIME TAKEN "+((endTime - startTime)/1000000000) + " s");
                     System.out.println("RECORD COUNT : "+count);
@@ -218,7 +218,7 @@ class MainTest implements GlobalConst {
                                 System.out.println("----------------------------");
                                 System.out.println("Storage Type " + i);
                                 System.out.println("****************************");
-                                FileScanMap fscan = new FileScanMap(big.getHeapFileName(i), null, null);
+                                FileScanMap fscan = new FileScanMap(big.getHeapFileName(i), null, null, false);
                                 MID mid = new MID();
                                 Map temp = fscan.get_next();
                                 while (temp != null) {

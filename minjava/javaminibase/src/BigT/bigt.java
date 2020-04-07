@@ -294,7 +294,8 @@ public class bigt {
 
     public int getCount(int orderType) throws Exception{
         int numBuf = (int)((SystemDefs.JavabaseBM.getNumBuffers()*3)/4);
-        CombinedStream stream = new CombinedStream(this, orderType,"*","*","*",numBuf);
+//        CombinedStream stream = new CombinedStream(this, orderType,"*","*","*",numBuf);
+        Stream stream = new Stream(this.name, null, 1,  orderType, "*", "*", "*", numBuf);
         Map t = stream.getNext();
         int count = 0;
         String temp = "\0";
@@ -313,7 +314,7 @@ public class bigt {
             }
             t = stream.getNext();
         }
-        stream.closeCombinedStream();
+        stream.closestream();
         return count;
     }
 
@@ -339,7 +340,7 @@ public class bigt {
             String heapFileName;
             for(int i = 1; i<= 5; i++){
                 heapFileName = getHeapFileName(i);
-                fscan = new FileScanMap(heapFileName, null, null);
+                fscan = new FileScanMap(heapFileName, null, null, false);
                 Pair mapPair;
                 mapPair = fscan.get_next_mid();
                 while(mapPair!=null){
@@ -363,7 +364,7 @@ public class bigt {
                 FileScanMap fscan;
                 String heapFileName;
                 heapFileName = heapFileNames.get(this.insertType);
-                fscan = new FileScanMap(heapFileName, null, null);
+                fscan = new FileScanMap(heapFileName, null, null, false);
                 int sortType = 1;
                 switch (this.insertType) {
                     case 3:
@@ -398,7 +399,7 @@ public class bigt {
                 getHeapFile(this.insertType).deleteFileMap();
                 heapFiles.set(this.insertType, new Heapfile(heapFileName));
 
-                fscan = new FileScanMap(tempFileName, null, null);
+                fscan = new FileScanMap(tempFileName, null, null, false);
                 isScanComplete = false;
                 resultMID = new MID();
                 while (!isScanComplete) {
@@ -509,8 +510,8 @@ public class bigt {
         }
     }
 
-    public CombinedStream openStream(String bigTableName, int orderType, String rowFilter, String columnFilter, String valueFilter, int numBuf) {
-        CombinedStream stream = new CombinedStream(this, orderType, rowFilter, columnFilter, valueFilter, numBuf);
+    public Stream openStream(String bigTableName, int orderType, String rowFilter, String columnFilter, String valueFilter, int numBuf) {
+        Stream stream = new Stream(bigTableName, null, 1, orderType, rowFilter, columnFilter, valueFilter, numBuf);
         return stream;
     }
 
@@ -519,7 +520,7 @@ public class bigt {
         for(int i = 2; i <= 5; i++){
             try{
                 indexFiles.set(i, createIndex(indexFileNames.get(i), i));
-                fscan = new FileScanMap(heapFileNames.get(i), null, null);
+                fscan = new FileScanMap(heapFileNames.get(i), null, null, false);
                 Pair mapPair;
                 mapPair = fscan.get_next_mid();
                 while(mapPair!=null){
