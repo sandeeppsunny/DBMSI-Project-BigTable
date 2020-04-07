@@ -631,4 +631,9 @@ public class bigt {
             btree.PinPageException{
         bTreeFile.destroyFile();
     }
+
+    public void deleteRecordMap(MID mid, int type) throws HFDiskMgrException, InvalidTupleSizeException,
+            HFException, IOException, InvalidSlotNumberException, HFBufMgrException {
+        getHeapFile(type).deleteRecordMap(mid);
+    }
 }
