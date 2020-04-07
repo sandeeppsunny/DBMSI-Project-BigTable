@@ -234,7 +234,7 @@ public class RowJoin{
                     tempMap.setRowLabel(matchingRows[0] + ":" + matchingRows[1]);
                     if(!tempMap.getColumnLabel().equals(this.columnFilter)){
                         tempColLabel = tempMap.getColumnLabel();
-                        tempMap.setColumnLabel(matchingRows[0] + "_" + tempColLabel);
+                        tempMap.setColumnLabel(tempColLabel + "_" + "left");
                     }
                     outBigT.insertMap(tempMap, 1);
                 }
@@ -253,7 +253,7 @@ public class RowJoin{
                     tempMap.setRowLabel(matchingRows[0] + ":" + matchingRows[1]);
                     if(!tempMap.getColumnLabel().equals(this.columnFilter)){
                         tempColLabel = tempMap.getColumnLabel();
-                        tempMap.setColumnLabel(matchingRows[1] + "_" + tempColLabel);
+                        tempMap.setColumnLabel(tempColLabel + "_" + "right");
                     }
                     outBigT.insertMap(tempMap, 1);
                 }

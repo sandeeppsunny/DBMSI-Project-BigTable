@@ -432,7 +432,7 @@ public class bigt {
             HFBufMgrException,
             HFDiskMgrException, PageUnpinnedException, InvalidFrameNumberException, HashEntryNotFoundException, ReplacerException {
 
-        iscan = new MapIndexScan(new IndexType(IndexType.B_Index), name, indexUtil, attrType, res_str_sizes, 4, 4, projlist, null, null, 1, true);
+        iscan = new MapIndexScan(new IndexType(IndexType.B_Index), this.getHeapFileName(1), indexUtil, attrType, res_str_sizes, 4, 4, projlist, null, null, 1, true);
         Pair previousMapPair = iscan.get_next_mid();
         Pair curMapPair = iscan.get_next_mid();
 
