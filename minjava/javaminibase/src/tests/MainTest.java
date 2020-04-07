@@ -193,6 +193,7 @@ class MainTest implements GlobalConst {
                     System.err.println("MainTest.java: Exception in setting the NUMBUF");
                     e.printStackTrace();
                 }
+                long startTime = System.nanoTime();
                 try{
                     RowJoin rowJoin = new RowJoin(splits[1], splits[2], splits[3], splits[4]);
                     rowJoin.run();
@@ -203,6 +204,8 @@ class MainTest implements GlobalConst {
                     option = sc.nextLine();
                     continue;*/
                 }
+                long endTime = System.nanoTime();
+                System.out.println("TIME TAKEN "+((endTime - startTime)/1000000000) + " s");
 
             }else if (option.equals("5")){
                 System.out.println("Enter BigTable name");
