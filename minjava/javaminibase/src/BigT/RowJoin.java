@@ -1,15 +1,18 @@
 package BigT;
 
-import global.MapOrder;
-import global.SystemDefs;
-import heap.HFBufMgrException;
-import heap.HFDiskMgrException;
-import heap.HFException;
-import heap.Heapfile;
+import btree.*;
+import bufmgr.*;
+import global.*;
+import heap.*;
+import index.IndexException;
+import index.MapIndexScan;
+import index.UnknownIndexTypeException;
 import iterator.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class RowJoin{
     private String bigTable1;
@@ -25,6 +28,7 @@ public class RowJoin{
     private bigt bigt1;
     private bigt bigt2;
     private int numBuf;
+    private bigt outBigT;
 
     public RowJoin(String bigTable1, String bigTable2, String outBigTable, String columnFilter){
         this.bigTable1 = bigTable1;
@@ -53,9 +57,9 @@ public class RowJoin{
     public void run() throws Exception {
         buildTempHeapFiles();
         System.out.println("Number of elements in temporary heap file1: " + this.tempHeapFile1.getRecCntMap());
-        System.out.println("Number of elements in temporary heap file1: " + this.tempHeapFile2.getRecCntMap());
+        System.out.println("Number of elements in temporary heap file2: " + this.tempHeapFile2.getRecCntMap());
         ArrayList<String[]> matchingRowlabels =  getMatchingRowLabels();
-        if(matchingRowlabels == null){
+        if(matchingRowlabels == null || matchingRowlabels.size() == 0){
             System.err.println("NO MATCHING ROWS FOUND");
             return;
         }else{
@@ -63,6 +67,7 @@ public class RowJoin{
                 System.out.println("Matching Rows: " + temp[0] + " -- " + temp[1]);
             }
             performJoin(matchingRowlabels);
+            System.out.println("NUMBER OF MAPS IN THE OUTPUT BIGTABLE AFTER COMPLETING ROWJOIN: " + this.outBigT.getMapCnt());
         }
     }
 
@@ -207,7 +212,6 @@ public class RowJoin{
     }
 
     public void performJoin(ArrayList<String[]> matchingRowLabels){
-        bigt outBigT;
         try{
             outBigT = new bigt(this.outBigTable, true);
         }catch(Exception e){
@@ -262,16 +266,120 @@ public class RowJoin{
             return;
         }
         try{
-            System.out.println("ROWJOIN SUCCESS: NUMBER OF RECORDS IN OUTPUT BIGTABLE: " + outBigT.getMapCnt());
+            deleteDuplicateRecords();
         }catch(Exception e){
-            System.err.println("RowJoin.java: Exception thrown in retrieving the number of records in output bigtable");
+            System.err.println("RowJoin.java: Exception thrown in deleting duplicate records");
             e.printStackTrace();
-            return;
         }
+
     }
 
-    public void deleteDuplicateRecords(){
+    public void deleteDuplicateRecords() throws InvalidRelation, TupleUtilsException, FileScanException, IOException,
+            ConstructPageException, GetFileEntryException, AddFileEntryException, JoinsException,
+            FieldNumberOutOfBoundException, PageNotReadException, WrongPermat, InvalidTypeException,
+            InvalidTupleSizeException, PredEvalException, UnknowAttrType, IteratorException, NodeNotMatchException,
+            UnpinPageException, LeafInsertRecException, IndexSearchException, InsertException, PinPageException,
+            ConvertException, DeleteRecException, KeyNotMatchException, LeafDeleteException, KeyTooLongException,
+            IndexInsertRecException, IndexException, UnknownIndexTypeException, UnknownKeyTypeException, HFException,
+            HFBufMgrException, InvalidSlotNumberException, HFDiskMgrException, PageUnpinnedException,
+            InvalidFrameNumberException, HashEntryNotFoundException, ReplacerException {
+        System.out.println("Rowjoin - Deleting Duplicate records");
+        CondExpr[] expr = getConditionalExpression();
+        FileScanMap tempScan = new FileScanMap(this.outBigTable, null, expr, true);
+        BTreeFile joinUtil = new BTreeFile(this.outBigTable + "_joinUtil", AttrType.attrString,
+                2*Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 5, DeleteFashion.FULL_DELETE);
+        Pair mapPair = null;
+        while(true){
+            if((mapPair = tempScan.get_next_mid()) == null){
+                break;
+            }
+            joinUtil.insert(new StringKey(mapPair.getMap().getRowLabel() +
+                    mapPair.getMap().getColumnLabel() + "%" + mapPair.getMap().getTimeStamp()), mapPair.getMid());
+        }
+        tempScan.close();
 
+        //Preparing the IndexOnlyScan
+        AttrType[] attrType;
+        attrType = new AttrType[4];
+        attrType[0] = new AttrType(AttrType.attrString);
+        attrType[1] = new AttrType(AttrType.attrString);
+        attrType[2] = new AttrType(AttrType.attrInteger);
+        attrType[3] = new AttrType(AttrType.attrString);
+        short[] res_str_sizes = new short[]{Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE,
+                Map.DEFAULT_STRING_ATTRIBUTE_SIZE};
+        MapIndexScan tempIndexScan = new MapIndexScan(new IndexType(IndexType.B_Index), this.outBigT.getHeapFileName(1),
+                this.outBigTable + "_joinUtil", attrType, res_str_sizes, 4, 4,
+                null, null, null, 1, true);
+
+        Pair previousMapPair = tempIndexScan.get_next_mid();
+        Pair curMapPair = tempIndexScan.get_next_mid();
+
+        String[] indexKeyTokens;
+
+        String prevKey = previousMapPair.getIndexKey();
+//        System.out.println("Index Key is: " + prevKey);
+        String curKey = "";
+
+        List<Pair> duplicateMaps = new ArrayList<>();
+        indexKeyTokens = prevKey.split("%");
+        previousMapPair  = new Pair(previousMapPair.getMap(), previousMapPair.getMid(), previousMapPair.getIndexKey(),
+                Integer.parseInt(indexKeyTokens[indexKeyTokens.length-1]));
+        duplicateMaps.add(previousMapPair);
+        MID mid;
+        Map map;
+        while(curMapPair!=null) {
+            curKey = curMapPair.getIndexKey();
+//            System.out.println("Index Key is: " + curKey);
+            indexKeyTokens = curKey.split("%");
+            String curKeyString = curKey.substring(0, curKey.indexOf('%'));
+            String prevKeyString = prevKey.substring(0, prevKey.indexOf('%'));
+//            System.out.println("Previous Key: " + prevKeyString);
+//            System.out.println("Current Key: " + curKeyString);
+            curMapPair = new Pair(curMapPair.getMap(), curMapPair.getMid(), curMapPair.getIndexKey(),
+                    Integer.parseInt(indexKeyTokens[indexKeyTokens.length - 1]));
+
+            if (prevKeyString.equals(curKeyString)) {
+                duplicateMaps.add(curMapPair);
+            } else {
+                duplicateMaps = new ArrayList<>();
+                duplicateMaps.add(curMapPair);
+            }
+            if (duplicateMaps.size() == 4) {
+                duplicateMaps.sort(new Comparator<Pair>() {
+                    @Override
+                    public int compare(Pair o1, Pair o2) {
+                        String o1String = o1.getIndexKey();
+                        String o2String = o2.getIndexKey();
+
+                        Integer o1Timestamp = Integer.parseInt(o1.getIndexKey().split("%")[1]);
+                        Integer o2Timestamp = Integer.parseInt(o2.getIndexKey().split("%")[1]);
+                        return o1Timestamp.compareTo(o2Timestamp);
+                    }
+                });
+                mid = duplicateMaps.get(0).getMid();
+                this.outBigT.deleteRecordMap(mid, 1);
+                duplicateMaps.remove(0);
+            }
+            prevKey = curKey;
+            curMapPair = tempIndexScan.get_next_mid();
+        }
+        tempIndexScan.close();
+        joinUtil.close();
+    }
+
+    public CondExpr[] getConditionalExpression(){
+        CondExpr[] res = new CondExpr[2];
+        CondExpr expr = new CondExpr();
+        expr.op = new AttrOperator(AttrOperator.aopEQ);
+        expr.type1 = new AttrType(AttrType.attrSymbol);
+        expr.type2 = new AttrType(AttrType.attrString);
+        expr.operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 2);
+        expr.operand2.string = this.columnFilter;
+        expr.next = null;
+        res[0] = expr;
+        res[1] = null;
+
+        return res;
     }
 
 
