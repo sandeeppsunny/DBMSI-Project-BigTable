@@ -200,9 +200,9 @@ class MainTest implements GlobalConst {
                 }catch(Exception e){
                     System.err.println("MainTest.java: Exception caused in executing RowJoin");
                     e.printStackTrace();
-                    /*display();
+                    display();
                     option = sc.nextLine();
-                    continue;*/
+                    continue;
                 }
                 long endTime = System.nanoTime();
                 System.out.println("TIME TAKEN "+((endTime - startTime)/1000000000) + " s");

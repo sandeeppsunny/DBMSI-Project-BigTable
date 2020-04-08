@@ -47,7 +47,7 @@ public class RowJoin{
         try{
             System.out.println("Records in bigt1: " + this.bigt1.getMapCnt());
             System.out.println("Records in bigt2: " + this.bigt2.getMapCnt());
-            this.numBuf = (int)((SystemDefs.JavabaseBM.getNumBuffers()*3)/8);
+            this.numBuf = (int)((SystemDefs.JavabaseBM.getNumBuffers()*3)/4);
         }catch(Exception e){
             System.err.println("RowJoin.java: Error in getting the number of records in the bigtables");
             e.printStackTrace();
@@ -183,9 +183,10 @@ public class RowJoin{
                 sortMaps[1].close();
                 FileScanMap fileScanMap2 = new FileScanMap(this.heapFileName2, null, null, false);
                 sortMaps[1] = new SortMap(null, null, null, fileScanMap2,
-                        6, new MapOrder(MapOrder.Ascending), null, this.numBuf);
+                        1, new MapOrder(MapOrder.Ascending), null, (int)this.numBuf/2);
             }
             sortMaps[0].close();
+            sortMaps[1].close();
         }
         return res;
     }
@@ -201,9 +202,9 @@ public class RowJoin{
             FileScanMap fileScanMap2 = new FileScanMap(this.heapFileName2, null, null, false);
             res  = new SortMap[2];
             res[0] = new SortMap(null, null, null, fileScanMap1,
-                    6, new MapOrder(MapOrder.Ascending), null, this.numBuf);
+                    1, new MapOrder(MapOrder.Ascending), null, (int)this.numBuf/2);
             res[1] = new SortMap(null, null, null, fileScanMap2,
-                    6, new MapOrder(MapOrder.Ascending), null, this.numBuf);
+                    1, new MapOrder(MapOrder.Ascending), null, (int)this.numBuf/2);
         }catch(Exception e){
             System.err.println("RowJoin.java: getSortedStreams(): Exception caused in initializing sort iterator on temporary heap files");
             e.printStackTrace();
@@ -212,7 +213,9 @@ public class RowJoin{
     }
 
     public void performJoin(ArrayList<String[]> matchingRowLabels){
+
         try{
+            SystemDefs.JavabaseBM.flushAllPagesForcibly();
             outBigT = new bigt(this.outBigTable, true);
         }catch(Exception e){
             System.err.println("RowJoin.java: Exception thrown in creating output bigtable");
@@ -283,7 +286,9 @@ public class RowJoin{
             IndexInsertRecException, IndexException, UnknownIndexTypeException, UnknownKeyTypeException, HFException,
             HFBufMgrException, InvalidSlotNumberException, HFDiskMgrException, PageUnpinnedException,
             InvalidFrameNumberException, HashEntryNotFoundException, ReplacerException {
+
         System.out.println("Rowjoin - Deleting Duplicate records");
+        
         CondExpr[] expr = getConditionalExpression();
         FileScanMap tempScan = new FileScanMap(this.outBigTable, null, expr, true);
         BTreeFile joinUtil = new BTreeFile(this.outBigTable + "_joinUtil", AttrType.attrString,
