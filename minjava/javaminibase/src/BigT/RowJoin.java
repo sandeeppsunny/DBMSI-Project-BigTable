@@ -288,11 +288,11 @@ public class RowJoin{
             InvalidFrameNumberException, HashEntryNotFoundException, ReplacerException {
 
         System.out.println("Rowjoin - Deleting Duplicate records");
-        
+
         CondExpr[] expr = getConditionalExpression();
         FileScanMap tempScan = new FileScanMap(this.outBigTable, null, expr, true);
         BTreeFile joinUtil = new BTreeFile(this.outBigTable + "_joinUtil", AttrType.attrString,
-                2*Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 5, DeleteFashion.FULL_DELETE);
+                Map.DEFAULT_ROW_LABEL_ATTRIBUTE_SIZE + Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 5, DeleteFashion.FULL_DELETE);
         Pair mapPair = null;
         while(true){
             if((mapPair = tempScan.get_next_mid()) == null){
@@ -310,7 +310,7 @@ public class RowJoin{
         attrType[1] = new AttrType(AttrType.attrString);
         attrType[2] = new AttrType(AttrType.attrInteger);
         attrType[3] = new AttrType(AttrType.attrString);
-        short[] res_str_sizes = new short[]{Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE,
+        short[] res_str_sizes = new short[]{Map.DEFAULT_ROW_LABEL_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE,
                 Map.DEFAULT_STRING_ATTRIBUTE_SIZE};
         MapIndexScan tempIndexScan = new MapIndexScan(new IndexType(IndexType.B_Index), this.outBigT.getHeapFileName(1),
                 this.outBigTable + "_joinUtil", attrType, res_str_sizes, 4, 4,

@@ -30,7 +30,7 @@ public class bigt {
 
     private int storageType;
     private int insertType;
-    short[] res_str_sizes = new short[]{Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE};
+    short[] res_str_sizes = new short[]{Map.DEFAULT_ROW_LABEL_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE};
 
 
     public bigt(String name, boolean insert) throws HFException, HFBufMgrException, HFDiskMgrException, IOException,
@@ -186,16 +186,18 @@ public class bigt {
             case 1:
                 break;
             case 2:
-                tempIndex = new BTreeFile(indexName1, AttrType.attrString, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.FULL_DELETE);
+                tempIndex = new BTreeFile(indexName1, AttrType.attrString, Map.DEFAULT_ROW_LABEL_ATTRIBUTE_SIZE, DeleteFashion.FULL_DELETE);
                 break;
             case 3:
                 tempIndex = new BTreeFile(indexName1, AttrType.attrString, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.FULL_DELETE);
                 break;
             case 4:
-                tempIndex = new BTreeFile(indexName1, AttrType.attrString, 2*Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 5, DeleteFashion.FULL_DELETE);
+                tempIndex = new BTreeFile(indexName1, AttrType.attrString,
+                        Map.DEFAULT_ROW_LABEL_ATTRIBUTE_SIZE + Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 5, DeleteFashion.FULL_DELETE);
                 break;
             case 5:
-                tempIndex = new BTreeFile(indexName1, AttrType.attrString, 2*Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 5, DeleteFashion.FULL_DELETE);
+                tempIndex = new BTreeFile(indexName1, AttrType.attrString,
+                        Map.DEFAULT_ROW_LABEL_ATTRIBUTE_SIZE + Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 5, DeleteFashion.FULL_DELETE);
                 break;
         }
         return tempIndex;
@@ -203,7 +205,8 @@ public class bigt {
 
     public void createIndexUtil(){
         try {
-            utilityIndex = new BTreeFile(indexUtil, AttrType.attrString, 2*Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 20, DeleteFashion.FULL_DELETE);
+            utilityIndex = new BTreeFile(indexUtil, AttrType.attrString,
+                    Map.DEFAULT_ROW_LABEL_ATTRIBUTE_SIZE + Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 20, DeleteFashion.FULL_DELETE);
         }catch(Exception ex){
             System.err.println("Error in creating utility index");
             ex.printStackTrace();
