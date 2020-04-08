@@ -927,6 +927,9 @@ class DBHeaderPage implements PageUsedBytes, GlobalConst {
             throws IOException {
         int position = START_FILE_ENTRIES + entryNo * SIZE_OF_FILE_ENTRY;
         Convert.setIntValue(empty, position, data);
+        for(int i=position+4; i<position+4+MAX_NAME; i+=4) {
+            Convert.setIntValue(0, i, data);
+        }
     }
 
     /**

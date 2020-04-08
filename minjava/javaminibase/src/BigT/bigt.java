@@ -60,17 +60,26 @@ public class bigt {
             indexCreateUtil();
             createIndexUtil();
 
-            if(utilityIndex != null){
-                utilityIndex.close();
-                createIndexUtil();
-                utilityIndex.destroyFile();
+            try {
+                deleteAllNodesInIndex(utilityIndex);
+                for(int i=2; i<=5; i++) {
+                    deleteAllNodesInIndex(indexFiles.get(i));
+                }
+            } catch(Exception e) {
+                e.printStackTrace();
+                System.out.println("Exception occurred while destroying all nodes of index files");
             }
-
-            indexDestroyUtil();
-
-            createIndexUtil();
-            indexFiles = new ArrayList<>();
-            indexCreateUtil();
+//            if(utilityIndex != null){
+//                utilityIndex.close();
+//                createIndexUtil();
+//                utilityIndex.destroyFile();
+//            }
+//
+//            indexDestroyUtil();
+//
+//            createIndexUtil();
+//            indexFiles = new ArrayList<>();
+//            indexCreateUtil();
         }
         initCondExprs();
     }
@@ -172,6 +181,19 @@ public class bigt {
         }
     }
 
+    public void deleteAllNodesInIndex(BTreeFile index) throws PinPageException, KeyNotMatchException, IteratorException, IOException, ConstructPageException, UnpinPageException, ScanIteratorException, ScanDeleteException {
+        BTFileScan scan = index.new_scan(null, null);
+        boolean isScanComplete = false;
+        while(!isScanComplete) {
+            KeyDataEntry entry = scan.get_next();
+            if(entry == null) {
+                isScanComplete = true;
+                break;
+            }
+            scan.delete_current();
+        }
+    }
+
     public BTreeFile createIndex(String indexName1, int type) throws GetFileEntryException,
             ConstructPageException,
             IOException,
@@ -186,18 +208,18 @@ public class bigt {
             case 1:
                 break;
             case 2:
-                tempIndex = new BTreeFile(indexName1, AttrType.attrString, Map.DEFAULT_ROW_LABEL_ATTRIBUTE_SIZE, DeleteFashion.FULL_DELETE);
+                tempIndex = new BTreeFile(indexName1, AttrType.attrString, Map.DEFAULT_ROW_LABEL_ATTRIBUTE_SIZE, DeleteFashion.NAIVE_DELETE);
                 break;
             case 3:
-                tempIndex = new BTreeFile(indexName1, AttrType.attrString, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.FULL_DELETE);
+                tempIndex = new BTreeFile(indexName1, AttrType.attrString, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, DeleteFashion.NAIVE_DELETE);
                 break;
             case 4:
                 tempIndex = new BTreeFile(indexName1, AttrType.attrString,
-                        Map.DEFAULT_ROW_LABEL_ATTRIBUTE_SIZE + Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 5, DeleteFashion.FULL_DELETE);
+                        Map.DEFAULT_ROW_LABEL_ATTRIBUTE_SIZE + Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 5, DeleteFashion.NAIVE_DELETE);
                 break;
             case 5:
                 tempIndex = new BTreeFile(indexName1, AttrType.attrString,
-                        Map.DEFAULT_ROW_LABEL_ATTRIBUTE_SIZE + Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 5, DeleteFashion.FULL_DELETE);
+                        Map.DEFAULT_ROW_LABEL_ATTRIBUTE_SIZE + Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 5, DeleteFashion.NAIVE_DELETE);
                 break;
         }
         return tempIndex;
@@ -206,7 +228,7 @@ public class bigt {
     public void createIndexUtil(){
         try {
             utilityIndex = new BTreeFile(indexUtil, AttrType.attrString,
-                    Map.DEFAULT_ROW_LABEL_ATTRIBUTE_SIZE + Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 20, DeleteFashion.FULL_DELETE);
+                    Map.DEFAULT_ROW_LABEL_ATTRIBUTE_SIZE + Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 20, DeleteFashion.NAIVE_DELETE);
         }catch(Exception ex){
             System.err.println("Error in creating utility index");
             ex.printStackTrace();
