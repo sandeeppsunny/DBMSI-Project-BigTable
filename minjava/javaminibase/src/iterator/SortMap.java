@@ -232,6 +232,9 @@ public class SortMap extends MapIterator implements GlobalConst {
                 case 6:
                     comp_res = MapUtils.CompareMapWithMapSixthType(cur_node.map, lastElem);
                     break;
+                case 7:
+                    comp_res = MapUtils.CompareMapWithMapValues(cur_node.map, lastElem);
+                    break;
             }
 
             if ((comp_res < 0 && order.mapOrder == MapOrder.Ascending) || (comp_res > 0 && order.mapOrder == MapOrder.Descending)) {
@@ -636,11 +639,11 @@ public class SortMap extends MapIterator implements GlobalConst {
         in[1] = new AttrType(AttrType.attrString);
         in[2] = new AttrType(AttrType.attrInteger);
         in[3] = new AttrType(AttrType.attrString);
-        short[] str_sizes = new short[3];
+        short[] str_sizes = new short[4];
         str_sizes[0] = Map.DEFAULT_STRING_ATTRIBUTE_SIZE;
         str_sizes[1] = Map.DEFAULT_STRING_ATTRIBUTE_SIZE;
-//        str_sizes[2] = 4;
-        str_sizes[2] = Map.DEFAULT_STRING_ATTRIBUTE_SIZE;
+        str_sizes[2] = 4;
+        str_sizes[3] = Map.DEFAULT_STRING_ATTRIBUTE_SIZE;
         _in = new AttrType[len_in];
         n_cols = len_in;
         int n_strs = 0;
@@ -663,8 +666,12 @@ public class SortMap extends MapIterator implements GlobalConst {
                 order_type = 5;
                 break;
             case 6:
-                _sort_fld = 3;
+                _sort_fld = 1;
                 order_type = 6;
+                break;
+            case 7:
+                _sort_fld = 4;
+                order_type = 7;
                 break;
             default:
                 // case 1 and default maps to first order type
