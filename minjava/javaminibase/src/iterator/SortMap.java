@@ -230,7 +230,7 @@ public class SortMap extends MapIterator implements GlobalConst {
                     comp_res = MapUtils.CompareMapWithMapFifthType(cur_node.map, lastElem);
                     break;
                 case 6:
-                    comp_res = MapUtils.CompareMapWithMapValues(cur_node.map, lastElem);
+                    comp_res = MapUtils.CompareMapWithMapSixthType(cur_node.map, lastElem);
                     break;
             }
 
@@ -537,7 +537,7 @@ public class SortMap extends MapIterator implements GlobalConst {
         lastElem.setRowLabel(s);
         lastElem.setColumnLabel(s);
         lastElem.setTimeStamp(Integer.MIN_VALUE);
-        lastElem.setRowLabel(s);
+        lastElem.setValue(s);
         return;
     }
 
@@ -602,7 +602,7 @@ public class SortMap extends MapIterator implements GlobalConst {
         lastElem.setRowLabel(s);
         lastElem.setColumnLabel(s);
         lastElem.setTimeStamp(Integer.MAX_VALUE);
-        lastElem.setRowLabel(s);
+        lastElem.setValue(s);
         return;
     }
 
@@ -661,6 +661,7 @@ public class SortMap extends MapIterator implements GlobalConst {
             case 5:
                 _sort_fld = 3;
                 order_type = 5;
+                break;
             case 6:
                 _sort_fld = 3;
                 order_type = 6;

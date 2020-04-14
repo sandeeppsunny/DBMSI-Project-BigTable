@@ -393,7 +393,11 @@ public class bigt {
                 int sortType = 1;
                 switch (this.insertType) {
                     case 3:
+                    case 4:
                         sortType = 2;
+                        break;
+                    case 5:
+                        sortType = 6;
                         break;
                     default:
                         sortType = 1;
