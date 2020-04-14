@@ -17,8 +17,9 @@ class MainTest implements GlobalConst {
         System.out.println("Press 2 for Query");
         System.out.println("Press 3 for MapInsert");
         System.out.println("Press 4 for RowJoin");
-        System.out.println("Press 5 for other options");
-        System.out.println("Press 6 to quit");
+        System.out.println("Press 5 for RowSort");
+        System.out.println("Press 6 for other options");
+        System.out.println("Press 7 to quit");
         System.out.println("------------------------ BigTable Tests --------------------------");
     }
 
@@ -78,7 +79,7 @@ class MainTest implements GlobalConst {
         bigt big = null;
         int pages = 0;
         String replacement_policy = "Clock";
-        while(!option.equals("6")){
+        while(!option.equals("7")){
             if(option.equals("1")){
                 System.out.println("FORMAT: batchinsert DATAFILENAME TYPE BIGTABLENAME NUMBUF");
                 String batch = sc.nextLine();
@@ -208,6 +209,35 @@ class MainTest implements GlobalConst {
                 System.out.println("TIME TAKEN "+((endTime - startTime)/1000000000) + " s");
 
             }else if (option.equals("5")){
+                System.out.println("FORMAT: rowsort INBTNAME OUTBTNAME COLUMNNAME NUMBUF");
+                String[] splits = sc.nextLine().split(" ");
+                if(splits.length!=5){
+                    System.out.println("Wrong format, try again!");
+                    display();
+                    option = sc.nextLine();
+                    continue;
+                }
+                try{
+                    sysdef.changeNumberOfBuffers(Integer.parseInt(splits[4]), replacement_policy);
+                }catch(Exception e){
+                    System.err.println("MainTest.java: Exception in setting the NUMBUF");
+                    e.printStackTrace();
+                }
+                long startTime = System.nanoTime();
+                try{
+                    RowSort rowSort = new RowSort(splits[1], splits[2], splits[3], (int)((Integer.parseInt(splits[4])*3)/4));
+                    rowSort.run();
+                }catch(Exception e){
+                    System.err.println("MainTest.java: Exception caused in executing RowSort");
+                    e.printStackTrace();
+                    display();
+                    option = sc.nextLine();
+                    continue;
+                }
+                long endTime = System.nanoTime();
+                System.out.println("TIME TAKEN "+((endTime - startTime)/1000000000) + " s");
+
+            }else if (option.equals("6")){
                 System.out.println("Enter BigTable name");
                 String bigt_name = sc.nextLine();
                 displayOtherOptions();
@@ -222,7 +252,6 @@ class MainTest implements GlobalConst {
                                 System.out.println("Storage Type " + i);
                                 System.out.println("****************************");
                                 FileScanMap fscan = new FileScanMap(big.getHeapFileName(i), null, null, false);
-                                MID mid = new MID();
                                 Map temp = fscan.get_next();
                                 while (temp != null) {
                                     temp.setFldOffset(temp.getMapByteArray());
