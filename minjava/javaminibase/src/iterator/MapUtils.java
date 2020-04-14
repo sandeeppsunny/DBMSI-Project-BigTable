@@ -191,9 +191,19 @@ public class MapUtils {
         }
     }
 
+    public static int CompareMapWithMapSixthType(Map m1, Map m2) throws IOException{
+        int rowComp = m1.getRowLabel().compareTo(m2.getRowLabel());
+        if(rowComp == 0) {
+            return m1.getValue().compareTo(m2.getValue());
+        } else {
+            return rowComp;
+        }
+    }
+
     public static int CompareMapWithMapValues(Map m1, Map m2) throws IOException{
         return m1.getValue().compareTo(m2.getValue());
     }
+
     /**
      * This function Compares two maps in all fields
      *

@@ -540,7 +540,7 @@ public class SortMap extends MapIterator implements GlobalConst {
         lastElem.setRowLabel(s);
         lastElem.setColumnLabel(s);
         lastElem.setTimeStamp(Integer.MIN_VALUE);
-        lastElem.setRowLabel(s);
+        lastElem.setValue(s);
         return;
     }
 
@@ -605,7 +605,7 @@ public class SortMap extends MapIterator implements GlobalConst {
         lastElem.setRowLabel(s);
         lastElem.setColumnLabel(s);
         lastElem.setTimeStamp(Integer.MAX_VALUE);
-        lastElem.setRowLabel(s);
+        lastElem.setValue(s);
         return;
     }
 
@@ -667,7 +667,7 @@ public class SortMap extends MapIterator implements GlobalConst {
                 order_type = 5;
                 break;
             case 6:
-                _sort_fld = 3;
+                _sort_fld = 1;
                 order_type = 6;
                 break;
             case 7:
