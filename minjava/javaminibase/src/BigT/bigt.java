@@ -17,7 +17,7 @@ public class bigt {
     private String name;
 
     private Heapfile _hf;
-    private ArrayList<HeapfileInterface> heapFiles;
+    private ArrayList<Heapfile> heapFiles;
     private ArrayList<String> heapFileNames;
     private ArrayList<String> indexFileNames;
     private ArrayList<BTreeFile> indexFiles;
@@ -119,7 +119,7 @@ public class bigt {
         return name;
     }
 
-    public HeapfileInterface getHeapFile(int i) {
+    public Heapfile getHeapFile(int i) {
         return heapFiles.get(i);
     }
 
@@ -352,6 +352,14 @@ public class bigt {
         return mid;
     }
 
+    public MID insertMapIntoAlreadySortedFile(Map map, int type) throws HFDiskMgrException,
+            InvalidTupleSizeException, HFException, IOException, FieldNumberOutOfBoundException,
+            InvalidSlotNumberException, SpaceNotAvailableException, HFBufMgrException {
+        this.insertType = type;
+        MID mid = heapFiles.get(type).insertRecordMapIntoSortedFile(map.getMapByteArray(), type);
+        return mid;
+    }
+
     public void buildUtilityIndex(){
         try{
 //            System.out.println("Building Utility INdex");
@@ -534,6 +542,105 @@ public class bigt {
         if(duplicateMaps.size() == 4){
             mid = duplicateMaps.get(0).getMid();
             heapFiles.get(duplicateMaps.get(0).getHeapFileIndex()).deleteRecordMap(mid);
+//            _hf.deleteRecordMap(duplicateMaps.get(0).getMid());
+            duplicateMaps.remove(0);
+        }
+    }
+
+    public void deleteDuplicateRecordsFromSortedFile()
+            throws IndexException,
+            InvalidTypeException,
+            InvalidTupleSizeException,
+            UnknownIndexTypeException,
+            UnknownKeyTypeException,
+            java.io.IOException,
+            InvalidSlotNumberException,
+            HFException,
+            HFBufMgrException,
+            HFDiskMgrException, PageUnpinnedException, InvalidFrameNumberException, HashEntryNotFoundException, ReplacerException, SpaceNotAvailableException {
+
+        iscan = new MapIndexScan(new IndexType(IndexType.B_Index), this.getHeapFileName(1), indexUtil, attrType, res_str_sizes, 4, 4, projlist, null, null, 1, true);
+        Pair previousMapPair = iscan.get_next_mid();
+        Pair curMapPair = iscan.get_next_mid();
+
+        String[] indexKeyTokens;
+
+        String prevKey = previousMapPair.getIndexKey();
+//        System.out.println("Index Key is: " + prevKey);
+        String curKey = "";
+
+        List<Pair> duplicateMaps = new ArrayList<>();
+        indexKeyTokens = prevKey.split("%");
+        previousMapPair  = new Pair(previousMapPair.getMap(), previousMapPair.getMid(), previousMapPair.getIndexKey(),
+                Integer.parseInt(indexKeyTokens[indexKeyTokens.length-1]));
+        duplicateMaps.add(previousMapPair);
+        MID mid;
+        Map map;
+        while(curMapPair!=null){
+            curKey = curMapPair.getIndexKey();
+//            System.out.println("Index Key is: " + curKey);
+            indexKeyTokens = curKey.split("%");
+            String curKeyString = curKey.substring(0, curKey.indexOf('%'));
+            String prevKeyString = prevKey.substring(0, prevKey.indexOf('%'));
+//            System.out.println("Previous Key: " + prevKeyString);
+//            System.out.println("Current Key: " + curKeyString);
+            curMapPair = new Pair(curMapPair.getMap(), curMapPair.getMid(), curMapPair.getIndexKey(),
+                    Integer.parseInt(indexKeyTokens[indexKeyTokens.length-1]));
+
+            if(prevKeyString.equals(curKeyString)){
+                duplicateMaps.add(curMapPair);
+            }else{
+                duplicateMaps = new ArrayList<>();
+                duplicateMaps.add(curMapPair);
+            }
+            if(duplicateMaps.size() == 4){
+/*                System.out.println("Key" + curKeyString);
+                System.out.println();
+                System.out.println("Printing Pairs in duplicateMaps list");
+                for(int i =0; i < duplicateMaps.size(); i++){
+                    System.out.println(duplicateMaps.get(i).getIndexKey()
+                            .substring(duplicateMaps.get(i).getIndexKey().indexOf('%')+1));
+                    System.out.println("MID: pageNo:" + duplicateMaps.get(i).getMid().pageNo + " slotNo: " +
+                            duplicateMaps.get(i).getMid().slotNo + " ; IndexKey: " +
+                            duplicateMaps.get(i).getIndexKey() + " ; HeapFileIndex: " +
+                            duplicateMaps.get(i).getHeapFileIndex());
+                }
+                System.out.println();*/
+                duplicateMaps.sort(new Comparator<Pair>() {
+                    @Override
+                    public int compare(Pair o1, Pair o2) {
+                        String o1String = o1.getIndexKey();
+                        String o2String = o2.getIndexKey();
+
+                        Integer o1Timestamp = Integer.parseInt(o1.getIndexKey().split("%")[1]);
+                        Integer o2Timestamp = Integer.parseInt(o2.getIndexKey().split("%")[1]);
+                        return o1Timestamp.compareTo(o2Timestamp);
+                    }
+                });
+                mid = duplicateMaps.get(0).getMid();
+//                System.out.println("Heap File index: " + duplicateMaps.get(0).getHeapFileIndex());
+                if(duplicateMaps.get(0).getHeapFileIndex() != 1) {
+                    heapFiles.get(duplicateMaps.get(0).getHeapFileIndex()).deleteRecordMapFromSortedFile(mid);
+                } else {
+                    heapFiles.get(duplicateMaps.get(0).getHeapFileIndex()).deleteRecordMap(mid);
+                }
+
+//                _hf.deleteRecordMap(mid);
+                duplicateMaps.remove(0);
+            }
+            prevKey = curKey;
+            curMapPair = iscan.get_next_mid();
+        }
+        iscan.close();
+        utilityIndex.close();
+
+        if(duplicateMaps.size() == 4){
+            mid = duplicateMaps.get(0).getMid();
+            if(duplicateMaps.get(0).getHeapFileIndex() != 1) {
+                heapFiles.get(duplicateMaps.get(0).getHeapFileIndex()).deleteRecordMapFromSortedFile(mid);
+            } else {
+                heapFiles.get(duplicateMaps.get(0).getHeapFileIndex()).deleteRecordMap(mid);
+            }
 //            _hf.deleteRecordMap(duplicateMaps.get(0).getMid());
             duplicateMaps.remove(0);
         }

@@ -43,7 +43,7 @@ public class MapInsert{
         map.setTimeStamp(this.TimeStamp);
         this.Table = new bigt(this.TableName, true);
         try{
-            this.Table.insertMap(map, this.Type);
+            this.Table.insertMapIntoAlreadySortedFile(map, this.Type);
         }catch(Exception ex){
             System.err.println("MapInsert.java: Exception in inserting map");
             ex.printStackTrace();
@@ -55,14 +55,13 @@ public class MapInsert{
 
         startTime = System.nanoTime();
         this.Table.buildUtilityIndex();
-        this.Table.unpinAllPages();
         endTime = System.nanoTime();
         System.out.println("TIME TAKEN TO BUILD UTILITY INDEX " + ((endTime - startTime)/1000000000) + " s");
 
 
         startTime = System.nanoTime();
         try {
-            this.Table.deleteDuplicateRecords();
+            this.Table.deleteDuplicateRecordsFromSortedFile();
         } catch (Exception e) {
             System.err.println("MapInsert.java: Exception caused in deleting duplicate records");
             e.printStackTrace();
@@ -71,15 +70,9 @@ public class MapInsert{
         System.out.println("TIME TAKEN FOR DUPLICATE RECORDS REMOVAL "+((endTime - startTime)/1000000000) + " s");
 
         startTime = System.nanoTime();
-        this.Table.sortHeapFiles();
-        endTime = System.nanoTime();
-        System.out.println("TIME TAKEN TO CREATE SORTED HEAPFILES "+((endTime - startTime)/1000000000) + " s");
-
-        startTime = System.nanoTime();
         this.Table.insertIntoMainIndex();
         endTime = System.nanoTime();
         System.out.println("TIME TAKEN FOR CREATING MAIN INDICES "+((endTime - startTime)/1000000000) + " s");
-        this.Table.unpinAllPages();
         System.out.println();
 
         System.out.println("NUMBER OF MAPS IN THE CURRENT BIGTABLE: " + this.Table.getMapCnt());

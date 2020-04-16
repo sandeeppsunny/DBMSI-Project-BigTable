@@ -36,7 +36,7 @@ public class Scan implements GlobalConst {
      */
 
     /** The heapfile we are using. */
-    private HeapfileInterface _hf;
+    private Heapfile _hf;
 
     /** PageId of current directory page (which is itself an HFPage) */
     private PageId dirpageId = new PageId();
@@ -70,7 +70,7 @@ public class Scan implements GlobalConst {
      *
      * @param hf A HeapFile object
      */
-    public Scan(HeapfileInterface hf, boolean isTuple)
+    public Scan(Heapfile hf, boolean isTuple)
             throws InvalidTupleSizeException,
             IOException {
         if(isTuple) {
@@ -291,7 +291,7 @@ public class Scan implements GlobalConst {
      *
      * @param hf A HeapFile object
      */
-    private void initTuple(HeapfileInterface hf)
+    private void initTuple(Heapfile hf)
             throws InvalidTupleSizeException,
             IOException {
         _hf = hf;
@@ -306,7 +306,7 @@ public class Scan implements GlobalConst {
      *
      * @param hf A HeapFile object
      */
-    private void initMap(HeapfileInterface hf)
+    private void initMap(Heapfile hf)
             throws InvalidTupleSizeException,
             IOException {
         _hf = hf;

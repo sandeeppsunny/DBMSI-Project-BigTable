@@ -169,6 +169,7 @@ class MainTest implements GlobalConst {
                     e.printStackTrace();
                 }
                 try{
+                    big = new bigt(splits[6], true);
                     MapInsert mapinsert = new MapInsert(splits[1], splits[2], splits[3],
                             Integer.parseInt(splits[4]), Integer.parseInt(splits[5]), splits[6]);
                     mapinsert.run();
