@@ -207,6 +207,7 @@ class MainTest implements GlobalConst {
                 try{
                     RowJoin rowJoin = new RowJoin(splits[1], splits[2], splits[3], splits[4]);
                     rowJoin.run();
+                    allBigT.add(splits[3]);
                 }catch(Exception e){
                     System.err.println("MainTest.java: Exception caused in executing RowJoin");
                     e.printStackTrace();
@@ -239,6 +240,7 @@ class MainTest implements GlobalConst {
                 try{
                     RowSort rowSort = new RowSort(splits[1], splits[2], Integer.parseInt(splits[3]), splits[4], (int)((Integer.parseInt(splits[5])*3)/4));
                     rowSort.run();
+                    allBigT.add(splits[2]);
                 }catch(Exception e){
                     System.err.println("MainTest.java: Exception caused in executing RowSort");
                     e.printStackTrace();
