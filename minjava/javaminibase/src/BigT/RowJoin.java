@@ -70,8 +70,10 @@ public class RowJoin{
             System.out.println("Matching Row labels: " + matchingRowlabels.getRecCntMap());
             performJoin(matchingRowlabels);
             System.out.println("NUMBER OF MAPS IN THE OUTPUT BIGTABLE AFTER COMPLETING ROWJOIN: " + this.outBigT.getMapCnt());
-            matchingRowlabels.deleteFileMap();
         }
+        matchingRowlabels.deleteFileMap();
+        tempHeapFile1.deleteFileMap();
+        tempHeapFile2.deleteFileMap();
     }
 
     public void buildTempHeapFiles(){
