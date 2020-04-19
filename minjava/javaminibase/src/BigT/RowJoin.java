@@ -58,14 +58,16 @@ public class RowJoin{
         buildTempHeapFiles();
         System.out.println("Number of elements in temporary heap file1: " + this.tempHeapFile1.getRecCntMap());
         System.out.println("Number of elements in temporary heap file2: " + this.tempHeapFile2.getRecCntMap());
-        ArrayList<String[]> matchingRowlabels =  getMatchingRowLabels();
-        if(matchingRowlabels == null || matchingRowlabels.size() == 0){
+//        ArrayList<String[]> matchingRowlabels =  getMatchingRowLabels();
+        Heapfile matchingRowlabels = getMatchingRowLabels();
+        if(matchingRowlabels == null || matchingRowlabels.getRecCntMap() == 0){
             System.err.println("NO MATCHING ROWS FOUND");
             return;
         }else{
-            for(String[] temp: matchingRowlabels){
+            /*for(String[] temp: matchingRowlabels){
                 System.out.println("Matching Rows: " + temp[0] + " -- " + temp[1]);
-            }
+            }*/
+            System.out.println("Matching Row labels: " + matchingRowlabels.getRecCntMap());
             performJoin(matchingRowlabels);
             System.out.println("NUMBER OF MAPS IN THE OUTPUT BIGTABLE AFTER COMPLETING ROWJOIN: " + this.outBigT.getMapCnt());
         }
@@ -156,9 +158,11 @@ public class RowJoin{
         }
     }
 
-    public ArrayList<String[]> getMatchingRowLabels() throws Exception {
+    public Heapfile getMatchingRowLabels() throws Exception {
         ArrayList<String[]> res = new ArrayList<>();
-        String[] temp = new String[2];
+        Heapfile matchingRowLabel = new Heapfile(null);
+//        String[] temp = new String[2];
+        Map tempMap;
         SortMap[] sortMaps = getSortedStreams();
         if(sortMaps!=null){
             Map mapLeft = null;
@@ -174,10 +178,14 @@ public class RowJoin{
                     }
                     mapRight.setFldOffset(mapRight.getMapByteArray());
                     if(mapLeft.getValue().compareTo(mapRight.getValue()) == 0){
-                        temp = new String[2];
-                        temp[0] = mapLeft.getRowLabel();
-                        temp[1] = mapRight.getRowLabel();
-                        res.add(temp);
+//                        temp = new String[2];
+                        tempMap = new Map();
+                        tempMap.setDefaultHdr();
+                        tempMap.setRowLabel(mapLeft.getRowLabel() + ":" + mapRight.getRowLabel());
+//                        temp[0] = mapLeft.getRowLabel();
+//                        temp[1] = mapRight.getRowLabel();
+                        matchingRowLabel.insertRecordMap(tempMap.getMapByteArray());
+//                        res.add(temp);
                     }
                 }
                 sortMaps[1].close();
@@ -188,7 +196,7 @@ public class RowJoin{
             sortMaps[0].close();
             sortMaps[1].close();
         }
-        return res;
+        return matchingRowLabel;
     }
 
     /**
@@ -212,7 +220,7 @@ public class RowJoin{
         return res;
     }
 
-    public void performJoin(ArrayList<String[]> matchingRowLabels){
+    public void performJoin(Heapfile matchingRowLabels){
 
         try{
             SystemDefs.JavabaseBM.flushAllPagesForcibly();
@@ -224,7 +232,12 @@ public class RowJoin{
         }
         Stream tempStream;
         try{
-            for(String[] matchingRows: matchingRowLabels){
+            String[] matchingRows;
+            FileScanMap matchingRowsScan = new FileScanMap(matchingRowLabels._fileName, null, null, false);
+            Map rowLabels;
+            while((rowLabels = matchingRowsScan.get_next())!=null){
+                rowLabels.setDefaultHdr();
+                matchingRows = rowLabels.getRowLabel().split(":");
                 tempStream = new Stream(this.bigTable1, null, 1, 1
                         , matchingRows[0], "*", "*", this.numBuf);
                 Map tempMap = null;
