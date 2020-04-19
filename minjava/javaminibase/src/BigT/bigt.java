@@ -17,10 +17,10 @@ public class bigt {
     private String name;
 
     private Heapfile _hf;
-    private ArrayList<Heapfile> heapFiles;
+    public ArrayList<Heapfile> heapFiles;
     public ArrayList<String> heapFileNames;
     public ArrayList<String> indexFileNames;
-    private ArrayList<BTreeFile> indexFiles;
+    public ArrayList<BTreeFile> indexFiles;
     public BTreeFile utilityIndex = null;
     public String indexUtil;
     private AttrType[] attrType;

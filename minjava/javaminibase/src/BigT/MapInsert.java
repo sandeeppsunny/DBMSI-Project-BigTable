@@ -55,9 +55,12 @@ public class MapInsert{
 
         startTime = System.nanoTime();
         try{
-            this.Table.deleteIndexTree(this.Table.utilityIndex);
+            this.Table.createIndexUtil();
+            this.Table.deleteAllNodesInIndex(this.Table.utilityIndex);
         }catch(Exception e){
-            System.err.println("Exception caused in deleting records from the utility index")
+            System.err.println("Exception caused in deleting records from the utility index");
+            e.printStackTrace();
+            return;
         }
         this.Table.buildUtilityIndex();
         endTime = System.nanoTime();
@@ -75,6 +78,13 @@ public class MapInsert{
         System.out.println("TIME TAKEN FOR DUPLICATE RECORDS REMOVAL "+((endTime - startTime)/1000000000) + " s");
 
         startTime = System.nanoTime();
+        try{
+            this.Table.indexCreateUtil();
+            this.Table.deleteAllNodesInIndex(this.Table.indexFiles.get(this.Type));
+
+        }catch(Exception e){
+            System.err.println("Exception caused in deleting entries in the main index of storage type: " + this.Type);
+        }
         this.Table.createMapInsertIndex(this.Type);
         endTime = System.nanoTime();
         System.out.println("TIME TAKEN FOR CREATING MAIN INDICES "+((endTime - startTime)/1000000000) + " s");
