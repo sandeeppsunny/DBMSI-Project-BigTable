@@ -66,10 +66,9 @@ public class MapInsert{
         endTime = System.nanoTime();
         System.out.println("TIME TAKEN TO BUILD UTILITY INDEX " + ((endTime - startTime)/1000000000) + " s");
 
-
         startTime = System.nanoTime();
         try {
-            this.Table.deleteDuplicateRecordsFromSortedFile();
+            this.Table.deleteDuplicateRecords();
         } catch (Exception e) {
             System.err.println("MapInsert.java: Exception caused in deleting duplicate records");
             e.printStackTrace();
@@ -80,8 +79,9 @@ public class MapInsert{
         startTime = System.nanoTime();
         try{
             this.Table.indexCreateUtil();
-            this.Table.deleteAllNodesInIndex(this.Table.indexFiles.get(this.Type));
-
+            if(this.Type != 1) {
+                this.Table.deleteAllNodesInIndex(this.Table.indexFiles.get(this.Type));
+            }
         }catch(Exception e){
             System.err.println("Exception caused in deleting entries in the main index of storage type: " + this.Type);
         }

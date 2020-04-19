@@ -752,6 +752,7 @@ public class Heapfile implements Filetype, GlobalConst {
         newMap.mapSet(recPtr, 0, newMap.getLength());
         newMap.setFldOffset(newMap.getMapByteArray());
 
+        Heapfile tempHeapfile = new Heapfile(null);
         MID mid = new MID();
         Scan scan = openScanMap();
 
@@ -771,58 +772,71 @@ public class Heapfile implements Filetype, GlobalConst {
                 case 3:
                 case 4:
                     if (MapUtils.CompareMapWithMapSecondType(map, newMap) > 0) {
-                        MID tempMid = new MID();
-                        tempMid.pageNo = new PageId();
-                        tempMid.slotNo = mid.slotNo;
-                        tempMid.pageNo.pid = mid.pageNo.pid;
-                        deleteRecordMap(tempMid);
-                        insertRecordMap(prev);
-                        if (foundPos == false) {
-                            resultMID = tempMid;
+                        if(!foundPos) {
+                            tempHeapfile.insertRecordMap(newMap.getMapByteArray());
                             foundPos = true;
                         }
-                        prev = map.getMapByteArray();
                     }
                     break;
                 case 5:
                     if (MapUtils.CompareMapWithMapSixthType(map, newMap) > 0) {
-                        MID tempMid = new MID();
-                        tempMid.pageNo = new PageId();
-                        tempMid.slotNo = mid.slotNo;
-                        tempMid.pageNo.pid = mid.pageNo.pid;
-                        deleteRecordMap(tempMid);
-                        insertRecordMap(prev);
-                        if (foundPos == false) {
-                            resultMID = tempMid;
+                        if(!foundPos) {
+                            tempHeapfile.insertRecordMap(newMap.getMapByteArray());
                             foundPos = true;
                         }
-                        prev = map.getMapByteArray();
                     }
                     break;
                 default:
                     if (MapUtils.CompareMapWithMapFirstType(map, newMap) > 0) {
-                        MID tempMid = new MID();
-                        tempMid.pageNo = new PageId();
-                        tempMid.slotNo = mid.slotNo;
-                        tempMid.pageNo.pid = mid.pageNo.pid;
-                        deleteRecordMap(tempMid);
-                        insertRecordMap(prev);
-                        if (foundPos == false) {
-                            resultMID = tempMid;
+                        if(!foundPos) {
+                            tempHeapfile.insertRecordMap(newMap.getMapByteArray());
                             foundPos = true;
                         }
-                        prev = map.getMapByteArray();
                     }
                     break;
             }
+            tempHeapfile.insertRecordMap(map.getMapByteArray());
+        }
+        scan.closescan();
+        if(!foundPos) {
+            try {
+                tempHeapfile.deleteFileMap();
+            } catch(Exception e) {
+                e.printStackTrace();
+                System.out.println("Error occurred while deleting heapFile");
+            }
+            return insertRecordMap(newMap.getMapByteArray());
+        }
 
+        String curHeapfileName = this._fileName;
+        try {
+            this.deleteFileMap();
+        } catch(Exception e) {
+            e.printStackTrace();
+            System.out.println("Error occurred while deleting heapFile");
         }
-        if (!foundPos) {
-            return insertRecordMap(prev);
-        } else {
-            insertRecordMap(prev);
-            return resultMID;
+
+        Heapfile newHeapfile = new Heapfile(curHeapfileName);
+        isScanComplete = false;
+        scan = tempHeapfile.openScanMap();
+        while (!isScanComplete) {
+            Map map = scan.getNextMap(mid);
+            if (map == null) {
+                isScanComplete = true;
+                break;
+            }
+            map.setFldOffset(map.getMapByteArray());
+            newHeapfile.insertRecordMap(map.getMapByteArray());
         }
+        scan.closescan();
+
+        try {
+            tempHeapfile.deleteFileMap();
+        } catch(Exception e) {
+            e.printStackTrace();
+            System.out.println("Error occurred while deleting heapFile");
+        }
+        return null;
     }
 
     /**
