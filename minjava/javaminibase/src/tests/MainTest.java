@@ -6,9 +6,13 @@ import global.*;
 import iterator.*;
 import BigT.*;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Scanner;
 
 class MainTest implements GlobalConst {
+
+    public static HashSet<String> allBigT;
 
     public static void display(){
 //        SystemDefs.JavabaseDB.pcounter.initialize();
@@ -18,8 +22,9 @@ class MainTest implements GlobalConst {
         System.out.println("Press 3 for MapInsert");
         System.out.println("Press 4 for RowJoin");
         System.out.println("Press 5 for RowSort");
-        System.out.println("Press 6 for other options");
-        System.out.println("Press 7 to quit");
+        System.out.println("Press 6 for getCounts");
+        System.out.println("Press 7 for other options");
+        System.out.println("Press 8 to quit");
         System.out.println("------------------------ BigTable Tests --------------------------");
     }
 
@@ -79,7 +84,8 @@ class MainTest implements GlobalConst {
         bigt big = null;
         int pages = 0;
         String replacement_policy = "Clock";
-        while(!option.equals("7")){
+        allBigT = new HashSet<>();
+        while(!option.equals("8")){
             if(option.equals("1")){
                 System.out.println("FORMAT: batchinsert DATAFILENAME TYPE BIGTABLENAME NUMBUF");
                 String batch = sc.nextLine();
@@ -100,6 +106,7 @@ class MainTest implements GlobalConst {
                     BatchInsert batchInsert = new BatchInsert(big, splits[1], Integer.parseInt(splits[2]), splits[3]);
                     pages = batchInsert.run();
                     long endTime = System.nanoTime();
+                    allBigT.add(splits[3]);
                     System.out.println("TIME TAKEN "+((endTime - startTime)/1000000000) + " s");
                 }
                 catch(Exception e){
@@ -243,7 +250,37 @@ class MainTest implements GlobalConst {
                 long endTime = System.nanoTime();
                 System.out.println("TIME TAKEN "+((endTime - startTime)/1000000000) + " s");
 
-            }else if (option.equals("6")){
+            }else if(option.equals("6")){
+                System.out.println("FORMAT: getCounts NUMBUF");
+                String[] splits = sc.nextLine().split(" ");
+                if(splits.length!=2){
+                    System.out.println("Wrong format, try again!");
+                    display();
+                    option = sc.nextLine();
+                    continue;
+                }
+                try{
+                    sysdef.changeNumberOfBuffers(Integer.parseInt(splits[1]), replacement_policy);
+                    SystemDefs.JavabaseDB.pcounter.initialize();
+
+                }catch(Exception e){
+                    System.err.println("MainTest.java: Exception in setting the NUMBUF");
+                    e.printStackTrace();
+                }
+                long startTime = System.nanoTime();
+                try{
+                    GetAllCount getAllCount = new GetAllCount(allBigT, Integer.parseInt(splits[1]));
+                    getAllCount.run();
+                }catch(Exception e){
+                    System.err.println("MainTest.java: Exception caused in executing getCounts");
+                    e.printStackTrace();
+                    display();
+                    option = sc.nextLine();
+                    continue;
+                }
+                long endTime = System.nanoTime();
+                System.out.println("TIME TAKEN "+((endTime - startTime)/1000000000) + " s");
+            }else if (option.equals("7")){
                 System.out.println("Enter BigTable name");
                 String bigt_name = sc.nextLine();
                 displayOtherOptions();
