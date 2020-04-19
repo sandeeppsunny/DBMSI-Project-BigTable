@@ -605,7 +605,7 @@ public class SortMap extends MapIterator implements GlobalConst {
         lastElem.setRowLabel(s);
         lastElem.setColumnLabel(s);
         lastElem.setTimeStamp(Integer.MAX_VALUE);
-        lastElem.setValue(s);
+        lastElem.setValue("456789000");
         return;
     }
 
