@@ -16,88 +16,138 @@ import java.util.List;
 
 public class RowSort{
 
-    private bigt tempTable;
+
     private bigt resultTable;
     private int numBuf;
     private bigt sourceTable;
     private String sourceTableName;
     private String ColumnName;
-    private String tempTableName;
+    private MapOrder mapOrder;
 
-    public RowSort(String sourceTableName, String resultTable, String ColumnName, int n_pages)
+    public RowSort(String sourceTableName, String resultTable, int rowOrder, String ColumnName, int n_pages)
         throws Exception{
         this.numBuf = n_pages;
         this.sourceTableName = sourceTableName;
         this.ColumnName = ColumnName;
-        this.tempTableName = "tempTable";
         this.sourceTable = new bigt(sourceTableName, false);
         this.resultTable = new bigt(resultTable, false);
-        this.tempTable = new bigt(tempTableName, false);
+
+        if(rowOrder == 1){
+            mapOrder = new MapOrder(MapOrder.Ascending);
+        }else if(rowOrder == 2){
+            mapOrder = new MapOrder(MapOrder.Descending);
+        }
     }
 
-    public void run() throws Exception{
-        FileScanMap mapIterator = new FileScanMap(sourceTableName, null, null, true);
-        SortMap sortMap = new SortMap(null, null, null, mapIterator, 1, new MapOrder(MapOrder.Ascending), null, numBuf);
-        Map t = sortMap.get_next();
-        String row_label = "";
-        boolean found = false;
-        Map foundMap = new Map();
-        String defaultLabel = "";
-        while(t != null) {
-            t.setFldOffset(t.getMapByteArray());
-            if(!row_label.equals(t.getRowLabel())){
-                defaultLabel = row_label;
-                if(!found && !row_label.equals("")){
-                    insertDefault(defaultLabel);
-                }
-                if(found){
-                    if(!row_label.equals(t.getRowLabel())){
-                        insertTemp(foundMap);
-                        found = false;
-                    }
-                }
-                row_label = t.getRowLabel();
+    public void run() throws Exception {
+        //create heap file with all rows recent timestamps sorted based on row + timestamp
+        Stream stream1 = new Stream(sourceTableName, null, 1, 3, "*",
+                "*", "*", numBuf);
+        Heapfile rows = new Heapfile("rows");
+        createHeap(stream1, rows);
+        stream1.closestream();
+
+        Stream stream2 = new Stream(sourceTableName, null, 1, 3, "*",
+                ColumnName, "*", numBuf);
+        Heapfile filterRows = new Heapfile("filterRows");
+        createHeap(stream2, filterRows);
+        stream2.closestream();
+
+        dumpDefault(rows, filterRows);
+
+        //Sort iterator on filterRows heapfile to insert the filterRows in bigt -> sort order 7 (value based)
+        FileScanMap tempScan = new FileScanMap("filterRows", null, null, false);
+        SortMap sort = new SortMap(null, null, null, tempScan, 7, mapOrder,
+                null, numBuf);
+
+        Map mapSort = sort.get_next();
+        String rowLabel;
+
+        while(mapSort!=null){
+            mapSort.setDefaultHdr();
+            rowLabel = mapSort.getRowLabel();
+            FileScanMap rowLabelScan = new FileScanMap(sourceTableName, null,
+                    getConditionalExpression(rowLabel), true);
+            Map tempMap = rowLabelScan.get_next();
+            while(tempMap!=null){
+                tempMap.setDefaultHdr();
+                resultTable.insertMap(tempMap, 1);
+                tempMap = rowLabelScan.get_next();
             }
-            if(ColumnName.equals(t.getColumnLabel())){
-                found = true;
-                foundMap = new Map(t);
+            rowLabelScan.close();
+            mapSort = sort.get_next();
+        }
+        sort.close();
+        System.out.println("NUMBER OF MAPS IN OUTPUT BIGTABLE: " + resultTable.getMapCnt());
+
+        rows.deleteFileMap();
+        filterRows.deleteFileMap();
+    }
+
+    public void createHeap(Stream stream, Heapfile heapfile) throws IOException, InvalidTupleSizeException,
+            SpaceNotAvailableException, HFException, HFBufMgrException, InvalidSlotNumberException, HFDiskMgrException {
+        Map tempMap = null;
+        tempMap = stream.getNext();
+        Map prevMap = null;
+        if(tempMap!=null){
+            tempMap.setDefaultHdr();
+            prevMap = new Map(tempMap);
+        }
+        while(tempMap!=null){
+            tempMap.setDefaultHdr();
+            if(!tempMap.getRowLabel().equals(prevMap.getRowLabel())){
+                heapfile.insertRecordMap(prevMap.getMapByteArray());
             }
-            t = sortMap.get_next();
+            prevMap = new Map(tempMap);
+            tempMap = stream.getNext();
         }
-        if(found){
-            insertTemp(foundMap);
-        }else{
-            insertDefault(row_label);
-        }
-        sortMap.close();
-
-        FileScanMap mapIterator1 = new FileScanMap(tempTableName, null, null, true);
-        SortMap sortMap1 = new SortMap(null, null, null, mapIterator1, 7, new MapOrder(MapOrder.Ascending), null, numBuf);
-        Map t1 = sortMap1.get_next();
-        while(t1!=null){
-            t1.setFldOffset(t1.getMapByteArray());
-            insertDefault(t1.getRowLabel());
-            t1 = sortMap1.get_next();
-        }
-        sortMap1.close();
+        heapfile.insertRecordMap(prevMap.getMapByteArray());
     }
 
-    public void insertDefault(String rowLabel)
-            throws Exception{
-        CondExpr[] expr = getConditionalExpression(rowLabel);
-        FileScanMap search = new FileScanMap(sourceTableName, null, expr, true);
-        Pair pair = search.get_next_mid();
-        while(pair != null) {
-            resultTable.insertMap(pair.getMap(), 1);
-            pair = search.get_next_mid();
+    public void dumpDefault(Heapfile allRows, Heapfile filterRows) throws InvalidTupleSizeException, IOException,
+            FileScanException, TupleUtilsException, InvalidRelation, HFBufMgrException, HFException,
+            FieldNumberOutOfBoundException, InvalidSlotNumberException, SpaceNotAvailableException, HFDiskMgrException,
+            JoinsException, PageNotReadException, WrongPermat, InvalidTypeException, PredEvalException, UnknowAttrType {
+        Scan sc1 = allRows.openScanMap();
+        Scan sc2 = filterRows.openScanMap();
+
+        MID mid_left = new MID();
+        MID mid_right = new MID();
+        CondExpr[] expr;
+
+        String rowLabel1, rowLabel2;
+        Map map_left = sc1.getNextMap(mid_left);
+        Map map_right = sc2.getNextMap(mid_right);
+        while(map_left!=null){
+            map_left.setDefaultHdr();
+            rowLabel1 = map_left.getRowLabel();
+            if(map_right!=null){
+                map_right.setDefaultHdr();
+                rowLabel2 = map_right.getRowLabel();
+            }else{
+                rowLabel2 = "";
+            }
+            if(!rowLabel1.equals(rowLabel2)){
+                expr = getConditionalExpression(rowLabel1);
+                FileScanMap tempFileScan = new FileScanMap(sourceTableName, null, expr, true);
+                Map tempMap = tempFileScan.get_next();
+                while(tempMap!=null){
+                    tempMap.setDefaultHdr();
+                    resultTable.insertMap(tempMap, 1);
+                    tempMap = tempFileScan.get_next();
+                }
+                tempFileScan.close();
+            }else{
+                map_right = sc2.getNextMap(mid_right);
+            }
+
+            map_left = sc1.getNextMap(mid_left);
         }
-        search.close();
+        sc1.closescan();
+        sc2.closescan();
     }
 
-    public void insertTemp(Map map)
-            throws Exception{
-        tempTable.insertMap(map, 1);
-    }
+
 
     public CondExpr[] getConditionalExpression(String rowLabel){
         CondExpr[] res = new CondExpr[2];
