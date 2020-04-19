@@ -41,7 +41,7 @@ public class MapInsert{
         map.setColumnLabel(this.ColumnLabel);
         map.setValue(this.Value);
         map.setTimeStamp(this.TimeStamp);
-        this.Table = new bigt(this.TableName, true);
+        this.Table = new bigt(this.TableName, false);
         try{
             this.Table.insertMapIntoAlreadySortedFile(map, this.Type);
         }catch(Exception ex){
@@ -54,6 +54,11 @@ public class MapInsert{
 
 
         startTime = System.nanoTime();
+        try{
+            this.Table.deleteIndexTree(this.Table.utilityIndex);
+        }catch(Exception e){
+            System.err.println("Exception caused in deleting records from the utility index")
+        }
         this.Table.buildUtilityIndex();
         endTime = System.nanoTime();
         System.out.println("TIME TAKEN TO BUILD UTILITY INDEX " + ((endTime - startTime)/1000000000) + " s");
@@ -70,7 +75,7 @@ public class MapInsert{
         System.out.println("TIME TAKEN FOR DUPLICATE RECORDS REMOVAL "+((endTime - startTime)/1000000000) + " s");
 
         startTime = System.nanoTime();
-        this.Table.insertIntoMainIndex();
+        this.Table.createMapInsertIndex(this.Type);
         endTime = System.nanoTime();
         System.out.println("TIME TAKEN FOR CREATING MAIN INDICES "+((endTime - startTime)/1000000000) + " s");
         System.out.println();

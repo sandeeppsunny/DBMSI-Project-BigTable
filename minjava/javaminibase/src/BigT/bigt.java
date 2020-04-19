@@ -18,10 +18,10 @@ public class bigt {
 
     private Heapfile _hf;
     private ArrayList<Heapfile> heapFiles;
-    private ArrayList<String> heapFileNames;
-    private ArrayList<String> indexFileNames;
+    public ArrayList<String> heapFileNames;
+    public ArrayList<String> indexFileNames;
     private ArrayList<BTreeFile> indexFiles;
-    private BTreeFile utilityIndex = null;
+    public BTreeFile utilityIndex = null;
     public String indexUtil;
     private AttrType[] attrType;
     private FldSpec[] projlist;
@@ -736,6 +736,30 @@ public class bigt {
             return _hf.insertRecordMap(map.getMapByteArray());
         }
 
+    }
+
+    public void createMapInsertIndex(int type){
+        FileScanMap fscan;
+        try{
+            deleteAllNodesInIndex(indexFiles.get(type));
+        }catch(Exception e){
+            System.err.println("Exception caused in deleting records in BTree index for storage type: " + type);
+        }
+        try{
+            indexFiles.set(type, createIndex(indexFileNames.get(type), type));
+            fscan = new FileScanMap(heapFileNames.get(type), null, null, false);
+            Pair mapPair;
+            mapPair = fscan.get_next_mid();
+            while(mapPair!=null){
+                insertIndex(mapPair.getMid(), mapPair.getMap(), type);
+                mapPair = fscan.get_next_mid();
+            }
+            fscan.close();
+            indexFiles.get(type).close();
+        }catch(Exception ex){
+            System.err.println("Exception caused in creating BTree Index for storage index type: " + type);
+            ex.printStackTrace();
+        }
     }
 
     public void unpinAllPages(){
