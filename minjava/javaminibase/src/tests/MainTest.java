@@ -164,6 +164,7 @@ class MainTest implements GlobalConst {
                 }
                 try{
                     sysdef.changeNumberOfBuffers(Integer.parseInt(splits[7]), replacement_policy);
+                    SystemDefs.JavabaseDB.pcounter.initialize();
                 }catch(Exception e){
                     System.err.println("MainTest.java: Exception in setting the NUMBUF");
                     e.printStackTrace();
@@ -191,6 +192,7 @@ class MainTest implements GlobalConst {
                 }
                 try{
                     sysdef.changeNumberOfBuffers(Integer.parseInt(splits[5]), replacement_policy);
+                    SystemDefs.JavabaseDB.pcounter.initialize();
                 }catch(Exception e){
                     System.err.println("MainTest.java: Exception in setting the NUMBUF");
                     e.printStackTrace();
@@ -210,23 +212,26 @@ class MainTest implements GlobalConst {
                 System.out.println("TIME TAKEN "+((endTime - startTime)/1000000000) + " s");
 
             }else if (option.equals("5")){
-                System.out.println("FORMAT: rowsort INBTNAME OUTBTNAME COLUMNNAME NUMBUF");
+                System.out.println("FORMAT: rowsort INBTNAME OUTBTNAME ROWORDER COLUMNNAME NUMBUF");
+                System.out.println("ROWORDER: \n 1. Ascending\n 2. Descending" );
                 String[] splits = sc.nextLine().split(" ");
-                if(splits.length!=5){
+                if(splits.length!=6){
                     System.out.println("Wrong format, try again!");
                     display();
                     option = sc.nextLine();
                     continue;
                 }
                 try{
-                    sysdef.changeNumberOfBuffers(Integer.parseInt(splits[4]), replacement_policy);
+                    sysdef.changeNumberOfBuffers(Integer.parseInt(splits[5]), replacement_policy);
+                    SystemDefs.JavabaseDB.pcounter.initialize();
+
                 }catch(Exception e){
                     System.err.println("MainTest.java: Exception in setting the NUMBUF");
                     e.printStackTrace();
                 }
                 long startTime = System.nanoTime();
                 try{
-                    RowSort rowSort = new RowSort(splits[1], splits[2], splits[3], (int)((Integer.parseInt(splits[4])*3)/4));
+                    RowSort rowSort = new RowSort(splits[1], splits[2], Integer.parseInt(splits[3]), splits[4], (int)((Integer.parseInt(splits[5])*3)/4));
                     rowSort.run();
                 }catch(Exception e){
                     System.err.println("MainTest.java: Exception caused in executing RowSort");
