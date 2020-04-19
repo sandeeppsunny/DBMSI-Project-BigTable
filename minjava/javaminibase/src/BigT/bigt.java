@@ -739,6 +739,9 @@ public class bigt {
     }
 
     public void createMapInsertIndex(int type){
+        if(type == 1) {
+            return;
+        }
         FileScanMap fscan;
         try{
             deleteAllNodesInIndex(indexFiles.get(type));
