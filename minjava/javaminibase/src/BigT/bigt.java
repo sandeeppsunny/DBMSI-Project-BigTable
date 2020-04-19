@@ -647,7 +647,7 @@ public class bigt {
     }
 
     public Stream openStream(String bigTableName, int orderType, String rowFilter, String columnFilter, String valueFilter, int numBuf) {
-        Stream stream = new Stream(bigTableName, null, 1, orderType, rowFilter, columnFilter, valueFilter, numBuf);
+        Stream stream = new Stream(bigTableName, null, 2, orderType, rowFilter, columnFilter, valueFilter, numBuf);
         return stream;
     }
 
