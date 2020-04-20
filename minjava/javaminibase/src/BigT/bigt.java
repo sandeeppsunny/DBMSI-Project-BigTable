@@ -257,28 +257,25 @@ public class bigt {
         }
     }
 
-    public void removeIndex(MID mid, Map map, int type)
+    public boolean removeIndex(MID mid, Map map, int type)
             throws KeyTooLongException, KeyNotMatchException, LeafInsertRecException, IndexInsertRecException,
             ConstructPageException, UnpinPageException, PinPageException, NodeNotMatchException, ConvertException,
             DeleteRecException, IndexSearchException, IteratorException, LeafDeleteException, InsertException,
             IOException, DeleteFashionException, LeafRedistributeException, RedistributeException, InsertRecException,
             FreePageException, RecordNotFoundException, IndexFullDeleteException {
-        switch (type) {
-            case 1:
-                break;
-            case 2:
-                indexFiles.get(2).Delete(new StringKey(map.getRowLabel()), mid);
-                break;
-            case 3:
-                indexFiles.get(3).Delete(new StringKey(map.getColumnLabel()), mid);
-                break;
-            case 4:
-                indexFiles.get(4).Delete(new StringKey(map.getColumnLabel() + "%" + map.getRowLabel()), mid);
-                break;
-            case 5:
-                indexFiles.get(5).Delete(new StringKey(map.getRowLabel() + "%" + map.getValue()), mid);
-                break;
+        boolean status;
+        if(type == 1){
+            status = true;
+        }else if(type == 2){
+            status = indexFiles.get(2).Delete(new StringKey(map.getRowLabel()), mid);
+        }else if(type == 3){
+            status = indexFiles.get(3).Delete(new StringKey(map.getColumnLabel()), mid);
+        }else if (type == 4){
+            status = indexFiles.get(4).Delete(new StringKey(map.getColumnLabel() + "%" + map.getRowLabel()), mid);
+        }else{
+            status = indexFiles.get(5).Delete(new StringKey(map.getRowLabel() + "%" + map.getValue()), mid);
         }
+        return status;
     }
 
     public void insertIndexUtil(MID mid, Map map, int heapFileIndex)
