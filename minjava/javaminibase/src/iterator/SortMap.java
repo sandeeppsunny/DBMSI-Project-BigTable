@@ -230,7 +230,7 @@ public class SortMap extends MapIterator implements GlobalConst {
                     comp_res = MapUtils.CompareMapWithMapFifthType(cur_node.map, lastElem);
                     break;
                 case 6:
-                    comp_res = MapUtils.CompareMapWithMapFifthType(cur_node.map, lastElem);
+                    comp_res = MapUtils.CompareMapWithMapSixthType(cur_node.map, lastElem);
                     break;
                 case 7:
                     comp_res = MapUtils.CompareMapWithMapValues(cur_node.map, lastElem);
