@@ -58,28 +58,28 @@ public class CombinedScanMap extends MapIterator {
             if(index_2_filter.length == 1) {
                 iterators[1] = new FileScanMap(file_name + "_" + 2, null, outFilter, false);
             } else {
-                iterators[1] = new MapIndexScan(new IndexType(IndexType.B_Index), file_name, file_name + "_index_" + 2,
+                iterators[1] = new MapIndexScan(new IndexType(IndexType.B_Index), file_name + "_" + 2, file_name + "_index_" + 2,
                                 attrType, res_str_sizes, 4, 4, null, outFilter, index_2_filter, 1, false);
             }
             // Only null exists in filter expression
             if(index_3_filter.length == 1) {
                 iterators[2] = new FileScanMap(file_name + "_" + 3, null, outFilter, false);
             } else {
-                iterators[2] = new MapIndexScan(new IndexType(IndexType.B_Index), file_name, file_name + "_index_" + 3,
+                iterators[2] = new MapIndexScan(new IndexType(IndexType.B_Index), file_name + "_" + 3, file_name + "_index_" + 3,
                         attrType, res_str_sizes, 4, 4, null, outFilter, index_3_filter, 2, false);
             }
             // Only null exists in filter expression
             if(index_4_filter.length == 1) {
                 iterators[3] = new FileScanMap(file_name + "_" + 4, null, outFilter, false);
             } else {
-                iterators[3] = new MapIndexScan(new IndexType(IndexType.B_Index), file_name, file_name + "_index_" + 4,
+                iterators[3] = new MapIndexScan(new IndexType(IndexType.B_Index), file_name + "_" + 4, file_name + "_index_" + 4,
                         attrType, res_str_sizes, 4, 4, null, outFilter, index_4_filter, 2, false);
             }
             // Only null exists in filter expression
             if(index_5_filter.length == 1) {
                 iterators[4] = new FileScanMap(file_name + "_" + 5, null, outFilter, false);
             } else {
-                iterators[4] = new MapIndexScan(new IndexType(IndexType.B_Index), file_name, file_name + "_index_" + 5,
+                iterators[4] = new MapIndexScan(new IndexType(IndexType.B_Index), file_name + "_" + 5, file_name + "_index_" + 5,
                         attrType, res_str_sizes, 4, 4, null, outFilter, index_5_filter, 1, false);
             }
         } catch(Exception e) {
