@@ -51,24 +51,10 @@ public class MapInsert{
         endTime = System.nanoTime();
 
         System.out.println("TIME TAKEN TO INSERT MAP " + ((endTime - startTime)/1000000000) + " s");
-
-
-        startTime = System.nanoTime();
-        try{
-            this.Table.createIndexUtil();
-            this.Table.deleteAllNodesInIndex(this.Table.utilityIndex);
-        }catch(Exception e){
-            System.err.println("Exception caused in deleting records from the utility index");
-            e.printStackTrace();
-            return;
-        }
-        this.Table.buildUtilityIndex();
-        endTime = System.nanoTime();
-        System.out.println("TIME TAKEN TO BUILD UTILITY INDEX " + ((endTime - startTime)/1000000000) + " s");
-
         startTime = System.nanoTime();
         try {
-            this.Table.deleteDuplicateRecords();
+            this.Table.indexCreateUtil();
+            this.Table.duplicateRecordsMapInsert(this.TableName, this.map);
         } catch (Exception e) {
             System.err.println("MapInsert.java: Exception caused in deleting duplicate records");
             e.printStackTrace();
@@ -78,7 +64,6 @@ public class MapInsert{
 
         startTime = System.nanoTime();
         try{
-            this.Table.indexCreateUtil();
             if(this.Type != 1) {
                 this.Table.deleteAllNodesInIndex(this.Table.indexFiles.get(this.Type));
             }

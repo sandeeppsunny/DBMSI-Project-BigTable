@@ -532,8 +532,62 @@ public class bigt {
         }
     }
 
+    public void duplicateRecordsMapInsert(String bigtName, Map insertMap) throws IOException,
+            FileScanException, TupleUtilsException, InvalidRelation, JoinsException, FieldNumberOutOfBoundException,
+            PageNotReadException, WrongPermat, InvalidTypeException, InvalidTupleSizeException, PredEvalException,
+            UnknowAttrType, HFException, HFBufMgrException, InvalidSlotNumberException, HFDiskMgrException,
+            RedistributeException, ConvertException, IteratorException, DeleteRecException, NodeNotMatchException,
+            IndexSearchException, RecordNotFoundException, ConstructPageException, UnpinPageException,
+            InsertRecException, KeyNotMatchException, IndexInsertRecException, PinPageException, InsertException,
+            DeleteFashionException, KeyTooLongException, LeafDeleteException, FreePageException,
+            IndexFullDeleteException, LeafInsertRecException, LeafRedistributeException {
+            CondExpr[] condExprs = new CondExpr[3];
+            CondExpr expr1 = new CondExpr();
+            expr1.op = new AttrOperator(AttrOperator.aopEQ);
+            expr1.type1 = new AttrType(AttrType.attrSymbol);
+            expr1.type2 = new AttrType(AttrType.attrString);
+            expr1.operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 1);
+            expr1.operand2.string = insertMap.getRowLabel();
+            expr1.next = null;
+            condExprs[0] = expr1;
+
+            CondExpr expr2 = new CondExpr();
+            expr2.op = new AttrOperator(AttrOperator.aopEQ);
+            expr2.type1 = new AttrType(AttrType.attrSymbol);
+            expr2.type2 = new AttrType(AttrType.attrString);
+            expr2.operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 2);
+            expr2.operand2.string = insertMap.getColumnLabel();
+            expr2.next = null;
+            condExprs[1] = expr2;
+            condExprs[2] = null;
+
+            FileScanMap tempScan = new FileScanMap(bigtName, null, condExprs, true);
+            MID tempMID = new MID();
+            int timeStamp = Integer.MAX_VALUE;
+
+            int count = 0;
+
+            Pair tempPair = null;
+            tempPair = tempScan.get_next_mid();
+            Map tempMap = null;
+
+            while(tempPair!=null){
+                count += 1;
+                if(timeStamp >= tempPair.getMap().getTimeStamp()){
+                    tempMap = new Map(tempPair.getMap());
+                    tempMID = tempPair.getMid();
+                    timeStamp = tempMap.getTimeStamp();
                 }
 
+                tempPair = tempScan.get_next_mid();
+            }
+            boolean status;
+            if(count > 3){
+                for(int i = 1; i < heapFiles.size(); i++){
+                    if(heapFiles.get(i).deleteRecordMap(tempMID)){
+                        status = removeIndex(tempMID, tempMap, i);
+                        System.out.println("Index entry removal for the duplicate map: STATUS: " + status);
+                        break;
                     }
                 }
             }
