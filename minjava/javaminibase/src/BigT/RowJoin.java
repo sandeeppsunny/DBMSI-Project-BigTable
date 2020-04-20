@@ -10,7 +10,9 @@ import index.UnknownIndexTypeException;
 import iterator.*;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -29,6 +31,7 @@ public class RowJoin{
     private bigt bigt2;
     private int numBuf;
     private bigt outBigT;
+    private ArrayList<Map> duplicateMaps;
 
     public RowJoin(String bigTable1, String bigTable2, String outBigTable, String columnFilter){
         this.bigTable1 = bigTable1;
@@ -37,6 +40,7 @@ public class RowJoin{
         this.columnFilter = columnFilter;
         this.heapFileName1 = this.bigTable1 + "_jointemp";
         this.heapFileName2 = this.bigTable2 + "_jointemp";
+        this.duplicateMaps = new ArrayList<>();
         try{
             this.bigt1 = new bigt(this.bigTable1, false);
             this.bigt2 = new bigt(this.bigTable2, false);
@@ -239,23 +243,26 @@ public class RowJoin{
             FileScanMap matchingRowsScan = new FileScanMap(matchingRowLabels._fileName, null, null, false);
             Map rowLabels;
             while((rowLabels = matchingRowsScan.get_next())!=null){
+                duplicateMaps = new ArrayList<>();
                 rowLabels.setDefaultHdr();
                 matchingRows = rowLabels.getRowLabel().split(":");
                 tempStream = new Stream(this.bigTable1, null, 1, 1
                         , matchingRows[0], "*", "*", this.numBuf);
                 Map tempMap = null;
                 String tempColLabel;
-                while(true){
-                    if((tempMap = tempStream.getNext()) == null){
-                        break;
-                    }
+                tempMap = tempStream.getNext();
+                while(tempMap!=null){
                     tempMap.setFldOffset(tempMap.getMapByteArray());
+                    tempMap = new Map(tempMap);
                     tempMap.setRowLabel(matchingRows[0] + ":" + matchingRows[1]);
                     if(!tempMap.getColumnLabel().equals(this.columnFilter)){
                         tempColLabel = tempMap.getColumnLabel();
                         tempMap.setColumnLabel(tempColLabel + "_" + "left");
+                        outBigT.insertMap(tempMap, 1);
+                    }else{
+                        duplicateMaps.add(tempMap);
                     }
-                    outBigT.insertMap(tempMap, 1);
+                    tempMap = tempStream.getNext();
                 }
                 tempStream.closestream();
 
@@ -264,19 +271,29 @@ public class RowJoin{
 
                 tempMap = null;
                 tempColLabel = "";
-                while(true){
-                    if((tempMap = tempStream.getNext()) == null){
-                        break;
-                    }
+                tempMap = tempStream.getNext();
+                while(tempMap!=null){
                     tempMap.setFldOffset(tempMap.getMapByteArray());
+                    tempMap = new Map(tempMap);
                     tempMap.setRowLabel(matchingRows[0] + ":" + matchingRows[1]);
                     if(!tempMap.getColumnLabel().equals(this.columnFilter)){
                         tempColLabel = tempMap.getColumnLabel();
                         tempMap.setColumnLabel(tempColLabel + "_" + "right");
+                        outBigT.insertMap(tempMap, 1);
+                    }else{
+                        duplicateMaps.add(tempMap);
                     }
-                    outBigT.insertMap(tempMap, 1);
+                    tempMap = tempStream.getNext();
+
                 }
                 tempStream.closestream();
+
+                try{
+                    deleteDuplicateRecords();
+                }catch(Exception e){
+                    System.err.println("RowJoin.java: Exception thrown in deleting duplicate records");
+                    e.printStackTrace();
+                }
 
             }
         }catch(Exception e){
@@ -284,108 +301,40 @@ public class RowJoin{
             e.printStackTrace();
             return;
         }
-        try{
-            deleteDuplicateRecords();
-        }catch(Exception e){
-            System.err.println("RowJoin.java: Exception thrown in deleting duplicate records");
-            e.printStackTrace();
-        }
 
     }
 
-    public void deleteDuplicateRecords() throws InvalidRelation, TupleUtilsException, FileScanException, IOException,
-            ConstructPageException, GetFileEntryException, AddFileEntryException, JoinsException,
-            FieldNumberOutOfBoundException, PageNotReadException, WrongPermat, InvalidTypeException,
-            InvalidTupleSizeException, PredEvalException, UnknowAttrType, IteratorException, NodeNotMatchException,
-            UnpinPageException, LeafInsertRecException, IndexSearchException, InsertException, PinPageException,
-            ConvertException, DeleteRecException, KeyNotMatchException, LeafDeleteException, KeyTooLongException,
-            IndexInsertRecException, IndexException, UnknownIndexTypeException, UnknownKeyTypeException, HFException,
-            HFBufMgrException, InvalidSlotNumberException, HFDiskMgrException, PageUnpinnedException,
-            InvalidFrameNumberException, HashEntryNotFoundException, ReplacerException {
+    public void deleteDuplicateRecords() throws InvalidTupleSizeException, HFException, IOException,
+            FieldNumberOutOfBoundException, InvalidSlotNumberException, SpaceNotAvailableException,
+            HFBufMgrException, HFDiskMgrException {
 
-        System.out.println("Rowjoin - Deleting Duplicate records");
-
-        CondExpr[] expr = getConditionalExpression();
-        FileScanMap tempScan = new FileScanMap(this.outBigTable, null, expr, true);
-        BTreeFile joinUtil = new BTreeFile(this.outBigTable + "_joinUtil", AttrType.attrString,
-                Map.DEFAULT_ROW_LABEL_ATTRIBUTE_SIZE + Map.DEFAULT_STRING_ATTRIBUTE_SIZE + 5, DeleteFashion.FULL_DELETE);
-        Pair mapPair = null;
-        while(true){
-            if((mapPair = tempScan.get_next_mid()) == null){
-                break;
+        if(duplicateMaps.size() <= 3){
+            for(Map map: duplicateMaps){
+                outBigT.insertMap(map, 1);
             }
-            joinUtil.insert(new StringKey(mapPair.getMap().getRowLabel() +
-                    mapPair.getMap().getColumnLabel() + "%" + mapPair.getMap().getTimeStamp()), mapPair.getMid());
-        }
-        tempScan.close();
-
-        //Preparing the IndexOnlyScan
-        AttrType[] attrType;
-        attrType = new AttrType[4];
-        attrType[0] = new AttrType(AttrType.attrString);
-        attrType[1] = new AttrType(AttrType.attrString);
-        attrType[2] = new AttrType(AttrType.attrInteger);
-        attrType[3] = new AttrType(AttrType.attrString);
-        short[] res_str_sizes = new short[]{Map.DEFAULT_ROW_LABEL_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE,
-                Map.DEFAULT_STRING_ATTRIBUTE_SIZE};
-        MapIndexScan tempIndexScan = new MapIndexScan(new IndexType(IndexType.B_Index), this.outBigT.getHeapFileName(1),
-                this.outBigTable + "_joinUtil", attrType, res_str_sizes, 4, 4,
-                null, null, null, 1, true);
-
-        Pair previousMapPair = tempIndexScan.get_next_mid();
-        Pair curMapPair = tempIndexScan.get_next_mid();
-
-        String[] indexKeyTokens;
-
-        String prevKey = previousMapPair.getIndexKey();
-//        System.out.println("Index Key is: " + prevKey);
-        String curKey = "";
-
-        List<Pair> duplicateMaps = new ArrayList<>();
-        indexKeyTokens = prevKey.split("%");
-        previousMapPair  = new Pair(previousMapPair.getMap(), previousMapPair.getMid(), previousMapPair.getIndexKey(),
-                Integer.parseInt(indexKeyTokens[indexKeyTokens.length-1]));
-        duplicateMaps.add(previousMapPair);
-        MID mid;
-        Map map;
-        while(curMapPair!=null) {
-            curKey = curMapPair.getIndexKey();
-//            System.out.println("Index Key is: " + curKey);
-            indexKeyTokens = curKey.split("%");
-            String curKeyString = curKey.substring(0, curKey.indexOf('%'));
-            String prevKeyString = prevKey.substring(0, prevKey.indexOf('%'));
-//            System.out.println("Previous Key: " + prevKeyString);
-//            System.out.println("Current Key: " + curKeyString);
-            curMapPair = new Pair(curMapPair.getMap(), curMapPair.getMid(), curMapPair.getIndexKey(),
-                    Integer.parseInt(indexKeyTokens[indexKeyTokens.length - 1]));
-
-            if (prevKeyString.equals(curKeyString)) {
-                duplicateMaps.add(curMapPair);
-            } else {
-                duplicateMaps = new ArrayList<>();
-                duplicateMaps.add(curMapPair);
-            }
-            if (duplicateMaps.size() == 4) {
-                duplicateMaps.sort(new Comparator<Pair>() {
-                    @Override
-                    public int compare(Pair o1, Pair o2) {
-                        String o1String = o1.getIndexKey();
-                        String o2String = o2.getIndexKey();
-
-                        Integer o1Timestamp = Integer.parseInt(o1.getIndexKey().split("%")[1]);
-                        Integer o2Timestamp = Integer.parseInt(o2.getIndexKey().split("%")[1]);
-                        return o1Timestamp.compareTo(o2Timestamp);
+        }else{
+            Collections.sort(duplicateMaps, new Comparator<Map>() {
+                @Override
+                public int compare(Map o1, Map o2) {
+                    try {
+                        Integer o1String = o1.getTimeStamp();
+                        Integer o2String = o2.getTimeStamp();
+                        o1String.compareTo(o2String);
+                    } catch (IOException e) {
+                        System.out.println("Exception caused in comparing duplicate maps time stamps");
+                        e.printStackTrace();
                     }
-                });
-                mid = duplicateMaps.get(0).getMid();
-                this.outBigT.deleteRecordMap(mid, 1);
-                duplicateMaps.remove(0);
+                    return 0;
+                }
+            });
+            int count = 0;
+            int i = duplicateMaps.size()-1;
+            while(count < 3){
+                outBigT.insertMap(duplicateMaps.get(i), 1);
+                i-=1;
+                count+=1;
             }
-            prevKey = curKey;
-            curMapPair = tempIndexScan.get_next_mid();
         }
-        tempIndexScan.close();
-        joinUtil.close();
     }
 
     public CondExpr[] getConditionalExpression(){
