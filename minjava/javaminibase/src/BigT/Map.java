@@ -37,9 +37,9 @@ public class Map implements GlobalConst {
 
     private short[] fldOffset;
 
-    public static final int DEFAULT_ROW_LABEL_ATTRIBUTE_SIZE = 50;
+    public static final int DEFAULT_ROW_LABEL_ATTRIBUTE_SIZE = 20;
 
-    public static final int DEFAULT_STRING_ATTRIBUTE_SIZE = 30;
+    public static final int DEFAULT_STRING_ATTRIBUTE_SIZE = 20;
 
     private static final int integerAttributeSize = 4;
 
