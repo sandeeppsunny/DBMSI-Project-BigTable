@@ -25,12 +25,14 @@ public class GetAllCount{
     public void run() throws Exception {
 
         Stream tempStream;
-        Heapfile rowLabels = new Heapfile("rowLabels");
-        Heapfile colLabels = new Heapfile("colLabels");
+        int rowCount;
+        int colCount;
+//        Heapfile rowLabels = new Heapfile("rowLabels");
+//        Heapfile colLabels = new Heapfile("colLabels");
         bigt tempBigt;
         int mapCount = 0;
         for(String bigtName: allBigt){
-            tempStream = new Stream(bigtName, null, 1, 3, "*",
+            /*tempStream = new Stream(bigtName, null, 1, 3, "*",
                     "*", "*", this.numBuf);
             createHeapFile(tempStream, rowLabels, 3);
 
@@ -38,12 +40,21 @@ public class GetAllCount{
                     "*", "*", this.numBuf);
             createHeapFile(tempStream, colLabels, 4);
 
+             */
+            System.out.println("Bigtable: " + bigtName);
+            System.out.println("---------------------------------------");
             tempBigt = new bigt(bigtName, false);
-            mapCount += tempBigt.getMapCnt();
+            mapCount = tempBigt.getMapCnt();
+            rowCount = tempBigt.getRowCnt();
+            colCount = tempBigt.getColumnCnt();
 
+            System.out.println("TOTAL NUMBER OF MAPS: " + mapCount);
+            System.out.println("NUMBER OF DISTINCT ROW LABELS: "+ rowCount);
+            System.out.println("NUMBER OF DISTINCT COLUMN LABELS: "+ colCount);
+            System.out.println("---------------------------------------");
         }
 
-        int rowCount = getCounts(rowLabels, 3);
+        /*int rowCount = getCounts(rowLabels, 3);
 
         int colCount = getCounts(colLabels, 4);
 
@@ -53,7 +64,7 @@ public class GetAllCount{
         System.out.println("TOTAL NUMBER OF DISTINCT COLUMN LABELS IN THE DATABASE: "+ colCount);
 
         rowLabels.deleteFileMap();
-        colLabels.deleteFileMap();
+        colLabels.deleteFileMap();*/
     }
 
     public void createHeapFile(Stream stream, Heapfile heapfile, int type) throws IOException,
