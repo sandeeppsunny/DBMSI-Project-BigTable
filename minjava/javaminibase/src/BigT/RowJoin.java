@@ -166,7 +166,6 @@ public class RowJoin{
     }
 
     public Heapfile getMatchingRowLabels() throws Exception {
-        ArrayList<String[]> res = new ArrayList<>();
         Heapfile matchingRowLabel = new Heapfile(null);
 //        String[] temp = new String[2];
         Map tempMap;
@@ -319,7 +318,7 @@ public class RowJoin{
                     try {
                         Integer o1String = o1.getTimeStamp();
                         Integer o2String = o2.getTimeStamp();
-                        o1String.compareTo(o2String);
+                        return o1String.compareTo(o2String);
                     } catch (IOException e) {
                         System.out.println("Exception caused in comparing duplicate maps time stamps");
                         e.printStackTrace();
