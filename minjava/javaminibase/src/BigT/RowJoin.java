@@ -38,8 +38,8 @@ public class RowJoin{
         this.bigTable2 = bigTable2;
         this.outBigTable = outBigTable;
         this.columnFilter = columnFilter;
-        this.heapFileName1 = this.bigTable1 + "_jointemp";
-        this.heapFileName2 = this.bigTable2 + "_jointemp";
+        this.heapFileName1 = "jointemp_1";
+        this.heapFileName2 = "jointemp_2";
         this.duplicateMaps = new ArrayList<>();
         try{
             this.bigt1 = new bigt(this.bigTable1, false);
