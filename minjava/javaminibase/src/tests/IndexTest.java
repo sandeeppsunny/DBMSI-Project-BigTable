@@ -770,395 +770,395 @@ class IndexDriver extends TestDriver
         return status;
     }
 
-    protected boolean test4() {
-        System.out.println("-------------------- TEST 4 -----------TYPE 2-------------");
-        int type = 2;
-        boolean status = OK;
-        try{
-            AttrType[] attrType = new AttrType[4];
-            attrType[0] = new AttrType(AttrType.attrString);
-            attrType[1] = new AttrType(AttrType.attrString);
-            attrType[2] = new AttrType(AttrType.attrInteger);
-            attrType[3] = new AttrType(AttrType.attrString);
-            short[] attrSize = new short[2];
-            attrSize[0] = REC_LEN1;
-            attrSize[1] = REC_LEN1;
-
-            Heapfile f = null;
-            bigt big = null;
-
-            Map[] mapArr = HFDriver.generateMaps();
-
-            System.out.println("  - Create a BigT\n");
-            try {
-                big = new bigt("file_test4.in", type);
-                f = big.getheapfile();
-            } catch (Exception e) {
-                status = FAIL;
-                System.err.println("*** Could not create BigT\n");
-                e.printStackTrace();
-            }
-
-            if (status == OK && SystemDefs.JavabaseBM.getNumUnpinnedBuffers()
-                    != SystemDefs.JavabaseBM.getNumBuffers()) {
-                System.err.println("*** The heap file has left pages pinned\n");
-                status = FAIL;
-            }
-
-            MID mid = null;
-            if (status == OK) {
-                System.out.println("   - Add " + choice + " records to the file\n");
-                for (int i = 0; (i < choice) && (status == OK); i++) {
-                    try {
-                        mid = big.insertMap(mapArr[i]);
-                    } catch (Exception e) {
-                        status = FAIL;
-                        System.err.println("*** Error inserting record " + i + "\n");
-                        e.printStackTrace();
-                    }
-
-                    if (status == OK && SystemDefs.JavabaseBM.getNumUnpinnedBuffers()
-                            != SystemDefs.JavabaseBM.getNumBuffers()) {
-
-                        System.err.println("*** Insertion left a page pinned\n");
-                        status = FAIL;
-                    }
-                }
-
-                try {
-                    if (f.getRecCntMap() != choice) {
-                        status = FAIL;
-                        System.err.println("*** File reports " + f.getRecCntMap() +
-                                " records, not " + choice + "\n");
-                    }
-                } catch (Exception e) {
-                    status = FAIL;
-                    e.printStackTrace();
-                }
-            }
-            String indexName = "index_test4";
-            big.createIndex(indexName, "");
-
-            Scan scan = null;
-            Map t = new Map();
-
-            try {
-                scan = new Scan(f, true);
-            } catch (Exception e) {
-                status = FAIL;
-                e.printStackTrace();
-                Runtime.getRuntime().exit(1);
-            }
-
-            mid = new MID();
-            String key = null;
-            Map temp = null;
-            try {
-                temp = scan.getNextMap(mid);
-                temp.setFldOffset(temp.getMapByteArray());
-            } catch (Exception e) {
-                status = FAIL;
-                e.printStackTrace();
-            }
-            while (temp != null) {
-                try {
-                    big.insertIndex(mid, temp);
-                } catch (Exception e) {
-                    status = FAIL;
-                    e.printStackTrace();
-                }
-
-                try {
-                    temp = scan.getNextMap(mid);
-                    if(temp!=null){
-                        temp.setFldOffset(temp.getMapByteArray());
-                    }
-                } catch (Exception e) {
-                    status = FAIL;
-                    e.printStackTrace();
-                }
-            }
-
-            // close the file scan
-            scan.closescan();
-
-            FldSpec[] projlist = new FldSpec[4];
-            RelSpec rel = new RelSpec(RelSpec.outer);
-            projlist[0] = new FldSpec(rel, 0);
-            projlist[1] = new FldSpec(rel, 1);
-            projlist[2] = new FldSpec(rel, 2);
-            projlist[3] = new FldSpec(rel, 3);
-
-            CondExpr[] expr = new CondExpr[2];
-            expr[0] = new CondExpr();
-            expr[0].op = new AttrOperator(AttrOperator.aopEQ);
-            expr[0].type1 = new AttrType(AttrType.attrSymbol);
-            expr[0].type2 = new AttrType(AttrType.attrString);
-            expr[0].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 1);
-            expr[0].operand2.string = "RowLabel-96";
-            expr[0].next = null;
-            expr[1] = null;
-
-            // start index scan
-            MapIndexScan iscan = null;
-            short[] res_str_sizes = new short[]{Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE};
-            try {
-                iscan = new MapIndexScan(new IndexType(IndexType.B_Index), "file_test4.in", indexName, attrType, res_str_sizes, 4, 4, projlist, null, null, 1, false);
-            } catch (Exception e) {
-                status = FAIL;
-                e.printStackTrace();
-            }
-
-            int count = 0;
-            t = null;
-            String outval = null;
-
-            try {
-                t = iscan.get_next();
-            } catch (Exception e) {
-                status = FAIL;
-                e.printStackTrace();
-            }
-
-            boolean flag = true;
-
-            while (t != null) {
-                if (count >= choice) {
-                    System.err.println("Test4 -- OOPS! too many records");
-                    status = FAIL;
-                    flag = false;
-                    break;
-                }
-
-                try {
-                    t.setFldOffset(t.getMapByteArray());
-                    t.print();
-                } catch (Exception e) {
-                    status = FAIL;
-                    e.printStackTrace();
-                    break;
-                }
-                count++;
-
-                try {
-                    t = iscan.get_next();
-                } catch (Exception e) {
-                    status = FAIL;
-                    e.printStackTrace();
-                }
-            }
-            if (flag && status) {
-                System.err.println("Test4 -- Index Scan OK");
-            }
-
-            // clean up
-            try {
-                iscan.close();
-            } catch (Exception e) {
-                status = FAIL;
-                e.printStackTrace();
-            }
-        }
-        catch (Exception e) {
-            status = FAIL;
-            e.printStackTrace();
-        }
-
-        System.err.println("------------------- TEST 4 completed ---------------------\n");
-
-        return status;
-    }
-
-    protected boolean test5() {
-        System.out.println("-------------------- TEST 5 -----------TYPE 4-------------");
-        int type = 4;
-        boolean status = OK;
-        try{
-            AttrType[] attrType = new AttrType[4];
-            attrType[0] = new AttrType(AttrType.attrString);
-            attrType[1] = new AttrType(AttrType.attrString);
-            attrType[2] = new AttrType(AttrType.attrInteger);
-            attrType[3] = new AttrType(AttrType.attrString);
-            short[] attrSize = new short[2];
-            attrSize[0] = REC_LEN1;
-            attrSize[1] = REC_LEN1;
-
-            Heapfile f = null;
-            bigt big = null;
-
-            Map[] mapArr = HFDriver.generateMaps();
-
-            System.out.println("  - Create a BigT\n");
-            try {
-                big = new bigt("file_test5.in", type);
-                f = big.getheapfile();
-            } catch (Exception e) {
-                status = FAIL;
-                System.err.println("*** Could not create BigT\n");
-                e.printStackTrace();
-            }
-
-            if (status == OK && SystemDefs.JavabaseBM.getNumUnpinnedBuffers()
-                    != SystemDefs.JavabaseBM.getNumBuffers()) {
-                System.err.println("*** The heap file has left pages pinned\n");
-                status = FAIL;
-            }
-
-            MID mid = null;
-            if (status == OK) {
-                System.out.println("   - Add " + choice + " records to the file\n");
-                for (int i = 0; (i < choice) && (status == OK); i++) {
-                    try {
-                        mid = big.insertMap(mapArr[i]);
-                    } catch (Exception e) {
-                        status = FAIL;
-                        System.err.println("*** Error inserting record " + i + "\n");
-                        e.printStackTrace();
-                    }
-
-                    if (status == OK && SystemDefs.JavabaseBM.getNumUnpinnedBuffers()
-                            != SystemDefs.JavabaseBM.getNumBuffers()) {
-
-                        System.err.println("*** Insertion left a page pinned\n");
-                        status = FAIL;
-                    }
-                }
-
-                try {
-                    if (f.getRecCntMap() != choice) {
-                        status = FAIL;
-                        System.err.println("*** File reports " + f.getRecCntMap() +
-                                " records, not " + choice + "\n");
-                    }
-                } catch (Exception e) {
-                    status = FAIL;
-                    e.printStackTrace();
-                }
-            }
-            String indexName = "index_test5";
-            big.createIndex(indexName, "");
-
-            Scan scan = null;
-            Map t = new Map();
-
-            try {
-                scan = new Scan(f, true);
-            } catch (Exception e) {
-                status = FAIL;
-                e.printStackTrace();
-                Runtime.getRuntime().exit(1);
-            }
-
-            mid = new MID();
-            String key = null;
-            Map temp = null;
-            try {
-                temp = scan.getNextMap(mid);
-                temp.setFldOffset(temp.getMapByteArray());
-            } catch (Exception e) {
-                status = FAIL;
-                e.printStackTrace();
-            }
-            while (temp != null) {
-                try {
-                    big.insertIndex(mid, temp);
-                } catch (Exception e) {
-                    status = FAIL;
-                    e.printStackTrace();
-                }
-
-                try {
-                    temp = scan.getNextMap(mid);
-                    if(temp!=null){
-                        temp.setFldOffset(temp.getMapByteArray());
-                    }
-                } catch (Exception e) {
-                    status = FAIL;
-                    e.printStackTrace();
-                }
-            }
-
-            // close the file scan
-            scan.closescan();
-
-            FldSpec[] projlist = new FldSpec[4];
-            RelSpec rel = new RelSpec(RelSpec.outer);
-            projlist[0] = new FldSpec(rel, 0);
-            projlist[1] = new FldSpec(rel, 1);
-            projlist[2] = new FldSpec(rel, 2);
-            projlist[3] = new FldSpec(rel, 3);
-
-            // start index scan
-            MapIndexScan iscan = null;
-            short[] res_str_sizes = new short[]{Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE};
-            try {
-                iscan = new MapIndexScan(new IndexType(IndexType.B_Index), "file_test5.in", indexName, attrType, res_str_sizes, 4, 4, projlist, null, null, 1, false);
-            } catch (Exception e) {
-                status = FAIL;
-                e.printStackTrace();
-            }
-
-            int count = 0;
-            t = null;
-            String outval = null;
-
-            try {
-                t = iscan.get_next();
-            } catch (Exception e) {
-                status = FAIL;
-                e.printStackTrace();
-            }
-
-            boolean flag = true;
-
-            while (t != null) {
-                if (count >= choice) {
-                    System.err.println("Test5 -- OOPS! too many records");
-                    status = FAIL;
-                    flag = false;
-                    break;
-                }
-
-                try {
-                    t.setFldOffset(t.getMapByteArray());
-                    outval = t.getRowLabel();
-                } catch (Exception e) {
-                    status = FAIL;
-                    e.printStackTrace();
-                }
-                count++;
-
-                try {
-                    t = iscan.get_next();
-                } catch (Exception e) {
-                    status = FAIL;
-                    e.printStackTrace();
-                }
-            }
-            if (count < choice) {
-                System.err.println("Test5 -- OOPS! too few records");
-                status = FAIL;
-            } else if (flag && status) {
-                System.err.println("Test5 -- Index Scan OK");
-            }
-
-            // clean up
-            try {
-                iscan.close();
-            } catch (Exception e) {
-                status = FAIL;
-                e.printStackTrace();
-            }
-        }
-        catch (Exception e) {
-            status = FAIL;
-            e.printStackTrace();
-        }
-
-        System.err.println("------------------- TEST 5 completed ---------------------\n");
-
-        return status;
-    }
+//    protected boolean test4() {
+//        System.out.println("-------------------- TEST 4 -----------TYPE 2-------------");
+//        int type = 2;
+//        boolean status = OK;
+//        try{
+//            AttrType[] attrType = new AttrType[4];
+//            attrType[0] = new AttrType(AttrType.attrString);
+//            attrType[1] = new AttrType(AttrType.attrString);
+//            attrType[2] = new AttrType(AttrType.attrInteger);
+//            attrType[3] = new AttrType(AttrType.attrString);
+//            short[] attrSize = new short[2];
+//            attrSize[0] = REC_LEN1;
+//            attrSize[1] = REC_LEN1;
+//
+//            Heapfile f = null;
+//            bigt big = null;
+//
+//            Map[] mapArr = HFDriver.generateMaps();
+//
+//            System.out.println("  - Create a BigT\n");
+//            try {
+//                big = new bigt("file_test4.in", type);
+//                f = big.getheapfile();
+//            } catch (Exception e) {
+//                status = FAIL;
+//                System.err.println("*** Could not create BigT\n");
+//                e.printStackTrace();
+//            }
+//
+//            if (status == OK && SystemDefs.JavabaseBM.getNumUnpinnedBuffers()
+//                    != SystemDefs.JavabaseBM.getNumBuffers()) {
+//                System.err.println("*** The heap file has left pages pinned\n");
+//                status = FAIL;
+//            }
+//
+//            MID mid = null;
+//            if (status == OK) {
+//                System.out.println("   - Add " + choice + " records to the file\n");
+//                for (int i = 0; (i < choice) && (status == OK); i++) {
+//                    try {
+//                        mid = big.insertMap(mapArr[i]);
+//                    } catch (Exception e) {
+//                        status = FAIL;
+//                        System.err.println("*** Error inserting record " + i + "\n");
+//                        e.printStackTrace();
+//                    }
+//
+//                    if (status == OK && SystemDefs.JavabaseBM.getNumUnpinnedBuffers()
+//                            != SystemDefs.JavabaseBM.getNumBuffers()) {
+//
+//                        System.err.println("*** Insertion left a page pinned\n");
+//                        status = FAIL;
+//                    }
+//                }
+//
+//                try {
+//                    if (f.getRecCntMap() != choice) {
+//                        status = FAIL;
+//                        System.err.println("*** File reports " + f.getRecCntMap() +
+//                                " records, not " + choice + "\n");
+//                    }
+//                } catch (Exception e) {
+//                    status = FAIL;
+//                    e.printStackTrace();
+//                }
+//            }
+//            String indexName = "index_test4";
+//            big.createIndex(indexName, "");
+//
+//            Scan scan = null;
+//            Map t = new Map();
+//
+//            try {
+//                scan = new Scan(f, true);
+//            } catch (Exception e) {
+//                status = FAIL;
+//                e.printStackTrace();
+//                Runtime.getRuntime().exit(1);
+//            }
+//
+//            mid = new MID();
+//            String key = null;
+//            Map temp = null;
+//            try {
+//                temp = scan.getNextMap(mid);
+//                temp.setFldOffset(temp.getMapByteArray());
+//            } catch (Exception e) {
+//                status = FAIL;
+//                e.printStackTrace();
+//            }
+//            while (temp != null) {
+//                try {
+//                    big.insertIndex(mid, temp);
+//                } catch (Exception e) {
+//                    status = FAIL;
+//                    e.printStackTrace();
+//                }
+//
+//                try {
+//                    temp = scan.getNextMap(mid);
+//                    if(temp!=null){
+//                        temp.setFldOffset(temp.getMapByteArray());
+//                    }
+//                } catch (Exception e) {
+//                    status = FAIL;
+//                    e.printStackTrace();
+//                }
+//            }
+//
+//            // close the file scan
+//            scan.closescan();
+//
+//            FldSpec[] projlist = new FldSpec[4];
+//            RelSpec rel = new RelSpec(RelSpec.outer);
+//            projlist[0] = new FldSpec(rel, 0);
+//            projlist[1] = new FldSpec(rel, 1);
+//            projlist[2] = new FldSpec(rel, 2);
+//            projlist[3] = new FldSpec(rel, 3);
+//
+//            CondExpr[] expr = new CondExpr[2];
+//            expr[0] = new CondExpr();
+//            expr[0].op = new AttrOperator(AttrOperator.aopEQ);
+//            expr[0].type1 = new AttrType(AttrType.attrSymbol);
+//            expr[0].type2 = new AttrType(AttrType.attrString);
+//            expr[0].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 1);
+//            expr[0].operand2.string = "RowLabel-96";
+//            expr[0].next = null;
+//            expr[1] = null;
+//
+//            // start index scan
+//            MapIndexScan iscan = null;
+//            short[] res_str_sizes = new short[]{Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE};
+//            try {
+//                iscan = new MapIndexScan(new IndexType(IndexType.B_Index), "file_test4.in", indexName, attrType, res_str_sizes, 4, 4, projlist, null, null, 1, false);
+//            } catch (Exception e) {
+//                status = FAIL;
+//                e.printStackTrace();
+//            }
+//
+//            int count = 0;
+//            t = null;
+//            String outval = null;
+//
+//            try {
+//                t = iscan.get_next();
+//            } catch (Exception e) {
+//                status = FAIL;
+//                e.printStackTrace();
+//            }
+//
+//            boolean flag = true;
+//
+//            while (t != null) {
+//                if (count >= choice) {
+//                    System.err.println("Test4 -- OOPS! too many records");
+//                    status = FAIL;
+//                    flag = false;
+//                    break;
+//                }
+//
+//                try {
+//                    t.setFldOffset(t.getMapByteArray());
+//                    t.print();
+//                } catch (Exception e) {
+//                    status = FAIL;
+//                    e.printStackTrace();
+//                    break;
+//                }
+//                count++;
+//
+//                try {
+//                    t = iscan.get_next();
+//                } catch (Exception e) {
+//                    status = FAIL;
+//                    e.printStackTrace();
+//                }
+//            }
+//            if (flag && status) {
+//                System.err.println("Test4 -- Index Scan OK");
+//            }
+//
+//            // clean up
+//            try {
+//                iscan.close();
+//            } catch (Exception e) {
+//                status = FAIL;
+//                e.printStackTrace();
+//            }
+//        }
+//        catch (Exception e) {
+//            status = FAIL;
+//            e.printStackTrace();
+//        }
+//
+//        System.err.println("------------------- TEST 4 completed ---------------------\n");
+//
+//        return status;
+//    }
+//
+//    protected boolean test5() {
+//        System.out.println("-------------------- TEST 5 -----------TYPE 4-------------");
+//        int type = 4;
+//        boolean status = OK;
+//        try{
+//            AttrType[] attrType = new AttrType[4];
+//            attrType[0] = new AttrType(AttrType.attrString);
+//            attrType[1] = new AttrType(AttrType.attrString);
+//            attrType[2] = new AttrType(AttrType.attrInteger);
+//            attrType[3] = new AttrType(AttrType.attrString);
+//            short[] attrSize = new short[2];
+//            attrSize[0] = REC_LEN1;
+//            attrSize[1] = REC_LEN1;
+//
+//            Heapfile f = null;
+//            bigt big = null;
+//
+//            Map[] mapArr = HFDriver.generateMaps();
+//
+//            System.out.println("  - Create a BigT\n");
+//            try {
+//                big = new bigt("file_test5.in", type);
+//                f = big.getheapfile();
+//            } catch (Exception e) {
+//                status = FAIL;
+//                System.err.println("*** Could not create BigT\n");
+//                e.printStackTrace();
+//            }
+//
+//            if (status == OK && SystemDefs.JavabaseBM.getNumUnpinnedBuffers()
+//                    != SystemDefs.JavabaseBM.getNumBuffers()) {
+//                System.err.println("*** The heap file has left pages pinned\n");
+//                status = FAIL;
+//            }
+//
+//            MID mid = null;
+//            if (status == OK) {
+//                System.out.println("   - Add " + choice + " records to the file\n");
+//                for (int i = 0; (i < choice) && (status == OK); i++) {
+//                    try {
+//                        mid = big.insertMap(mapArr[i]);
+//                    } catch (Exception e) {
+//                        status = FAIL;
+//                        System.err.println("*** Error inserting record " + i + "\n");
+//                        e.printStackTrace();
+//                    }
+//
+//                    if (status == OK && SystemDefs.JavabaseBM.getNumUnpinnedBuffers()
+//                            != SystemDefs.JavabaseBM.getNumBuffers()) {
+//
+//                        System.err.println("*** Insertion left a page pinned\n");
+//                        status = FAIL;
+//                    }
+//                }
+//
+//                try {
+//                    if (f.getRecCntMap() != choice) {
+//                        status = FAIL;
+//                        System.err.println("*** File reports " + f.getRecCntMap() +
+//                                " records, not " + choice + "\n");
+//                    }
+//                } catch (Exception e) {
+//                    status = FAIL;
+//                    e.printStackTrace();
+//                }
+//            }
+//            String indexName = "index_test5";
+//            big.createIndex(indexName, "");
+//
+//            Scan scan = null;
+//            Map t = new Map();
+//
+//            try {
+//                scan = new Scan(f, true);
+//            } catch (Exception e) {
+//                status = FAIL;
+//                e.printStackTrace();
+//                Runtime.getRuntime().exit(1);
+//            }
+//
+//            mid = new MID();
+//            String key = null;
+//            Map temp = null;
+//            try {
+//                temp = scan.getNextMap(mid);
+//                temp.setFldOffset(temp.getMapByteArray());
+//            } catch (Exception e) {
+//                status = FAIL;
+//                e.printStackTrace();
+//            }
+//            while (temp != null) {
+//                try {
+//                    big.insertIndex(mid, temp);
+//                } catch (Exception e) {
+//                    status = FAIL;
+//                    e.printStackTrace();
+//                }
+//
+//                try {
+//                    temp = scan.getNextMap(mid);
+//                    if(temp!=null){
+//                        temp.setFldOffset(temp.getMapByteArray());
+//                    }
+//                } catch (Exception e) {
+//                    status = FAIL;
+//                    e.printStackTrace();
+//                }
+//            }
+//
+//            // close the file scan
+//            scan.closescan();
+//
+//            FldSpec[] projlist = new FldSpec[4];
+//            RelSpec rel = new RelSpec(RelSpec.outer);
+//            projlist[0] = new FldSpec(rel, 0);
+//            projlist[1] = new FldSpec(rel, 1);
+//            projlist[2] = new FldSpec(rel, 2);
+//            projlist[3] = new FldSpec(rel, 3);
+//
+//            // start index scan
+//            MapIndexScan iscan = null;
+//            short[] res_str_sizes = new short[]{Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE};
+//            try {
+//                iscan = new MapIndexScan(new IndexType(IndexType.B_Index), "file_test5.in", indexName, attrType, res_str_sizes, 4, 4, projlist, null, null, 1, false);
+//            } catch (Exception e) {
+//                status = FAIL;
+//                e.printStackTrace();
+//            }
+//
+//            int count = 0;
+//            t = null;
+//            String outval = null;
+//
+//            try {
+//                t = iscan.get_next();
+//            } catch (Exception e) {
+//                status = FAIL;
+//                e.printStackTrace();
+//            }
+//
+//            boolean flag = true;
+//
+//            while (t != null) {
+//                if (count >= choice) {
+//                    System.err.println("Test5 -- OOPS! too many records");
+//                    status = FAIL;
+//                    flag = false;
+//                    break;
+//                }
+//
+//                try {
+//                    t.setFldOffset(t.getMapByteArray());
+//                    outval = t.getRowLabel();
+//                } catch (Exception e) {
+//                    status = FAIL;
+//                    e.printStackTrace();
+//                }
+//                count++;
+//
+//                try {
+//                    t = iscan.get_next();
+//                } catch (Exception e) {
+//                    status = FAIL;
+//                    e.printStackTrace();
+//                }
+//            }
+//            if (count < choice) {
+//                System.err.println("Test5 -- OOPS! too few records");
+//                status = FAIL;
+//            } else if (flag && status) {
+//                System.err.println("Test5 -- Index Scan OK");
+//            }
+//
+//            // clean up
+//            try {
+//                iscan.close();
+//            } catch (Exception e) {
+//                status = FAIL;
+//                e.printStackTrace();
+//            }
+//        }
+//        catch (Exception e) {
+//            status = FAIL;
+//            e.printStackTrace();
+//        }
+//
+//        System.err.println("------------------- TEST 5 completed ---------------------\n");
+//
+//        return status;
+//    }
 
     protected boolean test6() {
         return true;

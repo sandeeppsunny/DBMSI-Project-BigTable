@@ -209,8 +209,7 @@ public class Heapfile implements Filetype, GlobalConst {
             InvalidTupleSizeException,
             HFException,
             HFBufMgrException,
-            HFDiskMgrException,
-            Exception {
+            HFDiskMgrException, IOException {
         PageId currentDirPageId = new PageId(_firstDirPageId.pid);
 
         HFPage currentDirPage = new HFPage();
@@ -239,17 +238,6 @@ public class Heapfile implements Filetype, GlobalConst {
                 }
 
                 DataPageInfo dpinfo = new DataPageInfo(amap);
-                try {
-                    pinPage(dpinfo.pageId, currentDataPage, false/*Rddisk*/);
-
-
-                    //check error;need unpin currentDirPage
-                } catch (Exception e) {
-                    unpinPage(currentDirPageId, false/*undirty*/);
-                    dirpage = null;
-                    datapage = null;
-                    throw e;
-                }
 
 
                 // ASSERTIONS:
@@ -257,6 +245,17 @@ public class Heapfile implements Filetype, GlobalConst {
                 // - currentDataPage pinned
 
                 if (dpinfo.pageId.pid == mid.pageNo.pid) {
+                    try {
+                        pinPage(dpinfo.pageId, currentDataPage, false/*Rddisk*/);
+
+
+                        //check error;need unpin currentDirPage
+                    } catch (Exception e) {
+                        unpinPage(currentDirPageId, false/*undirty*/);
+                        dirpage = null;
+                        datapage = null;
+                        throw e;
+                    }
                     amap = currentDataPage.returnMapRecord(mid);
                     // found user's record on the current datapage which itself
                     // is indexed on the current dirpage.  Return both of these.
@@ -270,12 +269,12 @@ public class Heapfile implements Filetype, GlobalConst {
                     rpDataPageRid.pageNo.pid = currentDataPageRid.pageNo.pid;
                     rpDataPageRid.slotNo = currentDataPageRid.slotNo;
                     return true;
-                } else {
+                } /*else {
                     // user record not found on this datapage; unpin it
                     // and try the next one
-                    unpinPage(dpinfo.pageId, false /*undirty*/);
+                    unpinPage(dpinfo.pageId, false *//*undirty*//*);
 
-                }
+                }*/
 
             }
 
@@ -738,6 +737,108 @@ public class Heapfile implements Filetype, GlobalConst {
 
     }
 
+    public MID insertRecordMapIntoSortedFile(byte[] recPtr, int sortType) throws InvalidSlotNumberException,
+            InvalidTupleSizeException,
+            SpaceNotAvailableException,
+            HFException,
+            HFBufMgrException,
+            HFDiskMgrException,
+            IOException, FieldNumberOutOfBoundException {
+        if(sortType == 1) {
+            return insertRecordMap(recPtr);
+        }
+        Map newMap = new Map();
+        newMap.setDefaultHdr();
+        newMap.mapSet(recPtr, 0, newMap.getLength());
+        newMap.setFldOffset(newMap.getMapByteArray());
+
+        Heapfile tempHeapfile = new Heapfile(null);
+        MID mid = new MID();
+        Scan scan = openScanMap();
+
+        boolean isScanComplete = false;
+
+        byte[] prev = recPtr;
+        boolean foundPos = false;
+        MID resultMID = null;
+        while (!isScanComplete) {
+            Map map = scan.getNextMap(mid);
+            if (map == null) {
+                isScanComplete = true;
+                break;
+            }
+            map.setFldOffset(map.getMapByteArray());
+            switch(sortType) {
+                case 3:
+                case 4:
+                    if (MapUtils.CompareMapWithMapSecondType(map, newMap) > 0) {
+                        if(!foundPos) {
+                            tempHeapfile.insertRecordMap(newMap.getMapByteArray());
+                            foundPos = true;
+                        }
+                    }
+                    break;
+                case 5:
+                    if (MapUtils.CompareMapWithMapSixthType(map, newMap) > 0) {
+                        if(!foundPos) {
+                            tempHeapfile.insertRecordMap(newMap.getMapByteArray());
+                            foundPos = true;
+                        }
+                    }
+                    break;
+                default:
+                    if (MapUtils.CompareMapWithMapFirstType(map, newMap) > 0) {
+                        if(!foundPos) {
+                            tempHeapfile.insertRecordMap(newMap.getMapByteArray());
+                            foundPos = true;
+                        }
+                    }
+                    break;
+            }
+            tempHeapfile.insertRecordMap(map.getMapByteArray());
+        }
+        scan.closescan();
+        if(!foundPos) {
+            try {
+                tempHeapfile.deleteFileMap();
+            } catch(Exception e) {
+                e.printStackTrace();
+                System.out.println("Error occurred while deleting heapFile");
+            }
+            return insertRecordMap(newMap.getMapByteArray());
+        }
+
+        String curHeapfileName = this._fileName;
+        try {
+            this.deleteFileMap();
+        } catch(Exception e) {
+            e.printStackTrace();
+            System.out.println("Error occurred while deleting heapFile");
+        }
+
+        Heapfile newHeapfile = new Heapfile(curHeapfileName);
+        isScanComplete = false;
+        scan = tempHeapfile.openScanMap();
+        while (!isScanComplete) {
+            Map map = scan.getNextMap(mid);
+            if (map == null) {
+                isScanComplete = true;
+                break;
+            }
+            map.setFldOffset(map.getMapByteArray());
+            newHeapfile.insertRecordMap(map.getMapByteArray());
+        }
+        scan.closescan();
+
+        try {
+            tempHeapfile.deleteFileMap();
+        } catch(Exception e) {
+            e.printStackTrace();
+            System.out.println("Error occurred while deleting heapFile");
+        }
+        return null;
+    }
+
     /**
      * Insert record into file, return its Rid.
      *
@@ -1167,6 +1268,47 @@ public class Heapfile implements Filetype, GlobalConst {
         return true;
     }
 
+    public boolean deleteRecordMapFromSortedFile(MID mid) throws HFDiskMgrException, InvalidTupleSizeException, HFException, IOException, InvalidSlotNumberException, HFBufMgrException, SpaceNotAvailableException {
+        Scan scan = openScanMap();
+
+        boolean isScanComplete = false;
+
+        MID prevMID = null;
+        boolean foundPos = false;
+        MID tempMid = new MID();
+        while (!isScanComplete) {
+            Map map = scan.getNextMap(tempMid);
+            if (map == null) {
+                if(foundPos) {
+                    deleteRecordMap(prevMID);
+                }
+                isScanComplete = true;
+                break;
+            }
+            map.setFldOffset(map.getMapByteArray());
+            if(!foundPos) {
+                if(!tempMid.equals(mid)) {
+                    continue;
+                }
+                prevMID = new MID();
+                PageId prevPageId = new PageId();
+                prevPageId.pid = mid.pageNo.pid;
+                prevMID.pageNo = prevPageId;
+                prevMID.slotNo = mid.slotNo;
+                foundPos = true;
+            } else {
+                deleteRecordMap(prevMID);
+                insertRecordMap(map.getMapByteArray());
+                prevMID = new MID();
+                PageId prevPageId = new PageId();
+                prevPageId.pid = tempMid.pageNo.pid;
+                prevMID.pageNo = prevPageId;
+                prevMID.slotNo = tempMid.slotNo;
+            }
+        }
+        return foundPos;
+    }
+
     /**
      * Delete record from file with given mid.
      *
@@ -1183,8 +1325,7 @@ public class Heapfile implements Filetype, GlobalConst {
             InvalidTupleSizeException,
             HFException,
             HFBufMgrException,
-            HFDiskMgrException,
-            Exception {
+            HFDiskMgrException, IOException {
         boolean status;
         HFPage currentDirPage = new HFPage();
         PageId currentDirPageId = new PageId();
@@ -1382,8 +1523,7 @@ public class Heapfile implements Filetype, GlobalConst {
             InvalidTupleSizeException,
             HFException,
             HFDiskMgrException,
-            HFBufMgrException,
-            Exception {
+            HFBufMgrException, IOException{
         boolean status;
         HFPage dirPage = new HFPage();
         PageId currentDirPageId = new PageId();
@@ -1673,7 +1813,7 @@ public class Heapfile implements Filetype, GlobalConst {
             nextDirPageId = currentDirPage.getNextPage();
             unpinPage(currentDirPageId, true);
             freePage(currentDirPageId);
-//            freePageForcibly(currentDirPageId);
+            // freePageForcibly(currentDirPageId);
 
             currentDirPageId.pid = nextDirPageId.pid;
             if (nextDirPageId.pid != INVALID_PAGE) {
@@ -1683,6 +1823,10 @@ public class Heapfile implements Filetype, GlobalConst {
         }
 
         delete_file_entry(_fileName);
+    }
+
+    public PageId getFirstDirPageId() {
+        return this._firstDirPageId;
     }
 
     /**

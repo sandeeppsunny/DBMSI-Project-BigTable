@@ -366,7 +366,7 @@ public class Scan implements GlobalConst {
 
         /** copy data about first directory page */
 
-        dirpageId.pid = _hf._firstDirPageId.pid;
+        dirpageId.pid = _hf.getFirstDirPageId().pid;
         nextUserStatus = true;
 
         /** get first directory page and pin it */
@@ -500,7 +500,7 @@ public class Scan implements GlobalConst {
 
         /** copy data about first directory page */
 
-        dirpageId.pid = _hf._firstDirPageId.pid;
+        dirpageId.pid = _hf.getFirstDirPageId().pid;
         nextUserStatus = true;
 
         /** get first directory page and pin it */

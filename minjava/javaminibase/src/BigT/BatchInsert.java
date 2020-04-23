@@ -1,8 +1,6 @@
 package BigT;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -15,7 +13,15 @@ import btree.InsertRecException;
 import btree.LeafRedistributeException;
 import btree.RecordNotFoundException;
 import btree.RedistributeException;
+import bufmgr.HashEntryNotFoundException;
+import bufmgr.InvalidFrameNumberException;
+import bufmgr.PageUnpinnedException;
+import bufmgr.ReplacerException;
 import global.*;
+import heap.*;
+import index.IndexException;
+import index.UnknownIndexTypeException;
+import iterator.UnknownKeyTypeException;
 
 /**
  * BatchInsert
@@ -23,18 +29,20 @@ import global.*;
 public class BatchInsert {
     String datafile;
     String bigTable;
-    int type;
+    int storageType;
     bigt table;
 
     public BatchInsert(bigt table, String datafile, int type, String bigTable) {
         this.table = table;
         this.datafile = datafile;
-        this.type = type;
+        this.storageType = type;
         this.bigTable = bigTable;
     }
 
-    public int run() throws DeleteFashionException, LeafRedistributeException, RedistributeException,
-            InsertRecException, FreePageException, RecordNotFoundException, IndexFullDeleteException, Exception {
+    public int run() throws InvalidTupleSizeException, HFDiskMgrException, IndexException,
+            HFException, IOException, FieldNumberOutOfBoundException, UnknownIndexTypeException, UnknownKeyTypeException,
+            InvalidSlotNumberException, SpaceNotAvailableException, HFBufMgrException, InvalidTypeException,
+            PageUnpinnedException, HashEntryNotFoundException, ReplacerException, InvalidFrameNumberException {
         File inputFile = new File(this.datafile);
         BufferedReader br = new BufferedReader(new FileReader(inputFile));
         Map map = new Map();
@@ -62,7 +70,7 @@ public class BatchInsert {
             map.setValue(valueLabel);
 //            System.out.print(i + " -> ");
 //            map.print();
-            MID mid = table.insertMap(map);
+            MID mid = table.insertMap(map, storageType);
             pages = mid.pageNo.pid;
         }
         long endTime = System.nanoTime();
@@ -82,11 +90,17 @@ public class BatchInsert {
         endTime = System.nanoTime();
         System.out.println("TIME TAKEN FOR DUPLICATE RECORDS REMOVAL "+((endTime - startTime)/1000000000) + " s");
 
+        startTime = System.nanoTime();
+        table.sortHeapFiles();
+        endTime = System.nanoTime();
+        System.out.println("TIME TAKEN TO CREATE SORTED HEAPFILES "+((endTime - startTime)/1000000000) + " s");
 
         startTime = System.nanoTime();
         table.insertIntoMainIndex();
         endTime = System.nanoTime();
-        System.out.println("TIME TAKEN FOR CREATING ORIGINAL INDEX "+((endTime - startTime)/1000000000) + " s");
+        System.out.println("TIME TAKEN FOR CREATING MAIN INDICES "+((endTime - startTime)/1000000000) + " s");
+
+        System.out.println("NUMBER OF MAPS IN THE CURRENT BIGTABLE: " + table.getMapCnt());
 
         System.out.println();
         return pages;

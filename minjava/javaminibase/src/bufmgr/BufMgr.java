@@ -284,7 +284,7 @@ class Clock extends Replacer {
      *
      * @return -1 if no frame is available.
      * head of the list otherwise.
-     * @throws BufferPoolExceededException.
+     * @throws BufferPoolExceededException
      */
     public int pick_victim()
             throws BufferPoolExceededException,
@@ -457,7 +457,7 @@ public class BufMgr implements GlobalConst {
      * @throws FileIOException            File I/O  error
      * @throws IOException                Other I/O errors
      */
-    private void privFlushPagesyForcibly(PageId pageid, int all_pages)
+    private void privFlushPagesForcibly(PageId pageid, int all_pages)
             throws HashOperationException,
             PageUnpinnedException,
             PagePinnedException,
@@ -470,16 +470,18 @@ public class BufMgr implements GlobalConst {
         for (i = 0; i < numBuffers; i++)   // write all valid dirty pages to disk
             if ((all_pages != 0) || (frmeTable[i].pageNo.pid == pageid.pid)) {
 
-                while (frmeTable[i].pin_count() != 0)
-                    frmeTable[i].unpin();
-
+                /*while (frmeTable[i].pin_count() != 0)
+                    frmeTable[i].unpin();*/
+                if(frmeTable[i].pageNo.pid != INVALID_PAGE){
+                    frmeTable[i].pin_cnt = 0;
+                    frmeTable[i].dirty = true;
+                }
                 if (frmeTable[i].dirty != false) {
 
                     if (frmeTable[i].pageNo.pid == INVALID_PAGE)
 
                         throw new PageNotFoundException(null, "BUFMGR: INVALID_PAGE_NO");
                     pageid.pid = frmeTable[i].pageNo.pid;
-
 
                     Page apage = new Page(bufPool[i]);
 
@@ -494,7 +496,6 @@ public class BufMgr implements GlobalConst {
                     frmeTable[i].pageNo.pid = INVALID_PAGE; // frame is empty
                     frmeTable[i].dirty = false;
                 }
-
                 if (all_pages == 0) {
 
                     if (unpinned != 0)
@@ -508,11 +509,20 @@ public class BufMgr implements GlobalConst {
         }
     }
 
+    public void freeAllPagesFromReplacerForcibly() throws PageUnpinnedException, InvalidFrameNumberException {
+        replacer.freeAllPagesForcibly();
+        return;
+    }
+
     public void displayFrameDesc(){
         for(int i = 0; i < frmeTable.length; i++){
             System.out.println("Frame Number " + i + " isDirty: " +frmeTable[i].dirty + " PinCount " + frmeTable[i].pin_cnt);
         }
         System.out.println();
+    }
+
+    public void printReplacerInfo(){
+        replacer.info();
     }
 
     /**
@@ -570,7 +580,7 @@ public class BufMgr implements GlobalConst {
      * if emptyPage==TRUE, then actually no read is done to bring
      * the page in.
      *
-     * @param Page_Id_in_a_DB page number in the minibase.
+     * @param pin_pgid page number in the minibase.
      * @param page            the pointer poit to the page.
      * @param emptyPage       true (empty page); false (non-empty page)
      * @throws ReplacerException           if there is a replacer error.
@@ -682,7 +692,7 @@ public class BufMgr implements GlobalConst {
      * put it in a group of replacement candidates.
      * if pincount=0 before this call, return error.
      *
-     * @param globalPageId_in_a_DB page number in the minibase.
+     * @param PageId_in_a_DB page number in the minibase.
      * @param dirty                the dirty bit of the frame
      * @throws ReplacerException           if there is a replacer error.
      * @throws PageUnpinnedException       if there is a page that is already unpinned.
@@ -974,7 +984,7 @@ public class BufMgr implements GlobalConst {
             BufMgrException,
             IOException {
         PageId pageId = new PageId(INVALID_PAGE);
-        privFlushPagesyForcibly(pageId, 1);
+        privFlushPagesForcibly(pageId, 1);
     }
 
     /**

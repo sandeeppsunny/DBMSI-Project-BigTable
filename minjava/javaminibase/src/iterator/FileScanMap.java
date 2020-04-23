@@ -23,13 +23,15 @@ public class FileScanMap extends MapIterator {
     private Map Jmap;
     private CondExpr[] OutputFilter;
     public FldSpec[] perm_mat;
+    private Heapfile[] heapfiles;
+    private Scan[] scans;
+    private boolean combined;
 
 
     /**
      * constructor
      *
      * @param file_name  heapfile to be opened
-     * @param n_out_flds number of fields in the out map
      * @param proj_list  shows what input fields go where in the output map
      * @param outFilter  select expressions
      * @throws IOException         some I/O fault
@@ -39,7 +41,7 @@ public class FileScanMap extends MapIterator {
      */
     public FileScanMap(String file_name,
                        FldSpec[] proj_list,
-                       CondExpr[] outFilter
+                       CondExpr[] outFilter, boolean combined
     )
             throws IOException,
             FileScanException,
@@ -49,19 +51,45 @@ public class FileScanMap extends MapIterator {
         OutputFilter = outFilter;
         perm_mat = proj_list;
         map1 = new Map();
+        this.combined = combined;
 
-        try {
-            f = new Heapfile(file_name);
+        if(this.combined){
+            try{
+                heapfiles = new Heapfile[5];
+                heapfiles[0] = new Heapfile(file_name + "_" + 1);
+                heapfiles[1] = new Heapfile(file_name + "_" + 2);
+                heapfiles[2] = new Heapfile(file_name + "_" + 3);
+                heapfiles[3] = new Heapfile(file_name + "_" + 4);
+                heapfiles[4] = new Heapfile(file_name + "_" + 5);
+            }catch(Exception e){
+                throw new FileScanException(e, "FileScanMap.java: Create heapfile failed");
+            }
 
-        } catch (Exception e) {
-            throw new FileScanException(e, "Create new heapfile failed");
+            try{
+                scans = new Scan[5];
+                scans[0] = heapfiles[0].openScanMap();
+                scans[1] = heapfiles[1].openScanMap();
+                scans[2] = heapfiles[2].openScanMap();
+                scans[3] = heapfiles[3].openScanMap();
+                scans[4] = heapfiles[4].openScanMap();
+            }catch(Exception e){
+                throw new FileScanException(e, "FileScanMap.java: openScan() failed");
+            }
+        }else{
+            try {
+                f = new Heapfile(file_name);
+
+            } catch (Exception e) {
+                throw new FileScanException(e, "Create new heapfile failed");
+            }
+
+            try {
+                scan = f.openScanMap();
+            } catch (Exception e) {
+                throw new FileScanException(e, "openScan() failed");
+            }
         }
 
-        try {
-            scan = f.openScanMap();
-        } catch (Exception e) {
-            throw new FileScanException(e, "openScan() failed");
-        }
     }
 
     /**
@@ -95,14 +123,72 @@ public class FileScanMap extends MapIterator {
             WrongPermat {
         MID mid = new MID();
 
-        while (true) {
-            if ((map1 = scan.getNextMap(mid)) == null) {
-                return null;
+        if(this.combined){
+            while (true) {
+                if ((map1 = scans[0].getNextMap(mid)) == null) {
+                    break;
+                }
+                map1.setDefaultHdr();
+                map1.setFldOffset(map1.getMapByteArray());
+                if (PredEval.Eval(OutputFilter, map1, null, null, null) == true) {
+                    return map1;
+                }
             }
-            map1.setDefaultHdr();
-            map1.setFldOffset(map1.getMapByteArray());
-            if (PredEval.Eval(OutputFilter, map1, null, null, null) == true) {
-                return map1;
+
+            while (true) {
+                if ((map1 = scans[1].getNextMap(mid)) == null) {
+                    break;
+                }
+                map1.setDefaultHdr();
+                map1.setFldOffset(map1.getMapByteArray());
+                if (PredEval.Eval(OutputFilter, map1, null, null, null) == true) {
+                    return map1;
+                }
+            }
+
+            while (true) {
+                if ((map1 = scans[2].getNextMap(mid)) == null) {
+                    break;
+                }
+                map1.setDefaultHdr();
+                map1.setFldOffset(map1.getMapByteArray());
+                if (PredEval.Eval(OutputFilter, map1, null, null, null) == true) {
+                    return map1;
+                }
+            }
+
+            while (true) {
+                if ((map1 = scans[3].getNextMap(mid)) == null) {
+                    break;
+                }
+                map1.setDefaultHdr();
+                map1.setFldOffset(map1.getMapByteArray());
+                if (PredEval.Eval(OutputFilter, map1, null, null, null) == true) {
+                    return map1;
+                }
+            }
+
+            while (true) {
+                if ((map1 = scans[4].getNextMap(mid)) == null) {
+                    return null;
+                }
+                map1.setDefaultHdr();
+                map1.setFldOffset(map1.getMapByteArray());
+                if (PredEval.Eval(OutputFilter, map1, null, null, null) == true) {
+                    return map1;
+                }
+            }
+        }
+        else{
+            while (true) {
+                if ((map1 = scan.getNextMap(mid)) == null) {
+                    return null;
+                }
+                map1.setDefaultHdr();
+                map1.setFldOffset(map1.getMapByteArray());
+                if (PredEval.Eval(OutputFilter, map1, null, null, null) == true) {
+                    return map1;
+                }
             }
         }
     }
@@ -119,16 +205,70 @@ public class FileScanMap extends MapIterator {
             WrongPermat {
         MID mid = new MID();
 
-        while (true) {
-            if ((map1 = scan.getNextMap(mid)) == null) {
-                return null;
+        if(this.combined){
+            while (true) {
+                if ((map1 = scans[0].getNextMap(mid)) == null) {
+                    break;
+                }
+                map1.setDefaultHdr();
+                map1.setFldOffset(map1.getMapByteArray());
+                if (PredEval.Eval(OutputFilter, map1, null, null, null) == true) {
+                    return new Pair(map1, mid);
+                }
             }
-            map1.setDefaultHdr();
-            map1.setFldOffset(map1.getMapByteArray());
-            if (PredEval.Eval(OutputFilter, map1, null, null, null) == true) {
-                return new Pair(map1, mid);
+            while (true) {
+                if ((map1 = scans[1].getNextMap(mid)) == null) {
+                    break;
+                }
+                map1.setDefaultHdr();
+                map1.setFldOffset(map1.getMapByteArray());
+                if (PredEval.Eval(OutputFilter, map1, null, null, null) == true) {
+                    return new Pair(map1, mid);
+                }
+            }
+            while (true) {
+                if ((map1 = scans[2].getNextMap(mid)) == null) {
+                    break;
+                }
+                map1.setDefaultHdr();
+                map1.setFldOffset(map1.getMapByteArray());
+                if (PredEval.Eval(OutputFilter, map1, null, null, null) == true) {
+                    return new Pair(map1, mid);
+                }
+            }
+            while (true) {
+                if ((map1 = scans[3].getNextMap(mid)) == null) {
+                    break;
+                }
+                map1.setDefaultHdr();
+                map1.setFldOffset(map1.getMapByteArray());
+                if (PredEval.Eval(OutputFilter, map1, null, null, null) == true) {
+                    return new Pair(map1, mid);
+                }
+            }
+            while (true) {
+                if ((map1 = scans[4].getNextMap(mid)) == null) {
+                    return null;
+                }
+                map1.setDefaultHdr();
+                map1.setFldOffset(map1.getMapByteArray());
+                if (PredEval.Eval(OutputFilter, map1, null, null, null) == true) {
+                    return new Pair(map1, mid);
+                }
+            }
+        }else{
+            while (true) {
+                if ((map1 = scan.getNextMap(mid)) == null) {
+                    return null;
+                }
+                map1.setDefaultHdr();
+                map1.setFldOffset(map1.getMapByteArray());
+                if (PredEval.Eval(OutputFilter, map1, null, null, null) == true) {
+                    return new Pair(map1, mid);
+                }
             }
         }
+
     }
 
     /**
@@ -138,7 +278,15 @@ public class FileScanMap extends MapIterator {
     public void close() {
 
         if (!closeFlag) {
-            scan.closescan();
+            if(this.combined){
+                scans[0].closescan();
+                scans[1].closescan();
+                scans[2].closescan();
+                scans[3].closescan();
+                scans[4].closescan();
+            }else{
+                scan.closescan();
+            }
             closeFlag = true;
         }
     }

@@ -2,12 +2,9 @@ package BigT;
 
 import global.AttrOperator;
 import global.AttrType;
-import global.IndexType;
 import global.MapOrder;
-import index.MapIndexScan;
 import iterator.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,10 +17,13 @@ public class Stream {
     SortMap sortMap;
 
     CondExpr[] condExprs;
-    CondExpr[] condExprForKey;
+    CondExpr[] index_2_filter;
+    CondExpr[] index_3_filter;
+    CondExpr[] index_4_filter;
+    CondExpr[] index_5_filter;
 
-    public Stream(bigt bigtable, int orderType, String rowFilter, String columnFilter, String valueFilter, int numBuf) {
-        this.indexType = bigtable.getType();
+    public Stream(String bigtName, String indexFilename, int indexType, int orderType, String rowFilter, String columnFilter, String valueFilter, int numBuf) {
+        this.indexType = indexType;
         this.orderType = orderType;
         this.numBuf = numBuf;
         List<CondExpr> exprs = new ArrayList<CondExpr>();
@@ -38,61 +38,64 @@ public class Stream {
         }
         condExprs[i] = null;
 
-        condExprForKey = getKeyFilterForIndexType(indexType, rowFilter, columnFilter, valueFilter);
-        int keyFldNum = 1;
-        switch(indexType) {
-            case 2:
-                keyFldNum = 1;
-                break;
-            case 3:
-                keyFldNum = 2;
-                break;
-            case 4:
-                keyFldNum = 2;
-                break;
-            case 5:
-                keyFldNum = 1;
-                break;
-        }
+        index_2_filter = getKeyFilterForIndexType(2, rowFilter, columnFilter, valueFilter);
+        index_3_filter = getKeyFilterForIndexType(3, rowFilter, columnFilter, valueFilter);
+        index_4_filter = getKeyFilterForIndexType(4, rowFilter, columnFilter, valueFilter);
+        index_5_filter = getKeyFilterForIndexType(5, rowFilter, columnFilter, valueFilter);
+//        int keyFldNum = 1;
+//        switch(indexType) {
+//            case 2:
+//                keyFldNum = 1;
+//                break;
+//            case 3:
+//                keyFldNum = 2;
+//                break;
+//            case 4:
+//                keyFldNum = 2;
+//                break;
+//            case 5:
+//                keyFldNum = 1;
+//                break;
+//        }
 
         try {
             switch (indexType) {
                 case 1:
-                    mapIterator = new FileScanMap(bigtable.getName(), null, condExprs);
+                    mapIterator = new FileScanMap(bigtName, null, condExprs, true);
                     break;
                 default:
-                    AttrType[] attrType = new AttrType[4];
-                    attrType[0] = new AttrType(AttrType.attrString);
-                    attrType[1] = new AttrType(AttrType.attrString);
-                    attrType[2] = new AttrType(AttrType.attrInteger);
-                    attrType[3] = new AttrType(AttrType.attrString);
-                    short[] res_str_sizes = new short[]{Map.DEFAULT_STRING_ATTRIBUTE_SIZE,
-                            Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE};
-                    boolean flag = true;
-                    if(indexType == 2){
-                        if(rowFilter.equals("*")){
-                            flag = false;
-                        }
-                    }else if(indexType == 3){
-                        if(columnFilter.equals("*")){
-                            flag = false;
-                        }
-                    }else if(indexType == 4){
-                        if(columnFilter.equals("*")){
-                            flag = false;
-                        }
-                    }else if(indexType == 5){
-                        if(rowFilter.equals("*")){
-                            flag = false;
-                        }
-                    }
+//                    AttrType[] attrType = new AttrType[4];
+//                    attrType[0] = new AttrType(AttrType.attrString);
+//                    attrType[1] = new AttrType(AttrType.attrString);
+//                    attrType[2] = new AttrType(AttrType.attrInteger);
+//                    attrType[3] = new AttrType(AttrType.attrString);
+//                    short[] res_str_sizes = new short[]{Map.DEFAULT_STRING_ATTRIBUTE_SIZE,
+//                            Map.DEFAULT_STRING_ATTRIBUTE_SIZE, Map.DEFAULT_STRING_ATTRIBUTE_SIZE};
+//                    boolean flag = true;
+//                    if(indexType == 2){
+//                        if(rowFilter.equals("*")){
+//                            flag = false;
+//                        }
+//                    }else if(indexType == 3){
+//                        if(columnFilter.equals("*")){
+//                            flag = false;
+//                        }
+//                    }else if(indexType == 4){
+//                        if(columnFilter.equals("*")){
+//                            flag = false;
+//                        }
+//                    }else if(indexType == 5){
+//                        if(rowFilter.equals("*")){
+//                            flag = false;
+//                        }
+//                    }
 
-                    if(flag){
-                        mapIterator = new MapIndexScan(new IndexType(IndexType.B_Index), bigtable.getName(), bigtable.indexName1,
-                                attrType, res_str_sizes, 4, 4, null, condExprs, condExprForKey, keyFldNum, false);
-                    }else {
-                        mapIterator = new FileScanMap(bigtable.getName(), null, condExprs);
-                    }
+//                    if(flag){
+//                        mapIterator = new MapIndexScan(new IndexType(IndexType.B_Index), bigtName, indexFilename,
+//                                attrType, res_str_sizes, 4, 4, null, condExprs, condExprForKey, keyFldNum, false);
+//                    }else {
+                    mapIterator = new CombinedScanMap(bigtName, condExprs, index_2_filter, index_3_filter, index_4_filter, index_5_filter);
+//                    }
                     break;
             }
             sortMap = new SortMap(null, null, null, mapIterator, this.orderType, new MapOrder(MapOrder.Ascending), null, this.numBuf);

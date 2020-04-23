@@ -108,6 +108,22 @@ abstract class Replacer implements GlobalConst {
     }
 
     /**
+     * Frees and unpins a page in the buffer pool.
+     *
+     * @param frameNo frame number of the page.
+     * @throws PagePinnedException if the page is pinned.
+     */
+    public void freeAllPagesForcibly() throws PageUnpinnedException, InvalidFrameNumberException {
+        for (int i = 0; i < (mgr.frameTable()).length; i++) {
+            while ((mgr.frameTable())[i].pin_count() > 1) {
+                unpin(i);
+            }
+            (mgr.frameTable())[i].unpin();
+            state_bit[i].state = Available;
+        }
+    }
+
+    /**
      * Must pin the returned frame.
      */
     public abstract int pick_victim() throws BufferPoolExceededException, PagePinnedException;
@@ -125,27 +141,35 @@ abstract class Replacer implements GlobalConst {
         System.out.println("\nInfo:\nstate_bits:(R)eferenced | (A)vailable | (P)inned");
 
         int numBuffers = mgr.getNumBuffers();
+        int numPinned = 0;
+        int numAvaliable = 0;
+        int numReferenced = 0;
 
         for (int i = 0; i < numBuffers; ++i) {
             if (((i + 1) % 9) == 0)
-                System.out.println("\n");
-            System.out.println("(" + i + ") ");
+                System.out.print("\n");
+            System.out.print(" (" + i + ") ");
             switch (state_bit[i].state) {
                 case Referenced:
-                    System.out.println("R\t");
+                    System.out.print("R\t");
+                    numReferenced++;
                     break;
                 case Available:
-                    System.out.println("A\t");
+                    System.out.print("A\t");
+                    numAvaliable++;
                     break;
                 case Pinned:
-                    System.out.println("P\t");
+                    System.out.print("P\t");
+                    numPinned++;
                     break;
                 default:
-                    System.err.println("ERROR from Replacer.info()");
+                    System.err.print("ERROR from Replacer.info()");
                     break;
             }
         }
-
+        System.out.println("\nNumber of buffers referenced :"+numReferenced);
+        System.out.println("Number of buffers available :"+numAvaliable);
+        System.out.println("Number of buffers pinned :"+numPinned);
         System.out.println("\n\n");
 
     }
