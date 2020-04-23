@@ -49,8 +49,8 @@ public class RowJoin{
             e.printStackTrace();
         }
         try{
-            System.out.println("Records in bigt1: " + this.bigt1.getMapCnt());
-            System.out.println("Records in bigt2: " + this.bigt2.getMapCnt());
+            System.out.println("Records in outer relation: " + this.bigt1.getMapCnt());
+            System.out.println("Records in inner relation: " + this.bigt2.getMapCnt());
             this.numBuf = (int)((SystemDefs.JavabaseBM.getNumBuffers()*3)/4);
         }catch(Exception e){
             System.err.println("RowJoin.java: Error in getting the number of records in the bigtables");
@@ -60,8 +60,8 @@ public class RowJoin{
 
     public void run() throws Exception {
         buildTempHeapFiles();
-        System.out.println("Number of elements in temporary heap file1: " + this.tempHeapFile1.getRecCntMap());
-        System.out.println("Number of elements in temporary heap file2: " + this.tempHeapFile2.getRecCntMap());
+//        System.out.println("Number of elements in temporary heap file1: " + this.tempHeapFile1.getRecCntMap());
+//        System.out.println("Number of elements in temporary heap file2: " + this.tempHeapFile2.getRecCntMap());
 //        ArrayList<String[]> matchingRowlabels =  getMatchingRowLabels();
         Heapfile matchingRowlabels = getMatchingRowLabels();
         if(matchingRowlabels == null || matchingRowlabels.getRecCntMap() == 0){
