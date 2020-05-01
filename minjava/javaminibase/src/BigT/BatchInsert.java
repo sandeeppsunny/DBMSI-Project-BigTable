@@ -53,6 +53,8 @@ public class BatchInsert {
         long startTime = System.nanoTime();
         while((line=br.readLine())!=null) {
             line = line.replaceAll("[^\\x00-\\x7F]", "");
+            line = line.replaceAll("[\\s+]", "");
+            //System.out.println(line);
             i++;
             if(i%1000 == 0){
 
